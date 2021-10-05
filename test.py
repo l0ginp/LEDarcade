@@ -1,4 +1,4 @@
-import LEDArcade LED
+import LEDarcade as LED
 
 ScrollSleep = 0.05
 
