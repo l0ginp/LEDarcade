@@ -80,8 +80,6 @@ import requests
 import simplejson as json
 
 
-
-
 #--------------------------------------
 # Global Variables                   --
 #--------------------------------------
@@ -89,16 +87,87 @@ import simplejson as json
 KeyboardSpeed  = 15
 ConfigFileName = "ClockConfig.ini"
 
+MainSleep        = 0
+FlashSleep       = 0
+PacSleep         = 0.01
+ScrollSleep      = 0.03
+TinyClockStartHH = 0
+TinyClockHours   = 0
+CPUModifier      = 0
+Gamma            = 1
+ShowCrypto       = 'N'
+HatWidth         = 64
+HatHeight        = 32
+KeyboardPoll     = 10
+BrightColorCount = 27
 
 
-#--------------------------------------
-# UnicornHD Display                  --
-#--------------------------------------
 
-#HatWidth, gv.HatHeight = unicorn.get_shape()
-#unicorn.set_layout(unicorn.AUTO)
-#unicorn.rotation(180)
-#unicorn.brightness(1)
+#Initialize Matrix objects
+options = RGBMatrixOptions()
+
+options.rows       = HatHeight
+options.cols       = HatWidth
+options.brightness = 100
+#stops sparkling 
+options.gpio_slowdown = 5
+
+
+#options.chain_length = self.args.led_chain
+#options.parallel = self.args.led_parallel
+#options.row_address_type = self.args.led_row_addr_type
+#options.multiplexing = self.args.led_multiplexing
+#options.pwm_bits = self.args.led_pwm_bits
+#options.pwm_lsb_nanoseconds = self.args.led_pwm_lsb_nanoseconds
+#options.led_rgb_sequence = self.args.led_rgb_sequence
+#options.pixel_mapper_config = self.args.led_pixel_mapper
+#if self.args.led_show_refresh:
+#  options.show_refresh_rate = 1
+
+#if self.args.led_no_hardware_pulse:
+#  options.disable_hardware_pulsing = True
+
+
+#The matrix object is what is used to interact with the LED display
+TheMatrix    = RGBMatrix(options = options)
+
+#Screen array is a copy of the matrix light layout because RGBMatrix is not queryable.  
+ScreenArray  = ([[]])
+ScreenArray  = [[ (0,0,0) for i in range(HatWidth)] for i in range(HatHeight)]
+
+#Canvas is an object that we can paint to (setpixels) and then swap to the main display for a super fast update (vsync)
+Canvas = TheMatrix.CreateFrameCanvas()
+Canvas.Fill(0,0,0)
+   
+
+
+#-----------------------------
+# Timers                    --
+#-----------------------------
+
+StartTime = time.time()
+
+
+
+
+
+#Sprite display locations
+ClockH,      ClockV,      ClockRGB      = 0,0,  (0,150,0)
+DayOfWeekH,  DayOfWeekV,  DayOfWeekRGB  = 0,6,  (150,0,0)
+MonthH,      MonthV,      MonthRGB      = 0,12, (0,20,200)
+DayOfMonthH, DayOfMonthV, DayOfMonthRGB = 2,18, (100,100,0)
+CurrencyH,   CurrencyV,   CurrencyRGB   = 0,27, (0,150,0)
+
+#Sprite filler tuple
+SpriteFillerRGB = (0,4,0)
+
+
+
+
+
+
+
+
 
 
 
@@ -108,6 +177,14 @@ ConfigFileName = "ClockConfig.ini"
 #------------------------------------------------------------------------------
 # COLORS                                                                     --
 #------------------------------------------------------------------------------
+
+#This section evolved and came out of several different video games (SDColor = SpaceDotColor for example) so the
+#names are not always clear.  Obvious names are useful, use any combination you like.
+
+#There are many colors defined here
+#some as three separate values representing R,G,b
+#some as tubles (R,G,B)
+# YellowR, YellowG, YellowB would be used as  color = (YellowR, YellowG, YellowB)
 
 
 def ApplyGamma(color,TheGamma):
@@ -123,132 +200,132 @@ def ApplyGamma(color,TheGamma):
 
 
 #Yellow
-YellowR = ApplyGamma(220,gv.Gamma)
-YellowG = ApplyGamma(220,gv.Gamma)
-YellowB = ApplyGamma(0,gv.Gamma)
+YellowR = ApplyGamma(220,Gamma)
+YellowG = ApplyGamma(220,Gamma)
+YellowB = ApplyGamma(0,Gamma)
 
 #Red
-RedR = ApplyGamma(100,gv.Gamma)
-RedG = ApplyGamma(0,gv.Gamma)
-RedB = ApplyGamma(0,gv.Gamma)
+RedR = ApplyGamma(100,Gamma)
+RedG = ApplyGamma(0,Gamma)
+RedB = ApplyGamma(0,Gamma)
 
 #HighRed
-HighRedR = ApplyGamma(225,gv.Gamma)
-HighRedG = ApplyGamma(0,gv.Gamma)
-HighRedB = ApplyGamma(0,gv.Gamma)
+HighRedR = ApplyGamma(225,Gamma)
+HighRedG = ApplyGamma(0,Gamma)
+HighRedB = ApplyGamma(0,Gamma)
 
 #MedRed
-MedRedR = ApplyGamma(100,gv.Gamma)
-MedRedG = ApplyGamma(0,gv.Gamma)
-MedRedB = ApplyGamma(0,gv.Gamma)
+MedRedR = ApplyGamma(100,Gamma)
+MedRedG = ApplyGamma(0,Gamma)
+MedRedB = ApplyGamma(0,Gamma)
 
 #Orange
-OrangeR = ApplyGamma(100,gv.Gamma)
-OrangeG = ApplyGamma(50,gv.Gamma)
-OrangeB = ApplyGamma(0,gv.Gamma)
+OrangeR = ApplyGamma(100,Gamma)
+OrangeG = ApplyGamma(50,Gamma)
+OrangeB = ApplyGamma(0,Gamma)
 
 
 #Purple
-PurpleR = ApplyGamma(75,gv.Gamma)
-PurpleG = ApplyGamma(0,gv.Gamma)
-PurpleB = ApplyGamma(75,gv.Gamma)
+PurpleR = ApplyGamma(75,Gamma)
+PurpleG = ApplyGamma(0,Gamma)
+PurpleB = ApplyGamma(75,Gamma)
 
 #Green
-GreenR = ApplyGamma(0,gv.Gamma)
-GreenG = ApplyGamma(100,gv.Gamma)
-GreenB = ApplyGamma(0,gv.Gamma)
+GreenR = ApplyGamma(0,Gamma)
+GreenG = ApplyGamma(100,Gamma)
+GreenB = ApplyGamma(0,Gamma)
 
 #HighGreen
-HighGreenR = ApplyGamma(0,gv.Gamma)
-HighGreenG = ApplyGamma(225,gv.Gamma)
-HighGreenB = ApplyGamma(0,gv.Gamma)
+HighGreenR = ApplyGamma(0,Gamma)
+HighGreenG = ApplyGamma(225,Gamma)
+HighGreenB = ApplyGamma(0,Gamma)
 
 #MedGreen
-MedGreenR = ApplyGamma(0,gv.Gamma)
-MedGreenG = ApplyGamma(155,gv.Gamma)
-MedGreenB = ApplyGamma(0,gv.Gamma)
+MedGreenR = ApplyGamma(0,Gamma)
+MedGreenG = ApplyGamma(155,Gamma)
+MedGreenB = ApplyGamma(0,Gamma)
 
 #LowGreen
-LowGreenR = ApplyGamma(0,gv.Gamma)
-LowGreenG = ApplyGamma(100,gv.Gamma)
-LowGreenB = ApplyGamma(0,gv.Gamma)
+LowGreenR = ApplyGamma(0,Gamma)
+LowGreenG = ApplyGamma(100,Gamma)
+LowGreenB = ApplyGamma(0,Gamma)
 
 #DarkGreen
-DarkGreenR = ApplyGamma(0,gv.Gamma)
-DarkGreenG = ApplyGamma(45,gv.Gamma)
-DarkGreenB = ApplyGamma(0,gv.Gamma)
+DarkGreenR = ApplyGamma(0,Gamma)
+DarkGreenG = ApplyGamma(45,Gamma)
+DarkGreenB = ApplyGamma(0,Gamma)
 
 
 #Blue
-BlueR = ApplyGamma(0,gv.Gamma)
-BlueG = ApplyGamma(0,gv.Gamma)
-BlueB = ApplyGamma(100,gv.Gamma)
+BlueR = ApplyGamma(0,Gamma)
+BlueG = ApplyGamma(0,Gamma)
+BlueB = ApplyGamma(100,Gamma)
 
 #WhiteLow
-WhiteLowR = ApplyGamma(45,gv.Gamma)
-WhiteLowG = ApplyGamma(45,gv.Gamma)
-WhiteLowB = ApplyGamma(45,gv.Gamma)
+WhiteLowR = ApplyGamma(45,Gamma)
+WhiteLowG = ApplyGamma(45,Gamma)
+WhiteLowB = ApplyGamma(45,Gamma)
 
 #WhiteMed
-WhiteMedR = ApplyGamma(100,gv.Gamma)
-WhiteMedG = ApplyGamma(100,gv.Gamma)
-WhiteMedB = ApplyGamma(100,gv.Gamma)
+WhiteMedR = ApplyGamma(100,Gamma)
+WhiteMedG = ApplyGamma(100,Gamma)
+WhiteMedB = ApplyGamma(100,Gamma)
 
 #WhiteHigh
-WhiteHighR = ApplyGamma(225,gv.Gamma)
-WhiteHighG = ApplyGamma(225,gv.Gamma)
-WhiteHighB = ApplyGamma(225,gv.Gamma)
+WhiteHighR = ApplyGamma(225,Gamma)
+WhiteHighG = ApplyGamma(225,Gamma)
+WhiteHighB = ApplyGamma(225,Gamma)
 
 #Character Colors
-PacR = ApplyGamma(YellowR,gv.Gamma)
-PacG = ApplyGamma(YellowG,gv.Gamma)
-PacB = ApplyGamma(YellowB,gv.Gamma)
+PacR = ApplyGamma(YellowR,Gamma)
+PacG = ApplyGamma(YellowG,Gamma)
+PacB = ApplyGamma(YellowB,Gamma)
 
 
 #Red
-Ghost1R = ApplyGamma(150,gv.Gamma)
-Ghost1G = ApplyGamma(0,gv.Gamma)
-Ghost1B = ApplyGamma(0,gv.Gamma)
+Ghost1R = ApplyGamma(150,Gamma)
+Ghost1G = ApplyGamma(0,Gamma)
+Ghost1B = ApplyGamma(0,Gamma)
 
 #Orange
-Ghost2R = ApplyGamma(130,gv.Gamma)
-Ghost2G = ApplyGamma(75,gv.Gamma)
-Ghost2B = ApplyGamma(0,gv.Gamma)
+Ghost2R = ApplyGamma(130,Gamma)
+Ghost2G = ApplyGamma(75,Gamma)
+Ghost2B = ApplyGamma(0,Gamma)
 
 #Purple
-Ghost3R = ApplyGamma(125,gv.Gamma)
-Ghost3G = ApplyGamma(0,gv.Gamma)
-Ghost3B = ApplyGamma(125,gv.Gamma)
+Ghost3R = ApplyGamma(125,Gamma)
+Ghost3G = ApplyGamma(0,Gamma)
+Ghost3B = ApplyGamma(125,Gamma)
 
 #LightBlue
-Ghost4R = ApplyGamma(0,gv.Gamma)
-Ghost4G = ApplyGamma(150,gv.Gamma)
-Ghost4B = ApplyGamma(150,gv.Gamma)
+Ghost4R = ApplyGamma(0,Gamma)
+Ghost4G = ApplyGamma(150,Gamma)
+Ghost4B = ApplyGamma(150,Gamma)
 
 
 #Dots
-DotR = ApplyGamma(95,gv.Gamma)
-DotG = ApplyGamma(95,gv.Gamma)
-DotB = ApplyGamma(95,gv.Gamma)
+DotR = ApplyGamma(95,Gamma)
+DotG = ApplyGamma(95,Gamma)
+DotB = ApplyGamma(95,Gamma)
 
 DotRGB = (DotR,DotG,DotB)
 
 #Wall
-WallR = ApplyGamma(10,gv.Gamma)
-WallG = ApplyGamma(10,gv.Gamma)
-WallB = ApplyGamma(100,gv.Gamma)
+WallR = ApplyGamma(10,Gamma)
+WallG = ApplyGamma(10,Gamma)
+WallB = ApplyGamma(100,Gamma)
 
 WallRGB = (WallR,WallG,WallB)
 
 
 #PowerPills
-PillR = ApplyGamma(0,gv.Gamma)
-PillG = ApplyGamma(200,gv.Gamma)
-PillB = ApplyGamma(0,gv.Gamma)
+PillR = ApplyGamma(0,Gamma)
+PillG = ApplyGamma(200,Gamma)
+PillB = ApplyGamma(0,Gamma)
 
-BlueGhostR = ApplyGamma(0,gv.Gamma)
-BlueGhostG = ApplyGamma(0,gv.Gamma)
-BlueGhostB = ApplyGamma(200,gv.Gamma)
+BlueGhostR = ApplyGamma(0,Gamma)
+BlueGhostG = ApplyGamma(0,Gamma)
+BlueGhostB = ApplyGamma(200,Gamma)
 
 
 
@@ -256,26 +333,26 @@ BlueGhostB = ApplyGamma(200,gv.Gamma)
 
 
 #HighRed
-SDHighRedR = ApplyGamma(255,gv.Gamma)
-SDHighRedG = ApplyGamma(0,gv.Gamma)
-SDHighRedB = ApplyGamma(0,gv.Gamma)
+SDHighRedR = ApplyGamma(255,Gamma)
+SDHighRedG = ApplyGamma(0,Gamma)
+SDHighRedB = ApplyGamma(0,Gamma)
 
 
 #MedRed
-SDMedRedR = ApplyGamma(175,gv.Gamma)
-SDMedRedG = ApplyGamma(0,gv.Gamma)
-SDMedRedB = ApplyGamma(0,gv.Gamma)
+SDMedRedR = ApplyGamma(175,Gamma)
+SDMedRedG = ApplyGamma(0,Gamma)
+SDMedRedB = ApplyGamma(0,Gamma)
 
 
 #LowRed
-SDLowRedR = ApplyGamma(100,gv.Gamma)
-SDLowRedG = ApplyGamma(0,gv.Gamma)
-SDLowRedB = ApplyGamma(0,gv.Gamma)
+SDLowRedR = ApplyGamma(100,Gamma)
+SDLowRedG = ApplyGamma(0,Gamma)
+SDLowRedB = ApplyGamma(0,Gamma)
 
 #DarkRed
-SDDarkRedR = ApplyGamma(45,gv.Gamma)
-SDDarkRedG = ApplyGamma(0,gv.Gamma)
-SDDarkRedB = ApplyGamma(0,gv.Gamma)
+SDDarkRedR = ApplyGamma(45,Gamma)
+SDDarkRedG = ApplyGamma(0,Gamma)
+SDDarkRedB = ApplyGamma(0,Gamma)
 
 # Red RGB Tuples
 HighRed = (SDHighRedR,SDHighRedG,SDHighRedB)
@@ -286,24 +363,24 @@ ShadowRed = (25,0,0)
 
 
 #HighOrange
-SDHighOrangeR = ApplyGamma(255,gv.Gamma)
-SDHighOrangeG = ApplyGamma(128,gv.Gamma)
-SDHighOrangeB = ApplyGamma(0,gv.Gamma)
+SDHighOrangeR = ApplyGamma(255,Gamma)
+SDHighOrangeG = ApplyGamma(128,Gamma)
+SDHighOrangeB = ApplyGamma(0,Gamma)
 
 #MedOrange
-SDMedOrangeR = ApplyGamma(200,gv.Gamma)
-SDMedOrangeG = ApplyGamma(100,gv.Gamma)
-SDMedOrangeB = ApplyGamma(0,gv.Gamma)
+SDMedOrangeR = ApplyGamma(200,Gamma)
+SDMedOrangeG = ApplyGamma(100,Gamma)
+SDMedOrangeB = ApplyGamma(0,Gamma)
 
 #LowOrange
-SDLowOrangeR = ApplyGamma(155,gv.Gamma)
-SDLowOrangeG = ApplyGamma(75,gv.Gamma)
-SDLowOrangeB = ApplyGamma(0,gv.Gamma)
+SDLowOrangeR = ApplyGamma(155,Gamma)
+SDLowOrangeG = ApplyGamma(75,Gamma)
+SDLowOrangeB = ApplyGamma(0,Gamma)
 
 #DarkOrange
-SDDarkOrangeR = ApplyGamma(100,gv.Gamma)
-SDDarkOrangeG = ApplyGamma(45,gv.Gamma)
-SDDarkOrangeB = ApplyGamma(0,gv.Gamma)
+SDDarkOrangeR = ApplyGamma(100,Gamma)
+SDDarkOrangeG = ApplyGamma(45,Gamma)
+SDDarkOrangeB = ApplyGamma(0,Gamma)
 
 HighOrange = (SDHighOrangeR,SDHighOrangeG,SDHighOrangeB)
 MedOrange  = (SDMedOrangeR, SDMedOrangeG, SDMedOrangeB)
@@ -318,25 +395,25 @@ ShadowOrange = (50,20,0)
 
 
 #SDHighPurple
-SDHighPurpleR = ApplyGamma(230,gv.Gamma)
-SDHighPurpleG = ApplyGamma(0,gv.Gamma)
-SDHighPurpleB = ApplyGamma(255,gv.Gamma)
+SDHighPurpleR = ApplyGamma(230,Gamma)
+SDHighPurpleG = ApplyGamma(0,Gamma)
+SDHighPurpleB = ApplyGamma(255,Gamma)
 
 #MedPurple
-SDMedPurpleR = ApplyGamma(105,gv.Gamma)
-SDMedPurpleG = ApplyGamma(0,gv.Gamma)
-SDMedPurpleB = ApplyGamma(155,gv.Gamma)
+SDMedPurpleR = ApplyGamma(105,Gamma)
+SDMedPurpleG = ApplyGamma(0,Gamma)
+SDMedPurpleB = ApplyGamma(155,Gamma)
 
 #SDLowPurple
-SDLowPurpleR = ApplyGamma(75,gv.Gamma)
-SDLowPurpleG = ApplyGamma(0,gv.Gamma)
-SDLowPurpleB = ApplyGamma(120,gv.Gamma)
+SDLowPurpleR = ApplyGamma(75,Gamma)
+SDLowPurpleG = ApplyGamma(0,Gamma)
+SDLowPurpleB = ApplyGamma(120,Gamma)
 
 
 #SDDarkPurple
-SDDarkPurpleR = ApplyGamma(45,gv.Gamma)
-SDDarkPurpleG = ApplyGamma(0,gv.Gamma)
-SDDarkPurpleB = ApplyGamma(45,gv.Gamma)
+SDDarkPurpleR = ApplyGamma(45,Gamma)
+SDDarkPurpleG = ApplyGamma(0,Gamma)
+SDDarkPurpleB = ApplyGamma(45,Gamma)
 
 # Purple RGB Tuples
 HighPurple = (SDHighPurpleR,SDHighPurpleG,SDHighPurpleB)
@@ -350,24 +427,24 @@ ShadowPurple = (25,0,25)
 
 
 #HighGreen
-SDHighGreenR = ApplyGamma(0,gv.Gamma)
-SDHighGreenG = ApplyGamma(255,gv.Gamma)
-SDHighGreenB = ApplyGamma(0,gv.Gamma)
+SDHighGreenR = ApplyGamma(0,Gamma)
+SDHighGreenG = ApplyGamma(255,Gamma)
+SDHighGreenB = ApplyGamma(0,Gamma)
 
 #MedGreen
-SDMedGreenR = ApplyGamma(0,gv.Gamma)
-SDMedGreenG = ApplyGamma(200,gv.Gamma)
-SDMedGreenB = ApplyGamma(0,gv.Gamma)
+SDMedGreenR = ApplyGamma(0,Gamma)
+SDMedGreenG = ApplyGamma(200,Gamma)
+SDMedGreenB = ApplyGamma(0,Gamma)
 
 #LowGreen
-SDLowGreenR = ApplyGamma(0,gv.Gamma)
-SDLowGreenG = ApplyGamma(100,gv.Gamma)
-SDLowGreenB = ApplyGamma(0,gv.Gamma)
+SDLowGreenR = ApplyGamma(0,Gamma)
+SDLowGreenG = ApplyGamma(100,Gamma)
+SDLowGreenB = ApplyGamma(0,Gamma)
 
 #DarkGreen
-SDDarkGreenR = ApplyGamma(0,gv.Gamma)
-SDDarkGreenG = ApplyGamma(45,gv.Gamma)
-SDDarkGreenB = ApplyGamma(0,gv.Gamma)
+SDDarkGreenR = ApplyGamma(0,Gamma)
+SDDarkGreenG = ApplyGamma(45,Gamma)
+SDDarkGreenB = ApplyGamma(0,Gamma)
 
 #Green tuples
 HighGreen = (SDHighGreenR,SDHighGreenG,SDHighGreenB)
@@ -380,25 +457,25 @@ ShadowGreen = (0,35,0)
 
 
 #HighBlue
-SDHighBlueR = ApplyGamma(0,gv.Gamma)
-SDHighBlueG = ApplyGamma(0,gv.Gamma)
-SDHighBlueB = ApplyGamma(255,gv.Gamma)
+SDHighBlueR = ApplyGamma(0,Gamma)
+SDHighBlueG = ApplyGamma(0,Gamma)
+SDHighBlueB = ApplyGamma(255,Gamma)
 
 
 #MedBlue
-SDMedBlueR = ApplyGamma(0,gv.Gamma)
-SDMedBlueG = ApplyGamma(0,gv.Gamma)
-SDMedBlueB = ApplyGamma(175,gv.Gamma)
+SDMedBlueR = ApplyGamma(0,Gamma)
+SDMedBlueG = ApplyGamma(0,Gamma)
+SDMedBlueB = ApplyGamma(175,Gamma)
 
 #LowBlue
-SDLowBlueR = ApplyGamma(0,gv.Gamma)
-SDLowBlueG = ApplyGamma(0,gv.Gamma)
-SDLowBlueB = ApplyGamma(100,gv.Gamma)
+SDLowBlueR = ApplyGamma(0,Gamma)
+SDLowBlueG = ApplyGamma(0,Gamma)
+SDLowBlueB = ApplyGamma(100,Gamma)
 
 #DarkBlue
-SDDarkBlueR = ApplyGamma(0,gv.Gamma)
-SDDarkBlueG = ApplyGamma(0,gv.Gamma)
-SDDarkBlueB = ApplyGamma(45,gv.Gamma)
+SDDarkBlueR = ApplyGamma(0,Gamma)
+SDDarkBlueG = ApplyGamma(0,Gamma)
+SDDarkBlueB = ApplyGamma(45,Gamma)
 
 
 # Blue RGB Tuples
@@ -409,32 +486,30 @@ DarkBlue = (SDHighBlueR,SDHighBlueG,SDHighBlueB)
 ShadowBlue = (0,0,25)
 
 
-
-
 #WhiteMax
-SDMaxWhiteR = ApplyGamma(255,gv.Gamma)
-SDMaxWhiteG = ApplyGamma(255,gv.Gamma)
-SDMaxWhiteB = ApplyGamma(255,gv.Gamma)
+SDMaxWhiteR = ApplyGamma(255,Gamma)
+SDMaxWhiteG = ApplyGamma(255,Gamma)
+SDMaxWhiteB = ApplyGamma(255,Gamma)
 
 #WhiteHigh
-SDHighWhiteR = ApplyGamma(255,gv.Gamma)
-SDHighWhiteG = ApplyGamma(255,gv.Gamma)
-SDHighWhiteB = ApplyGamma(255,gv.Gamma)
+SDHighWhiteR = ApplyGamma(255,Gamma)
+SDHighWhiteG = ApplyGamma(255,Gamma)
+SDHighWhiteB = ApplyGamma(255,Gamma)
 
 #WhiteMed
-SDMedWhiteR = ApplyGamma(150,gv.Gamma)
-SDMedWhiteG = ApplyGamma(150,gv.Gamma)
-SDMedWhiteB = ApplyGamma(150,gv.Gamma)
+SDMedWhiteR = ApplyGamma(150,Gamma)
+SDMedWhiteG = ApplyGamma(150,Gamma)
+SDMedWhiteB = ApplyGamma(150,Gamma)
 
 #WhiteLow
-SDLowWhiteR = ApplyGamma(100,gv.Gamma)
-SDLowWhiteG = ApplyGamma(100,gv.Gamma)
-SDLowWhiteB = ApplyGamma(100,gv.Gamma)
+SDLowWhiteR = ApplyGamma(100,Gamma)
+SDLowWhiteG = ApplyGamma(100,Gamma)
+SDLowWhiteB = ApplyGamma(100,Gamma)
 
 #WhiteDark
-SDDarkWhiteR = ApplyGamma(35,gv.Gamma)
-SDDarkWhiteG = ApplyGamma(35,gv.Gamma)
-SDDarkWhiteB = ApplyGamma(35,gv.Gamma)
+SDDarkWhiteR = ApplyGamma(35,Gamma)
+SDDarkWhiteG = ApplyGamma(35,Gamma)
+SDDarkWhiteB = ApplyGamma(35,Gamma)
 
 
 # White RGB Tuples
@@ -447,31 +522,31 @@ ShadowWhite = (15,15,15)
 
 
 #YellowMax
-SDMaxYellowR = ApplyGamma(255,gv.Gamma)
-SDMaxYellowG = ApplyGamma(255,gv.Gamma)
-SDMaxYellowB = ApplyGamma(0,gv.Gamma)
+SDMaxYellowR = ApplyGamma(255,Gamma)
+SDMaxYellowG = ApplyGamma(255,Gamma)
+SDMaxYellowB = ApplyGamma(0,Gamma)
 
 
 #YellowHigh
-SDHighYellowR = ApplyGamma(215,gv.Gamma)
-SDHighYellowG = ApplyGamma(215,gv.Gamma)
-SDHighYellowB = ApplyGamma(0,gv.Gamma)
+SDHighYellowR = ApplyGamma(215,Gamma)
+SDHighYellowG = ApplyGamma(215,Gamma)
+SDHighYellowB = ApplyGamma(0,Gamma)
 
 #YellowMed
-SDMedYellowR = ApplyGamma(175,gv.Gamma)
-SDMedYellowG = ApplyGamma(175,gv.Gamma)
-SDMedYellowB = ApplyGamma(0,gv.Gamma)
+SDMedYellowR = ApplyGamma(175,Gamma)
+SDMedYellowG = ApplyGamma(175,Gamma)
+SDMedYellowB = ApplyGamma(0,Gamma)
 
 #YellowLow
-SDLowYellowR = ApplyGamma(100,gv.Gamma)
-SDLowYellowG = ApplyGamma(100,gv.Gamma)
-SDLowYellowB = ApplyGamma(0,gv.Gamma)
+SDLowYellowR = ApplyGamma(100,Gamma)
+SDLowYellowG = ApplyGamma(100,Gamma)
+SDLowYellowB = ApplyGamma(0,Gamma)
 
 
 #YellowDark
-SDDarkYellowR = ApplyGamma(55,gv.Gamma)
-SDDarkYellowG = ApplyGamma(55,gv.Gamma)
-SDDarkYellowB = ApplyGamma(0,gv.Gamma)
+SDDarkYellowR = ApplyGamma(55,Gamma)
+SDDarkYellowG = ApplyGamma(55,Gamma)
+SDDarkYellowB = ApplyGamma(0,Gamma)
 
 
 # Yellow RGB Tuples
@@ -484,25 +559,25 @@ ShadowYellow = (30,30,0)
 
 
 #Pink
-SDMaxPinkR = ApplyGamma(155,gv.Gamma)
-SDMaxPinkG = ApplyGamma(0,gv.Gamma)
-SDMaxPinkB = ApplyGamma(130,gv.Gamma)
+SDMaxPinkR = ApplyGamma(155,Gamma)
+SDMaxPinkG = ApplyGamma(0,Gamma)
+SDMaxPinkB = ApplyGamma(130,Gamma)
 
-SDHighPinkR = ApplyGamma(130,gv.Gamma)
-SDHighPinkG = ApplyGamma(0,gv.Gamma)
-SDHighPinkB = ApplyGamma(105,gv.Gamma)
+SDHighPinkR = ApplyGamma(130,Gamma)
+SDHighPinkG = ApplyGamma(0,Gamma)
+SDHighPinkB = ApplyGamma(105,Gamma)
 
-SDMedPinkR = ApplyGamma(100,gv.Gamma)
-SDMedPinkG = ApplyGamma(0,gv.Gamma)
-SDMedPinkB = ApplyGamma(75,gv.Gamma)
+SDMedPinkR = ApplyGamma(100,Gamma)
+SDMedPinkG = ApplyGamma(0,Gamma)
+SDMedPinkB = ApplyGamma(75,Gamma)
 
-SDLowPinkR = ApplyGamma(75,gv.Gamma)
-SDLowPinkG = ApplyGamma(0,gv.Gamma)
-SDLowPinkB = ApplyGamma(50,gv.Gamma)
+SDLowPinkR = ApplyGamma(75,Gamma)
+SDLowPinkG = ApplyGamma(0,Gamma)
+SDLowPinkB = ApplyGamma(50,Gamma)
 
-SDDarkPinkR = ApplyGamma(45,gv.Gamma)
-SDDarkPinkG = ApplyGamma(0,gv.Gamma)
-SDDarkPinkB = ApplyGamma(50,gv.Gamma)
+SDDarkPinkR = ApplyGamma(45,Gamma)
+SDDarkPinkG = ApplyGamma(0,Gamma)
+SDDarkPinkB = ApplyGamma(50,Gamma)
 
 
 # Pink RGB Tuples
@@ -515,25 +590,25 @@ ShadowPink = (22,0,25)
 
 
 #Cyan
-SDMaxCyanR = ApplyGamma(0,gv.Gamma)
-SDMaxCyanG = ApplyGamma(255,gv.Gamma)
-SDMaxCyanB = ApplyGamma(255,gv.Gamma)
+SDMaxCyanR = ApplyGamma(0,Gamma)
+SDMaxCyanG = ApplyGamma(255,Gamma)
+SDMaxCyanB = ApplyGamma(255,Gamma)
 
-SDHighCyanR = ApplyGamma(0,gv.Gamma)
-SDHighCyanG = ApplyGamma(150,gv.Gamma)
-SDHighCyanB = ApplyGamma(150,gv.Gamma)
+SDHighCyanR = ApplyGamma(0,Gamma)
+SDHighCyanG = ApplyGamma(150,Gamma)
+SDHighCyanB = ApplyGamma(150,Gamma)
 
-SDMedCyanR = ApplyGamma(0,gv.Gamma)
-SDMedCyanG = ApplyGamma(100,gv.Gamma)
-SDMedCyanB = ApplyGamma(100,gv.Gamma)
+SDMedCyanR = ApplyGamma(0,Gamma)
+SDMedCyanG = ApplyGamma(100,Gamma)
+SDMedCyanB = ApplyGamma(100,Gamma)
 
-SDLowCyanR = ApplyGamma(0,gv.Gamma)
-SDLowCyanG = ApplyGamma(75,gv.Gamma)
-SDLowCyanB = ApplyGamma(75,gv.Gamma)
+SDLowCyanR = ApplyGamma(0,Gamma)
+SDLowCyanG = ApplyGamma(75,Gamma)
+SDLowCyanB = ApplyGamma(75,Gamma)
 
-SDDarkCyanR = ApplyGamma(0,gv.Gamma)
-SDDarkCyanG = ApplyGamma(50,gv.Gamma)
-SDDarkCyanB = ApplyGamma(50,gv.Gamma)
+SDDarkCyanR = ApplyGamma(0,Gamma)
+SDDarkCyanG = ApplyGamma(50,Gamma)
+SDDarkCyanB = ApplyGamma(50,Gamma)
 
 # Cyan RGB Tuples
 MaxCyan  = (SDMaxCyanR,SDMaxCyanG,SDMaxCyanB)
@@ -726,7 +801,7 @@ BrightColorList.append((SDMaxCyanR,SDMaxCyanG,SDMaxCyanB))
 
 
 
-# def ApplyGamma(r,g,b,gv.Gamma):
+# def ApplyGamma(r,g,b,Gamma):
   # NewR = r * Gamma
   # NewG = g * Gamma
   # NewB = b * Gamma
@@ -740,7 +815,7 @@ BrightColorList.append((SDMaxCyanR,SDMaxCyanG,SDMaxCyanB))
 # if (Gamma > 1):
   # for index in range(1,38):
     # r,g,b = ColorList[index]
-    # r,g,b = ApplyGamma(r,g,b,gv.Gamma)
+    # r,g,b = ApplyGamma(r,g,b,Gamma)
     # ColorList[index] = r,g,b
 
 
@@ -753,13 +828,17 @@ BrightColorList.append((SDMaxCyanR,SDMaxCyanG,SDMaxCyanB))
 #------------------------------------------------------------------------------
 
 def ClearBigLED():
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
 
 
 def ClearBuffers():
-  gv.ScreenArray  = [[]]
-  gv.ScreenArray  = [[ (0,0,0) for i in range(gv.HatWidth)] for i in range(gv.HatHeight)]
-  gv.Canvas.Clear()
+  global ScreenArray
+
+  print(ScreenArray)
+
+  ScreenArray  = [[]]
+  ScreenArray  = [[ (0,0,0) for i in range(HatWidth)] for i in range(HatHeight)]
+  Canvas.Clear()
 
 
 
@@ -785,8 +864,8 @@ def setpixels(TheBuffer):
   #Copy our old buffer to the new LED buffer.  This will be replaced.
   #ScreenArray = TheBuffer
 
-  for y in range (gv.HatHeight):
-    for x in range (gv.HatWidth):
+  for y in range (HatHeight):
+    for x in range (HatWidth):
       r,g,b = TheBuffer[y][x]
       setpixel(x,y,r,g,b)
 
@@ -797,8 +876,8 @@ def setpixelsWithClock(TheBuffer,ClockSprite,h,v):
   x = 0
   y = 0
 
-  for y in range (gv.HatHeight):
-    for x in range (gv.HatWidth):
+  for y in range (HatHeight):
+    for x in range (HatWidth):
       if (x >= h and x <= h+ClockSprite.width) and (y >= v and y <= v+ClockSprite.height):
         r = ClockSprite.r
         g = ClockSprite.g
@@ -815,26 +894,26 @@ def setpixelsWithClock(TheBuffer,ClockSprite,h,v):
 def setpixel(x, y, r, g, b):
 
   if (CheckBoundary(x,y) == 0):
-    gv.TheMatrix.SetPixel(x,y,r,g,b)
-    gv.ScreenArray[y][x] = (r,g,b)
+    TheMatrix.SetPixel(x,y,r,g,b)
+    ScreenArray[y][x] = (r,g,b)
 
     
 def setpixelRGB(x, y, RGB):
   r,g,b = RGB
   if (CheckBoundary(x,y) == 0):
-    gv.TheMatrix.SetPixel(x,y,r,g,b)
-    gv.ScreenArray[y][x] = (r,g,b)
+    TheMatrix.SetPixel(x,y,r,g,b)
+    ScreenArray[y][x] = (r,g,b)
     
 
 def setpixelsLED(TheBuffer):
   x = 0
   y = 0
 
-  for y in range (gv.HatHeight):
-    for x in range (gv.HatWidth):
+  for y in range (HatHeight):
+    for x in range (HatWidth):
       
       r,g,b = TheBuffer[y][x]
-      gv.TheMatrix.SetPixel(x,y,r,g,b)
+      TheMatrix.SetPixel(x,y,r,g,b)
 
 
 
@@ -845,18 +924,18 @@ def getpixel(h,v):
   g = 0
   b = 0
   #r,g,b = unicorn.get_pixel(abs(15-h),v)
-  r,g,b = gv.ScreenArray[v][h]
+  r,g,b = ScreenArray[v][h]
   #print("Get pixel HV RGB:",h,v,"-",r,g,b)
   return r,g,b      
 
 
 def ShowScreenArray():
-  for h in range (0,gv.HatWidth):
-    for v in range (0,gv.HatHeight):
-      r,g,b = gv.ScreenArray[v][h]
+  for h in range (0,HatWidth):
+    for v in range (0,HatHeight):
+      r,g,b = ScreenArray[v][h]
       if (r + g + b > 0):
         #FlashDot(h,v,0.005)
-        gv.TheMatrix.SetPixel(h,v,0,0,220)
+        TheMatrix.SetPixel(h,v,0,0,220)
         time.sleep(0.0)
         
 
@@ -882,144 +961,6 @@ def ClockTimer(seconds):
   
   
   
-  
-  
-  
-class Maze(object):
-  def __init__(self, h,v, width, height):
-    self.h         = h
-    self.v         = v
-    self.width     = width
-    self.height    = height
-    self.ColorList = {}
-    self.TypeList  = {}
-    self.map       = []
-    self.StartHV   = []   #Start positions for creatures (e.g. ghosts, pacdot)
-    
-
-                 
-  def LoadMap(self):
-    mapchar = ""
-    RGB     = (0,0,0)
-    dottype = ""
-    NumDots = 0
-    r       = 0
-    g       = 0
-    b       = 0
-
-
-    for y in range (0,self.height):
-      print ("PacMaze.map[",y,"] =",self.map[y])
-
-
-    #read the map string and process one character at a time
-    #decode the color and type of dot to place
-    for y in range (0,self.height):
-      for x in range (0,self.width):
-        mapchar = self.map[y][x]
-        RGB     =  self.ColorList.get(mapchar)
-        dottype =  self.TypeList.get(mapchar)
-        setpixelRGB(self.h+x,self.v+y,RGB)
-        #print ("RGB",RGB)
-        r,g,b = RGB
-        
-
-        if (dottype == "dot"):
-          NumDots = NumDots + 1
-          gv.DotMatrix[self.h + x][self.v + y] = 1
-          #FlashDot5(self.h + x,self.v + y,0.01)
-        elif (dottype == "pill"):
-          NumDots = NumDots + 1
-          gv.DotMatrix[self.h + x][self.v + y] = 2
-          #FlashDot5(self.h + x,self.v + y,0.01)
-
-      
-    return gv.DotMatrix, NumDots;  
-
-  def GetStartingPositions(self):
-    #Start pacdot in middle of bottom row, ghosts in middle
-    PacHV = (0,0)
-    Ghost1HV = (0,0)
-    Ghost2HV = (0,0)
-    Ghost3HV = (0,0)
-    Ghost4HV = (0,0)
-
-    PacHV    = self.h + (self.width // 2)   , self.v + (self.height   -2),
-    Ghost1HV = self.h + (self.width // 2) -2, self.v + (self.height // 2),
-    Ghost2HV = self.h + (self.width // 2) -1, self.v + (self.height // 2),
-    Ghost3HV = self.h + (self.width // 2)   , self.v + (self.height // 2),
-    Ghost4HV = self.h + (self.width // 2) +1, self.v + (self.height // 2)
-
-    #print (PacHV)
-
-    return (PacHV, Ghost1HV,Ghost2HV,Ghost3HV,Ghost4HV)
-           
-      
-    
-
-
-  
-
-
-
-
-
-
-
-
-class TextMap(object):
-  #A text map is a series of same length strings that are used to visually layout a map
-  def __init__(self, h,v, width, height):
-    self.h         = h
-    self.v         = v
-    self.width     = width
-    self.height    = height
-    self.ColorList = {}
-    self.TypeList  = {}
-    self.map       = []
-
-
-
-  def CopyMapToColorSprite(self):
-    mapchar = ""
-    RGB     = (0,0,0)
-    dottype = ""
-    NumDots = 0
-
-    #read the map string and process one character at a time
-    #decode the color and type of dot to place
-    for y in range (0,self.height):
-      print ("PacMaze.map[",y,"] =",self.map[y])
-      for x in range (0,self.width):
-        mapchar = self.map[y][x]
-        RGB     =  self.ColorList.get(mapchar)
-        dottype =  self.TypeList.get(mapchar)
-        setpixelRGB(self.h+x,self.v+y,RGB)
-        #print ("RGB",RGB)
-        if (dottype == "dot"):
-          NumDots = NumDots + 1
-          gv.DotMatrix[self.h + x][self.v + y] = 1
-          #FlashDot5(self.h + x,self.v + y,0.01)
-        elif (dottype == "pill"):
-          NumDots = NumDots + 1
-          gv.DotMatrix[self.h + x][self.v + y] = 2
-          #FlashDot5(self.h + x,self.v + y,0.01)
-      
-    return gv.DotMatrix, NumDots;  
-
-
-
-    
-
-                 
-
-
-
-
-
-
-
-
 
 
 
@@ -1051,12 +992,12 @@ class Sprite(object):
       
       if self.grid[count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+          TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
       elif self.grid[count] == 0:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
     #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+    #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
 
 
@@ -1069,7 +1010,7 @@ class Sprite(object):
       #print("Count:",count,"xy",x,y)
       if self.grid[count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+          TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
     #unicorn.show()
 
 
@@ -1083,10 +1024,10 @@ class Sprite(object):
       #print("Count:",count,"xy",x,y)
       if self.grid[count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+          TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
       elif self.grid[count] == 0:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
     #unicorn.show()
     
     
@@ -1102,8 +1043,8 @@ class Sprite(object):
       #print("Count:",count,"xy",x,y)
       if self.grid[count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          #gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          #TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
 
     
   def Erase(self,h1,v1):
@@ -1116,7 +1057,7 @@ class Sprite(object):
       y,x = divmod(count,self.width)
       if self.grid[count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
 
   def HorizontalFlip(self):
     x = 0
@@ -1156,13 +1097,13 @@ class Sprite(object):
         if count >= 1:
           oldh = h - modifier
           #print ("Scroll:",self.width, self.height, self.r, self.g, self.b,h,v)
-          #gv.TheMatrix.Clear()
+          #TheMatrix.Clear()
           self.Erase(oldh,v)  
 
         #draw new sprite
         self.Display(h,v)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
 
         #Check for keyboard input
@@ -1183,7 +1124,7 @@ class Sprite(object):
         #draw new sprite
         self.Display(h,v)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
         #Check for keyboard input
         r = random.randint(0,5)
@@ -1197,11 +1138,11 @@ class Sprite(object):
     #print ("--ScrollAcrossScreen--")
     #print ("width height",self.width,self.height)
     if (direction == "right"):
-      self.Scroll((0- self.width),v,"right",(gv.HatWidth + self.width),ScrollSleep)
+      self.Scroll((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Scroll(gv.HatWidth-1,v,"left",(gv.HatWidth + self.width),ScrollSleep)
+      self.Scroll(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Scroll(h,gv.HatWidth-1,"left",(gv.HatWidth + self.height),ScrollSleep)
+      self.Scroll(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
   def DisplayNoBlack(self,h1,v1):
@@ -1213,7 +1154,7 @@ class Sprite(object):
       y,x = divmod(count,self.width)
       if (CheckBoundary(x+h1,y+v1) == 0):
         if (not(self.r == 0 and self.g == 0 and self.b == 0)):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+          TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
     
 
 
@@ -1250,7 +1191,7 @@ class Sprite(object):
         #draw new sprite
         self.Display(h,v)
         #unicorn.show() 
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
 
       #Check for keyboard input
@@ -1261,1227 +1202,13 @@ class Sprite(object):
   
   def FloatAcrossScreen(self,h,v,direction,ScrollSleep):
     if (direction == "right"):
-      self.Float((0- self.width),v,"right",(gv.HatWidth + self.width),ScrollSleep)
+      self.Float((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Float(gv.HatWidth-1,v,"left",(gv.HatWidth + self.width),ScrollSleep)
+      self.Float(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Float(h,gv.HatWidth-1,"left",(gv.HatWidth + self.height),ScrollSleep)
+      self.Float(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
-
-
-
-#--------------------------------------
-# Armada                             --
-#--------------------------------------
-
-
-#Asteroids
-WaveStartV           = -5
-WaveMinSpeed         = 5     #The fastest the wave of asteroids can fall
-WaveSpeedRange       = 40    #how much variance in the wave speed min and max
-AsteroidMinSpeed     = 80    #lower the number the faster the movement (based on ticks)
-AsteroidMaxSpeed     = 120  
-AsteroidSpawnChance  = 100   #lower the number the greater the chance
-AsteroidsToDrop      = 1     #Number of asteroids to drop at a time
-MaxAsteroidsInWave         = 200
-MinAsteroidsInWave         = 1
-
-
-
-class AsteroidWave(object):
-
-  def __init__(
-    self,
-    AsteroidCount    = gv.AsteroidsInWaveMin,
-    AsteroidMinSpeed = gv.AsteroidMinSpeed,
-    AsteroidMaxSpeed = gv.AsteroidMaxSpeed
-    ):
-
-    self.AsteroidCount      = AsteroidCount
-    self.AsteroidMinSpeed   = gv.AsteroidMinSpeed
-    self.AsteroidMaxSpeed   = gv.AsteroidMaxSpeed
-    self.Asteroids          = []
-    self.TotalDropped       = 0
-    self.TotalAlive         = 0
-    self.Alive              = True
-    self.WaveCount          = 1
-    self.WaveDropSpeed      = gv.WaveDropSpeed
-
-
-    self.Explosion = ColorAnimatedSprite(
-      h      = 0 , 
-      v      = 0, 
-      name   = 'Debris',
-      width  = 3, 
-      height = 1,
-      frames = 7,
-      currentframe = 0,
-      framerate    = 50,
-      grid=[]
-    )
-
-    self.Explosion.grid.append(      [        0,45, 0      ]    )
-    self.Explosion.grid.append(      [       45,20,45      ]    )
-    self.Explosion.grid.append(      [       20,20,20      ]    )
-    self.Explosion.grid.append(      [        8, 8, 8      ]    )
-    self.Explosion.grid.append(      [        8, 6, 8      ]    )
-    self.Explosion.grid.append(      [        6, 5, 6      ]    )
-    self.Explosion.grid.append(      [        5, 5, 5      ]    )
-
-
-
-  def CreateAsteroidWave(self):
-      #Make an wave of asteroids
-      r,g,b = BrightColorList[random.randint(1,27)]
-
-      self.Asteroids = []      
-
-      print("--Create Asteroids:",self.AsteroidCount," RGB:",r,g,b)
-      for i in range(0,self.AsteroidCount):
-        print ("Asteroid:",i)
-        self.Asteroids.append(Ship(
-          h = -1,
-          v = -1,
-          r = r,
-          g = g,
-          b = b,
-          direction     = 3,
-          scandirection = 3,
-          speed         = random.randint(self.AsteroidMinSpeed,self.AsteroidMaxSpeed),
-          alive         = 1,
-          lives         = 1,
-          name          = 'Asteroid',
-          score         = 0,
-          exploding     = 0)
-        )
-        self.Asteroids[i].alive       = 1
-        self.Asteroids[i].Droppeded   = 0
-        self.Asteroids[i].Explosion   = copy.deepcopy(self.Explosion)      
-        self.Asteroids[i].Explosion.h = -1
-        self.Asteroids[i].Explosion.v = -1
-        self.Asteroids[i].Explosion.alive     = 0
-        self.Asteroids[i].Explosion.alive     = 0
-        self.Asteroids[i].Explosion.exploding = 0
-
-      self.UpdateCounts()
-      print("Wave Alive:",self.Alive," AsteroidCount:",self.AsteroidCount,"TotalAlive:",self.TotalAlive," TotalDropped:",self.TotalDropped)
-      print ("--end--")
-      return
-
-
-  def UpdateCounts(self):
-    AsteroidsAlive   = 0
-    AsteroidsDropped = 0
-    #print("Updating counts.  Asteroids:",self.AsteroidCount)    
-
-    for i in range(0,self.AsteroidCount):
-
-      if self.Asteroids[i].alive == 1:
-        AsteroidsAlive = AsteroidsAlive + 1
-        #FlashDot(self.Asteroids[i].h,self.Asteroids[i].v,0.01)
-        #print("stuck:",self.Asteroids[i].h,self.Asteroids[i].v,self.Asteroids[i].alive,self.Asteroids[i].lives,self.Asteroids[i].speed,self.Asteroids[i].r,self.Asteroids[i].g,self.Asteroids[i].b,self.Asteroids[i].name)
-      if self.Asteroids[i].dropped == 1:
-        AsteroidsDropped = AsteroidsDropped + 1
-
-      
-
-    self.TotalAlive   = AsteroidsAlive
-    self.TotalDropped = AsteroidsDropped
-    
-    if(self.TotalAlive >0):
-      self.Alive = True
-    else:
-      self.Alive = False
-      self.TotalAlive = 0
-
-    #print("Update Counts:  Wave.Alive:",self.Alive," AsteroidCount:",self.AsteroidCount,"TotalAlive:",self.TotalAlive," TotalDropped:",self.TotalDropped)
-
-    return
-
-
-
-  def DropAsteroids(self,AsteroidsToDrop,Playfield):
-      
-    
-    self.UpdateCounts()
-    i = 0
-    AsteroidsDropped = 0
-    StartH           = 0
-    StartV           = -5
-    tries            = 0  # we are goign to try to a maximum of 255 times then exit, so we don't slow down game
-
-
-    if (self.TotalAlive <= AsteroidsToDrop):
-      AsteroidsToDrop = self.TotalAlive
-
-    print("AsteroidsToDrop:",AsteroidsToDrop,"Asteroids in wave:",self.AsteroidCount)
-
-
-    #Place asteroids to drop on the playfield
-    i = 0
-    while (AsteroidsDropped < AsteroidsToDrop and tries < 255 and i < self.AsteroidCount): 
-      if (self.Asteroids[i].alive == 1 and self.Asteroids[i].dropped == 0):
-        StartV = 0
-        StartH = random.randint(gv.SpaceDotMinH,gv.SpaceDotMaxH)
-        print("Drop Asteroid i:",i)
-        #find unoccupied spot
-        while (Playfield[StartV][StartH].name != 'EmptyObject' and tries <= 255):
-          tries = tries + 1
-          StartH = random.randint(gv.SpaceDotMinH,gv.SpaceDotMaxH)      
-
-        if (tries < 255):        
-          self.Asteroids[i].h       = random.randint(gv.SpaceDotMinH,gv.SpaceDotMaxH)
-          self.Asteroids[i].v       = StartV
-          self.Asteroids[i].dropped = 1
-          AsteroidsDropped          = AsteroidsDropped + 1
-          self.Asteroids[i].Display()
-
-        else:
-          break
-
-      i = i + 1
-        
-    self.UpdateCounts()
-
-
-
-
-
-#--------------------------------------
-# VirusWorld                         --
-#--------------------------------------
-
-# Ideas:
-# - Mutations happen
-# - if virus is mutating, track that in the object itself
-# - possible mutations: speed, turning eraticly
-# - aggression, defence can be new attributes
-# - need a new object virus dot
-# - when a virus conquers an area, remove part of the wall and scroll to the next area
-# - areas may have dormant viruses that are only acivated once in a while
-# - 
-
-class VirusWorld(object):
-#Started out as an attempt to make cars follow shapes.  I was not happy with the results so I converted into a petri dish of viruses
-  def __init__(self,name,width,height,Map,Playfield,CurrentRoomH,CurrentRoomV,DisplayH, DisplayV, mutationrate, replicationrate,mutationdeathrate,VirusStartSpeed):
-    self.name      = name
-    self.width     = width
-    self.height    = height
-    self.Map       = ([[]])
-    self.Playfield = ([[]])
-    self.CurrentRoomH = CurrentRoomH
-    self.CurrentRoomV = CurrentRoomV
-    self.DisplayH     = DisplayH
-    self.DisplayV     = DisplayV
-    self.mutationrate      = mutationrate
-    self.replicationrate   = replicationrate
-    self.mutationdeathrate = mutationdeathrate
-    self.VirusStartSpeed   = VirusStartSpeed
-
-    self.Map             = [[0 for i in range(self.width)] for i in range(self.height)]
-    self.Playfield       = [[EmptyObject('EmptyObject') for i in range(self.width)] for i in range(self.height)]
-    self.walllives       = gv.VirusFoodWallLives
-    self.Viruses = []
-
-
-
-  def AddRandomVirusesToPlayfield(self,VirusesToAdd=25):
-    AddedCount = 0
-    
-    while (AddedCount <= VirusesToAdd):
-      h = random.randint(15,self.width-2) #we use a 15 pixel offset because of other display items
-      v = random.randint(2,self.height-2)
-      #print ("hv",h,v,self.Playfield[v][h].name)
-      if (self.Playfield[v][h].name == 'EmptyObject' or
-          self.Playfield[v][h].name == 'WallBreakable'
-        ):
-        #print("empty")
-        r,g,b = BrightColorList[random.randint(1,27)]
-        VirusName = str(r) + '-' + str(g) + '-' + str(b)
-        self.Playfield[v][h] = Virus(h,v,0,0,r,g,b,1,1, self.VirusStartSpeed   ,1,10,VirusName,0,0,10,'West',0,self.mutationrate,0,self.replicationrate,self.mutationdeathrate)
-        self.Viruses.append(self.Playfield[v][h])
-        AddedCount = AddedCount + 1
-          
-          
-      
-
-
-  def CopyTextMapToPlayfield(self,TextMap):
-    mapchar = ""
-    r = 0
-    g = 0
-    b = 0
-    h = 0
-    v = 0
-    dottype   = ""
-    VirusName = ""
-    self.Playfield = ([[]])
-    self.Playfield = [[EmptyObject('EmptyObject') for i in range(TextMap.width)] for i in range(TextMap.height)]
-    self.Viruses = []
-
-
-    #read the map string and process one character at a time
-    #decode the color and type of dot to place
-    for y in range (0,TextMap.height):
-      print (TextMap.map[y])
-      for x in range (0,TextMap.width):
-        mapchar = TextMap.map[y][x]
-        r,g,b   = TextMap.ColorList.get(mapchar)
-        dottype = TextMap.TypeList.get(mapchar)
-        h = x #+ TextMap.h
-        v = y #+ TextMap.v
-        
-        
-        if (dottype == "virus"):
-          VirusName = str(r) + '-' + str(g) + '-' + str(b)
-          
-          #(h,v,dh,dv,r,g,b,direction,scandirection,speed,alive,lives,name,score,exploding,radarrange,destination,mutationtype,mutationrate, mutationfactor, replicationrate):
-          self.Playfield[v][h] = Virus(h,v,0,0,r,g,b,1,1, self.VirusStartSpeed   ,1,10,VirusName,0,0,10,'West',0,self.mutationrate,0,self.replicationrate,self.mutationdeathrate)
-          #self.Playfield[y][x].direction = PointTowardsObject8Way(x,y,height/2,width/2)
-
-          self.Viruses.append(self.Playfield[v][h])
-        elif (dottype == "wall"):
-          self.Playfield[v][h] = Wall(h,v,r,g,b,1,1,'Wall')
-
-        elif (dottype == "wallbreakable"):
-          self.Playfield[v][h] = Wall(h,v,r,g,b,1,self.walllives,'WallBreakable')
-
-        
-
-      
-    return
-
-
-
-  def CopyMapToPlayfield(self):
-    #This function is run once to populate the playfield with viruses, based on the map drawing
-    #XY is actually implemented as YX.  Counter intuitive, but it works.
-
-    width   = self.width 
-    height  = self.height
-    self.Viruses = []
-    print ("Map width height:",width,height)
-    VirusName = ""
-   
-    print ("RD - CopyMapToPlayfield - Width Height: ", width,height)
-    x = 0
-    y = 0
-    
-    
-    print ("width height: ",width,height)
-    
-    for y in range (0,height):
-      #print (*self.Map[y])
-  
-      for x in range(0,width):
-        #print ("RD xy color: ",x,y, self.Map[y][x])
-        SDColor = self.Map[y][x]
-  
-        print(str(SDColor).rjust(3,' '),end='')
-
-        if (SDColor == 1):
-          r = SDDarkWhiteR
-          g = SDDarkWhiteG
-          b = SDDarkWhiteB
-          self.Playfield[y][x] = Wall(x,y,r,g,b,1,1,'Wall')
-
-
-        elif (SDColor == 2):
-          r = SDDarkWhiteR + 30
-          g = SDDarkWhiteG + 30
-          b = SDDarkWhiteB + 30
-                                    #(h,v,r,g,b,alive,lives,name):
-          self.Playfield[y][x] = Wall(x,y,r,g,b,1,10,'Wall')
-          #print ("Copying wallbreakable to playfield hv: ",y,x)
-
-        elif (SDColor == 3):
-          r = SDDarkWhiteR + 50
-          g = SDDarkWhiteG + 50
-          b = SDDarkWhiteB + 50
-                                    #(h,v,r,g,b,alive,lives,name):
-          self.Playfield[y][x] = Wall(x,y,r,g,b,1,10,'Wall')
-          #print ("Copying wallbreakable to playfield hv: ",y,x)
-
-        elif (SDColor == 4):
-          r = SDDarkWhiteR 
-          g = SDDarkWhiteG
-          b = SDDarkWhiteR + 60
-                                    #(h,v,r,g,b,alive,lives,name):
-          self.Playfield[y][x] = Wall(x,y,r,g,b,1,self.walllives,'WallBreakable')
-          #print ("Copying wallbreakable to playfield hv: ",y,x)
-
-
-        #color 5 and up represents moving viruses.
-        #We used to let the viruses  have a random direction, but that quickly turns into chaos
-        #now each virus will be steered towards the center of the map
-
-        elif (SDColor >=5):
-          r,g,b =  ColorList[SDColor]
-          VirusName = str(r) + '-' + str(g) + '-' + str(b)
-          
-          #(h,v,dh,dv,r,g,b,direction,scandirection,speed,alive,lives,name,score,exploding,radarrange,destination,mutationtype,mutationrate, mutationfactor, replicationrate):
-          self.Playfield[y][x] = Virus(x,y,x,y,r,g,b,1,1, self.VirusStartSpeed   ,1,10,VirusName,0,0,10,'West',0,self.mutationrate,0,self.replicationrate,self.mutationdeathrate)
-
-
-          #self.Playfield[y][x].direction = random.randint(1,8)
-          self.Playfield[y][x].direction = PointTowardsObject8Way(x,y,height/2,width/2)
-          self.Viruses.append(self.Playfield[y][x])
-        else:
-          #print ('EmptyObject')
-          self.Playfield[y][x] = EmptyObject('EmptyObject')
-      print('')
-
-    self.DebugPlayfield()
-    return;
-
-
-
-
-
-
-
-  def CopySpriteToPlayfield(self,TheSprite,h,v, ColorTuple=(-1,-1,-1),ObjectType = 'Wall',Filler='EmptyObject'):
-    #Copy a regular sprite to the Playfield.  Sprite will be treated as a wall.
-
-    #print ("Copying sprite to playfield:",TheSprite.name, ObjectType, Filler)
-
-    width   = self.width 
-    height  = self.height
-    
-    if (ColorTuple == (-1,-1,-1)):
-      r = TheSprite.r
-      g = TheSprite.g
-      b - TheSprite.b
-    else:
-      r,g,b   = ColorTuple
-
-    #Copy sprite to map 
-    for count in range (0,(TheSprite.width * TheSprite.height)):
-      y,x = divmod(count,TheSprite.width)
-
-    #check the sprite grid at location[count] to see if it has a 1 or zero.  Remember the grid is a simple array.
-    #I was young and new when I first wrote the first sprite functions, and did not understand arrays in python.  :)
-      if TheSprite.grid[count] != 0:
-        if (ObjectType == 'Wall'):
-          self.Playfield[y+v][x+h] = Wall(x,y,r,g,b,1,1,'Wall')
-        elif(ObjectType == 'WallBreakable'):
-          self.Playfield[y+v][x+h] = Wall(x,y,r,g,b,1,1,'WallBreakable')
-        elif(ObjectType == 'Virus'):
-          self.Playfield[y+v][x+h] = Virus(x,y,x,y,r,g,b,1,1, self.VirusStartSpeed   ,1,10,'?',0,0,10,'West',0,self.mutationrate,0,self.replicationrate,self.mutationdeathrate)
-      else:
-        if (Filler == 'EmptyObject'):
-          self.Playfield[y+v][x+h] = EmptyObject('EmptyObject')
-        elif (Filler == 'DarkWall'):
-          #dark wall
-          self.Playfield[y+v][x+h] = Wall(x,y,5,5,5,1,1,'Wall')
-        else:
-          self.Playfield[y+v][x+h] = EmptyObject('EmptyObject')
-
-           
-    return;
-
-
-
-  # def DisplayWindow(self,h,v):
-    # #This function accepts h,v coordinates for the entire map (e.g. 1,8  20,20,  64,64)    
-    # #Displays what is on the playfield currently, including walls, cars, etc.
-    # r = 0
-    # g = 0
-    # b = 0
-    # count = 0
-        
-
-    # for V in range(0,gv.HatWidth):
-      # for H in range (0,gv.HatHeight):
-        # #print ("DisplayWindow hv HV: ",h,v,H,V) 
-        # name = self.Playfield[v+V][h+H].name
-        # #print ("Display: ",name,V,H)
-        # if (name == 'EmptyObject'):
-          # r = 0
-          # g = 0
-          # b = 0          
-
-        # else:
-          # r = self.Playfield[v+V][h+H].r
-          # g = self.Playfield[v+V][h+H].g
-          # b = self.Playfield[v+V][h+H].b
-          
-        # #Our map is an array of arrays [v][h] but we draw h,v
-        # gv.TheMatrix.SetPixel(H,V,r,g,b)
-    
-    # #unicorn.show()
-    # #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-
-  def DisplayWindow(self,h,v,ZoomFactor = 0):
-    #This function accepts h,v coordinates for the entire map (e.g. 1,8  20,20,  64,64)    
-    #Displays what is on the playfield currently, including walls, cars, etc.
-    #Zoom factor is used to shrink/expand the display
-    r = 0
-    g = 0
-    b = 0
-    count = 0
-    H_modifier = 0
-    V_modifier = 0
-    
-    HIndentFactor = 0    
-    VIndentFactor = 0    
-
-
-
-    if (ZoomFactor > 1):
-      H_modifier = (1 / gv.HatWidth ) * ZoomFactor * 2  #BigLED is 2 times wider than tall. Hardcoding now, will fix later. 
-      V_modifier = (1 / gv.HatHeight ) * ZoomFactor
-      NewHeight = round(gv.HatHeight * V_modifier)
-      NewWidth  = round(gv.HatWidth * H_modifier)
-
-
-      HIndentFactor = (gv.HatWidth / 2)  - (NewWidth /2)
-      VIndentFactor = (gv.HatHeight / 2) - (NewHeight /2)
-    else:
-      IndentFactor = 0
-
-    #print("gv.HatWidth",gv.HatWidth," NewWidth",NewWidth," ZoomFactor:",ZoomFactor,"HV_modifier",HV_modifier, "IndentFactor:",IndentFactor)
-
-    for V in range(0,gv.HatHeight):
-      for H in range (0,gv.HatWidth):
-        #print ("DisplayWindow hv HV: ",h,v,H,V) 
-        name = self.Playfield[v+V][h+H].name
-        #print ("Display: ",name,V,H)
-        if (name == 'EmptyObject'):
-          r = 0
-          g = 0
-          b = 0          
-
-        else:
-          r = self.Playfield[v+V][h+H].r
-          g = self.Playfield[v+V][h+H].g
-          b = self.Playfield[v+V][h+H].b
-          
-        #Our map is an array V of array H  [V][1,2,3,4...etc]
-        if (ZoomFactor > 0):
-          gv.TheMatrix.SetPixel((H * H_modifier) + HIndentFactor ,(V * V_modifier) + VIndentFactor,r,g,b)
-        
-    
-
-        else:
-          gv.TheMatrix.SetPixel(H,V,r,g,b)
-    
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-
-  def DisplayWindowZoom(self,h,v,Z1=8,Z2=1,ZoomSleep=0.05):
-    #uses playfield to display items
-
-    if (Z1 <= Z2):
-      for Z in range (Z1,Z2):
-        gv.TheMatrix.Clear()
-        self.DisplayWindow(h,v,Z)
-        time.sleep(ZoomSleep)
-        
-    else:
-      for Z in reversed(range(Z2,Z1)):
-        gv.TheMatrix.Clear()        
-        self.DisplayWindow(h,v,Z)
-        time.sleep(ZoomSleep)
-        
-
-
-            
-  def DisplayWindowWithSprite(self,h,v,ClockSprite):
-    #This function accepts h,v coordinates for the entire map (e.g. 1,8  20,20,  64,64)    
-    #Displays what is on the playfield currently, including walls, cars, etc.
-    r = 0
-    g = 0
-    b = 0
-    count = 0
-        
-
-    for V in range(0,gv.HatWidth):
-      for H in range (0,gv.HatHeight):
-         
-        name = self.Playfield[v+V][h+H].name
-        #print ("Display: ",name,V,H)
-        if (name == 'EmptyObject'):
-          r = 0
-          g = 0
-          b = 0          
-
-        else:
-          r = self.Playfield[v+V][h+H].r
-          g = self.Playfield[v+V][h+H].g
-          b = self.Playfield[v+V][h+H].b
-          
-        #Our map is an array of arrays [v][h] but we draw h,v
-        gv.TheMatrix.SetPixel(H,V,r,g,b)
-
-    #Display clock at current location
-    #Clock hv will allow external functions to slide clock all over screen
-
-    #print ("Clock info  hv on: ",ClockSprite.h,ClockSprite.v,ClockSprite.on)
-    ClockSprite.CopySpriteToBuffer(ClockSprite.h,ClockSprite.v)
-        
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-
-
-  def CountVirusesInWindow(self,h,v):
-    #This function accepts h,v coordinates for the entire map (e.g. 1,8  20,20,  64,64) 
-    #and counts how many items are in the area
-    count = 0
-        
-    for V in range(0,gv.HatWidth):
-      for H in range (0,gv.HatHeight):
-         
-        name = self.Playfield[v+V][h+H].name
-        #print ("Display: ",name,V,H)
-        if (name not in ('EmptyObject',"Wall","WallBreakable")):
-          count = count + 1
-    return count;
-
-
-
-
-
-
-  def DebugPlayfield(self):
-    #Show contents of playfield - in text window, for debugging purposes
-    
-    width   = self.width 
-    height  = self.height
-    print ("Map width height:",width,height)
-  
-    x = 0
-    y = 0
-    
-    for V in range(0,height):
-      for H in range (0,width):
-         
-        name = self.Playfield[V][H].name
-        #print ("Display: ",name,V,H)
-        if (name == 'EmptyObject'):
-          print ('  ',end='')
-
-        #draw border walls
-        elif (name == 'Wall' and (V == 0 or V == height-1)):
-          print(' _',end='')
-        
-        #draw border walls
-        elif (name == 'Wall' and (H == 0 or H == width-1)):
-          print(' |',end='')
-          
-        #draw interior
-        elif (name == 'Wall'):
-          print (' #',end='')
-
-        #draw interior
-        elif (name == 'WallBreakable'):
-          print (' o',end='')
-
-        elif (self.Playfield[V][H].alive == 1):
-          print (' .',end='')
-        else:
-          print (' X',end='')
-          #print ("Name:",name," alive:",self.Playfield[V][H].alive)
-
-          #time.sleep(1)
-
-      print('')
-
-
-
-  def FindClosestObject(self,SourceH,SourceV, Radius = 10, ObjectType = 'WallBreakable'):
-    #Find the HV co-ordinates of the closest playfield object
-    #
-    #print("Searching for nearby food SourceH SourceV Radius ObjectType",SourceH, SourceV, Radius, ObjectType)
-    #Prepare co-ordinates for search grid
-    StartX = SourceH - Radius
-    StopX  = SourceH + Radius
-    StartY = SourceV - Radius
-    StopY  = SourceV + Radius
-    
-    
-    ClosestX     = -1
-    ClosestY     = -1
-    MinDistance  = 9999
-    Distance     = 0
-
-    #Check boundaries
-    if (StartX < 0):
-      StartX = 0
-    if (StartX > gv.HatWidth-1):
-      StartX = gv.HatWidth-1
-    if (StartY < 0):
-      StartY = 0
-    if (StartY > gv.HatHeight-1):
-      StartY = gv.HatHeight-1
-
-    if (StopX < 0):
-      StopX = 0
-    if (StopX > gv.HatWidth-1):
-      StopX = gv.HatWidth-1
-    if (StopY < 0):
-      StopY = 0
-    if (StopY > gv.HatHeight-1):
-      StopY = gv.HatHeight-1
-        
-
-    #print("Start XY Stop XY",StartX,StartY, StopX, StopY)
-    
-    for x in range(StartX,StopX):
-      for y in range(StartY, StopY):
-        #Look for object on the playfield
-        #print ("searching xy: ",x,y, " found ",self.Playfield[y][x].name)
-
-        #remember playfield coordinates are swapped
-        if (self.Playfield[y][x].name == ObjectType):
-          Distance = GetDistanceBetweenDots(SourceH,SourceV,x,y)
-          #print ("Distance: ",Distance, " MinDistance:",MinDistance, "xy:",x,y)
-          if (Distance <= MinDistance):
-            MinDistance = Distance
-            ClosestX = x
-            ClosestY = y
-      
-    #FlashDot5(ClosestX,ClosestY,0.003)
-    return ClosestX,ClosestY;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class Virus(object):
-  
-  def __init__(self,h,v,dh,dv,r,g,b,direction,scandirection,speed,alive,lives,name,score,exploding,radarrange,destination,mutationtype,mutationrate,mutationfactor,replicationrate,mutationdeathrate):
-
-    self.h               = h         # location on playfield (e.g. 10,35)
-    self.v               = v         # location on playfield (e.g. 10,35)
-    self.dh              = dh        # location on display   (e.g. 3,4) 
-    self.dv              = dv        # location on display   (e.g. 3,4) 
-    self.r               = r
-    self.g               = g
-    self.b               = b
-    self.direction       = direction      #direction of travel
-    self.scandirection   = scandirection  #direction of scanners, if equipped
-    self.speed           = speed
-    self.alive           = 1
-    self.lives           = 3
-    self.name            = name
-    self.score           = 0
-    self.exploding       = 0
-    self.radarrange      = 20
-    self.destination     = ""
-    self.mutationtype    = mutationtype
-    self.mutationrate    = mutationrate      #high number, greater chance 
-    self.mutationfactor  = mutationfactor    #used to impact amount of mutation
-    self.internalcounter = 0                 #used to count moves between mutation affects (i.e. turn left every 3 moves)
-    self.replicationrate = replicationrate    
-    self.mutationdeathrate = mutationdeathrate
-    self.replications      = 0
-    self.mutations         = 0
-    self.infectionchance   = gv.InfectionChance
-    self.chanceofdying     = gv.ChanceOfDying
-    self.eating            = False
-    self.clumping          = True
-
-
-  def Display(self):
-    if (self.alive == 1):
-      gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-     # print("display HV:", self.h,self.v)
-      #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-  
-      
-  def Erase(self):
-    gv.TheMatrix.SetPixel(self.h,self.v,0,0,0)
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-  #Lower is faster!
-  def AdjustSpeed(self, increment):
-    speed = self.speed + increment
-    if (speed > gv.VirusBottomSpeed):
-      speed = gv.VirusBottomSpeed
-    elif (speed < gv.VirusTopSpeed):
-      speed = gv.VirusTopSpeed
-
-    self.speed = speed
-    #print("Adjust speed: ",speed, increment)
-    return;
-
-  #Lower is faster!
-  def AdjustInfectionChance(self, increment):
-    infectionchance = self.infectionchance + increment
-
-    if (infectionchance > gv.InfectionChance):
-      infectionchance = gv.InfectionChance
-    elif (infectionchance < 1):
-      infectionchance = 1
-
-    self.infectionchance = infectionchance
-    return;
-
-
-
-  def Mutate(self):
-    global MaxMutations
-    global MutationTypes
-
-    x              = 0
-    #number of possible mutations
-    # direction
-    #   - left 1,2
-    #   - left 1,2,3
-    #   - right 1,2
-    #   - left 1,2,3
-    # speed up
-    # speed down
-    # wobble
-    # slow curves left
-    # slow curves right
-    
-
-    mutationrate   = self.mutationrate
-    mutationtype   = self.mutationtype
-    mutationfactor = self.mutationfactor
-    speed          = self.speed
-    MinSpeed       = 1  #* gv.CPUModifier
-    MaxSpeed       = 10 #* gv.CPUModifier   #higher = slower!
-    r              = 0
-    g              = 0
-    b              = 0
-    name           = 0
-
-
-    #Mutations can be deadly
-    self.mutations += 1
-    if ((random.randint(1,self.mutationdeathrate) == 1)
-       or (self.mutations >= gv.MaxMutations)):
-      self.alive = 0
-      self.lives = 0
-      self.speed = 999999
-      self.name  = 'EmptyObject'
-      self.r     = 0
-      self.g     = 0
-      self.b     = 0
-    else:
-
-
-      #print ("--Virus mutation!--")
-      mutationtype = random.randint(1,gv.MutationTypes)
-
-      
-      #Mutations get a new name and color
-      x = random.randint(1,gv.MutationTypes)
-      if (x == 1):
-        #Big Red
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = 0
-        b = 0
-        
-      if (x == 2):
-        #booger
-        r = 0
-        g = random.randint(gv.MinBright,gv.MaxBright)
-        b = 0
-
-      if (x == 3):
-        #BlueWhale
-        r = 0
-        g = 0
-        b = random.randint(gv.MinBright,gv.MaxBright)
-
-      if (x == 4):
-        #pinky
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = 0
-        b = random.randint(gv.MinBright,gv.MaxBright)
-
-      if (x == 5):
-        #MellowYellow
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = random.randint(gv.MinBright,gv.MaxBright)
-        b = 0
-
-      if (x == 6):
-        #undead
-        r = 0
-        g = random.randint(gv.MinBright,gv.MaxBright)
-        b = random.randint(gv.MinBright,gv.MaxBright)
-
-
-
-    
-      #Directional Behavior - turns left a little
-      if (mutationtype == 1):
-        #print ("Mutation: turn left a little", self.speed, mutationfactor)
-        mutationfactor       = random.randint(1,2)
-        self.AdjustInfectionChance(mutationfactor * -1)
-
-      #Directional Behavior - turns left a lot
-      elif (mutationtype == 2):
-        #print ("Mutation: turn left a lot", self.speed, mutationfactor)
-        mutationfactor       = random.randint(2,3)
-        self.AdjustInfectionChance(mutationfactor * -1)
-
-      #Directional Behavior - turns right a little
-      elif (mutationtype == 3):
-        #print ("Mutation: turn right a little", self.speed, mutationfactor)
-        mutationfactor    = random.randint(1,2)
-        self.AdjustInfectionChance(mutationfactor * -1)
-
-      #Directional Behavior - turns right a lot
-      elif (mutationtype == 4):
-        #print ("Mutation: turn right a lot", self.speed, mutationfactor)
-        mutationfactor       = random.randint(2,3)
-        self.AdjustInfectionChance(mutationfactor * -1)
-
-      #Speed up and infect at a higher rate
-      elif (mutationtype == 5):
-        mutationfactor = 2
-        self.AdjustInfectionChance(mutationfactor * -1)
-        self.AdjustSpeed(mutationfactor * -1)
-        #print ("Mutation: speed up", self.speed, mutationfactor)
-        if (speed < 1):
-          speed = 1
-
-      #Speed down
-      elif (mutationtype == 6):
-        mutationfactor = 1
-        self.AdjustSpeed(mutationfactor)
-        self.AdjustInfectionChance(mutationfactor * -1)
-
-        #print ("Mutation: slow down", self.speed, mutationfactor)
-
-      #wobble
-      elif (mutationtype == 7):
-        mutationfactor = random.randint(1,10)
-        self.clumping  = False
-        #print ("Mutation: wobble",mutationfactor)
-        self.AdjustSpeed(mutationfactor)
-        self.AdjustInfectionChance(mutationfactor * -1)
-
-        #swamp mix
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = random.randint(gv.MinBright,gv.MaxBright)
-        b = random.randint(gv.MinBright,gv.MaxBright)
-
-
-      #slow turn left
-      elif (mutationtype == 8):
-        mutationfactor = random.randint(gv.SlowTurnMinMoves,gv.SlowTurnMaxMoves)  #higher is slower!
-        #print ("Mutation: slow LEFT turn every (",mutationfactor,") moves")
-        self.AdjustSpeed(1)
-        #swamp mix
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = random.randint(gv.MinBright,gv.MaxBright)
-        b = random.randint(gv.MinBright,gv.MaxBright)
-
-
-      #slow turn right
-      elif (mutationtype == 9):
-        mutationfactor = random.randint(gv.SlowTurnMinMoves,gv.SlowTurnMaxMoves)  #higher is slower!
-        #print ("Mutation: slow righ turn every (",mutationfactor,") moves")
-        self.AdjustSpeed(1)
-        #swamp mix
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = random.randint(gv.MinBright,gv.MaxBright)
-        b = random.randint(gv.MinBright,gv.MaxBright)
-
-
-      #Clumping on
-      elif (mutationtype == 10):
-        self.clumping = True
-        self.AdjustSpeed(mutationfactor)
-        #Purple Haze
-        r = random.randint(gv.MinBright,gv.MaxBright)
-        g = 0
-        b = 255
-
-        
-      #Update common properties
-      self.r              = r
-      self.g              = g
-      self.b              = b
-      if (self.name != 'Wall' and self.name != 'WallBreakable'):
-        self.name           = "" + str(self.r) + ' -' + str(self.g)+ ' -' + str(self.b)
-      self.mutationtype   = mutationtype
-      self.mutationfactor = mutationfactor
-      #print ("TheSpeed: ",self.speed)
-    
-    return;
-
-
-
-  def IncreaseBrightness(self,increment):
-      
-    self.r = self.r + (255 / self.r * increment)
-    self.g = self.g + (255 / self.g * increment)
-    self.b = self.b + (255 / self.b * increment)
-    
-    if (self.r > 255):
-      self.r = 255
-    if (self.g > 255):
-      self.g = 255
-    if (self.b > 255):
-      self.b = 255
-    
-
-
-
-def VirusWorldScanAround(Virus,Playfield):
-  # hv represent car location
-  # ScanH and ScanV is where we are scanning
-  
-  #print ("== Scan in Front of Virus ==")
-  
-  ScanDirection = Virus.direction
-  ScanH         = 0
-  ScanV         = 0
-  h             = Virus.h
-  v             = Virus.v
-  Item          = ''
-  ItemList      = ['EmptyObject']
-  count         = 0    #represents number of spaces to scan
-
-#         2 1 3
-#         5 x 6                              
-#           4   
-  
-  #FlashDot2(h,v,0.005)
-
-  #Scan in front
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,Virus.direction)
-  ItemList.append(Playfield[ScanV][ScanH].name)
-  
-  
-  #Scan left diagonal
-  ScanDirection = TurnLeft8Way(Virus.direction)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  ItemList.append(Playfield[ScanV][ScanH].name)
-  
-  #Scan right diagonal
-  ScanDirection = TurnRight8Way(Virus.direction)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  ItemList.append(Playfield[ScanV][ScanH].name)
-  
-  #Scan behind
-  ScanDirection = ReverseDirection8Way(Virus.direction)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  ItemList.append(Playfield[ScanV][ScanH].name)
-  
-  #Scan left
-  ScanDirection = TurnLeft8Way(TurnLeft8Way(Virus.direction))
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  ItemList.append(Playfield[ScanV][ScanH].name)
-
-
-  #Scan right
-  ScanDirection = TurnRight8Way(TurnRight8Way(Virus.direction))
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  ItemList.append(Playfield[ScanV][ScanH].name)
-
-
-  return ItemList;
-
-
-
-
-def IsThereAVirusNearby(h,v,direction,VirusName,Playfield):
-  # hv represent desired target location
-  # ScanH and ScanV is where we are scanning
-  
-  #print ("== Scan in Front of Virus ==")
-  
-  ScanDirection = direction
-  ScanH         = 0
-  ScanV         = 0
-
-#         7 1 2
-#         6 x 3                              
-#         5 z 4    x = proposed location, z = current location
-  
-
-  #Scan in front
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-  
-  
-  #Scan front right diagonal
-  ScanDirection = TurnRight8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-  
-  #Scan right 
-  ScanDirection = TurnRight8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-  
-  #Scan behind right diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-  
-  #We don't Scan behind because that is where the virus is!
-  ScanDirection = TurnRight8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  #if (Playfield[ScanV][ScanH].name == VirusName):
-  #  return 1;
-
-
-  #Scan behind left diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-
-
-  #Scan left
-  ScanDirection = TurnRight8Way(TurnRight8Way(ScanDirection))
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-
-  #Scan front left diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    return 1;
-
-
-
-
-
-def CountNearbyViruses(h,v,direction,VirusName,Playfield):
-  #this function returns the number of viruses nearby with the same name
-  # hv represent current location
-  # ScanH and ScanV is where we are scanning
-  
-  #print ("== Scan in Front of Virus ==")
-  
-  ScanDirection = direction
-  ScanH         = 0
-  ScanV         = 0
-  count         = 0
-  
-
-#         7 1 2
-#         6 x 3                              
-#         5 z 4    x = proposed location, z = current location
-  
-
-  #Scan in front
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-  
-  #Scan front right diagonal
-  ScanDirection = TurnRight8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-  #Scan right 
-  ScanDirection = TurnRight8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-  #Scan behind right diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-  #Scan behind
-  ScanDirection = TurnRight8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-
-
-  #Scan behind left diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-
-
-  #Scan left
-  ScanDirection = TurnRight8Way(TurnRight8Way(ScanDirection))
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-
-  #Scan front left diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-
-  return count;
-
-
-
-def CountVirusesBehind(h,v,direction,VirusName,Playfield):
-  #this function returns the number of viruses behind
-  # hv represent current location
-  # ScanH and ScanV is where we are scanning
-  
-  #print ("== Scan in Front of Virus ==")
-  
-  ScanDirection = direction
-  ScanH         = 0
-  ScanV         = 0
-  count         = 0
-  
-
-#         . . .
-#         . z .                              
-#         1 2 3    z = current location
-  
-
-  #Scan behind left diagonal
-  ScanDirection = TurnLeft8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  ScanDirection = TurnLeft8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-  
-  #Scan behind
-  ScanDirection = TurnLeft8Way(ScanDirection)
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-  #Scan behind right diagonal
-  ScanH, ScanV = CalculateDotMovement8Way(h,v,ScanDirection)
-  if (Playfield[ScanV][ScanH].name == VirusName):
-    count = count + 1
-  
-
-  return count;
 
 
 
@@ -2518,7 +1245,7 @@ class AnimatedSprite(object):
       #print("Count:",count,"xy",x,y, " frame: ", frame)
       if self.grid[frame][count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+          TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
     #unicorn.show() 
 
 
@@ -2533,7 +1260,7 @@ class AnimatedSprite(object):
       if self.grid[frame][count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
           if (not(self.r == 0 and self.g == 0 and self.b == 0)):
-            gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+            TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
     #unicorn.show() 
 
 
@@ -2550,10 +1277,10 @@ class AnimatedSprite(object):
       #print("Count:",count,"xy",x,y)
       if self.grid[frame][count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          #gv.TheMatrix.SetPixel(x+h1,y+v1,255,255,255)
+          #TheMatrix.SetPixel(x+h1,y+v1,255,255,255)
           #unicorn.show()
           #time.sleep(0.05)
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
 
           
   def EraseSpriteFromPlayfield(self,Playfield):
@@ -2567,8 +1294,8 @@ class AnimatedSprite(object):
     for count in range (0,(self.width * self.height)):
       y,x = divmod(count,self.width)
       if (CheckBoundary(x+h1,y+v1) == 0):
-        #gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
-        Playfield[y+v1][x+h1] = gv.EmptyObject
+        #TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+        Playfield[y+v1][x+h1] = EmptyObject
         #FlashDot(x+h1,y+v1,0.002)
     return Playfield
 
@@ -2628,7 +1355,7 @@ class AnimatedSprite(object):
         setpixels(Buffer)
         self.Display(h,v,f)
         #unicorn.show() 
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
 
         #Check for keyboard input
@@ -2683,7 +1410,7 @@ class AnimatedSprite(object):
           #print ("Display Frame: ", f, " hv: ",h,v)
           self.Display(h,v,f)
           #unicorn.show()
-          #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+          #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
           time.sleep(delay)
           self.Erase(h,v,f)
@@ -2692,11 +1419,11 @@ class AnimatedSprite(object):
   
   def ScrollAcrossScreen(self,h,v,direction,ScrollSleep):
     if (direction == "right"):
-      self.Scroll((0- self.width),v,"right",(gv.HatWidth + self.width),ScrollSleep)
+      self.Scroll((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Scroll(gv.HatWidth-1,v,"left",(gv.HatWidth + self.width),ScrollSleep)
+      self.Scroll(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Scroll(h,gv.HatWidth-1,"left",(gv.HatWidth + self.height),ScrollSleep)
+      self.Scroll(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
 
@@ -2740,7 +1467,7 @@ class AnimatedSprite(object):
         #draw new sprite
         self.DisplayNoBlack(h,v,f)
         #unicorn.show() 
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
 
         #Check for keyboard input
@@ -2751,11 +1478,11 @@ class AnimatedSprite(object):
   
   def FloatAcrossScreen(self,h,v,direction,ScrollSleep):
     if (direction == "right"):
-      self.Float((0- self.width),v,"right",(gv.HatWidth + self.width),ScrollSleep)
+      self.Float((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Float(gv.HatWidth-1,v,"left",(gv.HatWidth + self.width),ScrollSleep)
+      self.Float(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Float(h,gv.HatWidth-1,"left",(gv.HatWidth + self.height),ScrollSleep)
+      self.Float(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
 
@@ -2770,14 +1497,14 @@ class AnimatedSprite(object):
       for f in range (0,self.frames+1):
         self.Display(h,v,f)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
         setpixels(Buffer)
     else:  
       for f in range (0,self.frames+1):
         self.Display(h,v,(self.frames-f))
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
         setpixels(Buffer)
       
@@ -2828,7 +1555,7 @@ class ColorAnimatedSprite(object):
           r,g,b =  ColorList[self.grid[frame][count]]
           #print ("CAS - Display - rgb",r,g,b)
           if (r > -1 and g > -1 and b > -1):
-            gv.TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
+            TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
             setpixel(x+h1,y+v1,r,g,b)
     #unicorn.show() 
 
@@ -2851,7 +1578,7 @@ class ColorAnimatedSprite(object):
           r,g,b =  ColorList[self.grid[frame][count]]
           #print ("CAS - Display - rgb",r,g,b)
           if (not(r == 0 and g == 0 and b == 0)):
-            gv.TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
+            TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
     #unicorn.show() 
 
 
@@ -2885,7 +1612,7 @@ class ColorAnimatedSprite(object):
 
       if (CheckBoundary((x+h1),y+v1) == 0):
         r,g,b =  ColorList[self.grid[self.currentframe][count]]
-        gv.TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
+        TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
 
        
 
@@ -2911,7 +1638,7 @@ class ColorAnimatedSprite(object):
       if self.grid[frame][count] > 0:
         if (CheckBoundary(abs(15-(x+h1)),y+v1) == 0):
          # print ("CAS - Erase HV:",x+h1,y+v1)
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
 
           
   def EraseLocation(self,h,v):
@@ -2926,7 +1653,7 @@ class ColorAnimatedSprite(object):
       if self.grid[frame][count] > 0:
         if (CheckBoundary((x+h),y+v) == 0):
           #print ("CAS - EraseLocation HV:",x+h,y+v)
-          gv.TheMatrix.SetPixel(x+h,y+v,0,0,0)
+          TheMatrix.SetPixel(x+h,y+v,0,0,0)
           
 
   def EraseSpriteFromPlayfield(self,Playfield):
@@ -2948,8 +1675,8 @@ class ColorAnimatedSprite(object):
       y,x = divmod(count,width)
 
       if (CheckBoundary(x+h,y+v) == 0):
-        gv.TheMatrix.SetPixel(x+h,y+v,0,0,0)
-        Playfield[y+v][x+h] = gv.EmptyObject
+        TheMatrix.SetPixel(x+h,y+v,0,0,0)
+        Playfield[y+v][x+h] = EmptyObject
     return Playfield
 
 
@@ -2994,7 +1721,7 @@ class ColorAnimatedSprite(object):
           
         self.Display(h,v)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
 
 
@@ -3035,7 +1762,7 @@ class ColorAnimatedSprite(object):
          #print ("CAS - SWF - currentframe: ",self.currentframe)
           self.Display(h,v)
           #unicorn.show()
-          #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+          #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
           #Increment current frame counter (taking into account framerate)
           
@@ -3075,11 +1802,11 @@ class ColorAnimatedSprite(object):
   
   def ScrollAcrossScreen(self,h,v,direction,ScrollSleep):
     if (direction == "right"):
-      self.Scroll((0- self.width),v,"right",(gv.HatWidth + self.width),ScrollSleep)
+      self.Scroll((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Scroll(gv.HatWidth-1,v,"left",(gv.HatWidth + self.width),ScrollSleep)
+      self.Scroll(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Scroll(h,gv.HatWidth-1,"left",(gv.HatWidth + self.height),ScrollSleep)
+      self.Scroll(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
 
@@ -3122,18 +1849,18 @@ class ColorAnimatedSprite(object):
           
         self.DisplayNoBlack(h,v)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(delay)
 
 
 
   def FloatAcrossScreen(self,h,v,direction,ScrollSleep):
     if (direction == "right"):
-      self.Float((0- self.width),v,"right",(gv.HatWidth + self.width),ScrollSleep)
+      self.Float((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Float(gv.HatWidth-1,v,"left",(gv.HatWidth + self.width),ScrollSleep)
+      self.Float(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Float(h,gv.HatWidth-1,"left",(gv.HatWidth + self.height),ScrollSleep)
+      self.Float(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
   def Animate(self,h,v,direction,delay):
@@ -3149,7 +1876,7 @@ class ColorAnimatedSprite(object):
         #draw new sprite
         self.Display(h,v)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
         #Increment current frame counter
         if (self.currentframe < (self.frames-1)):
@@ -3169,7 +1896,7 @@ class ColorAnimatedSprite(object):
         #print ("CAS - Animate - currentframe: ",self.currentframe)
         self.Display(h,v)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
         #Increment current frame counter
         if (self.currentframe <= (self.frames-1)):
@@ -3195,10 +1922,10 @@ class ColorAnimatedSprite(object):
         if (CheckBoundary((x+h1),y+v1) == 0):
           r,g,b =  ColorList[self.grid[frame][count]]
           if (r > 0 or g > 0 or b > 0):
-            gv.TheMatrix.SetPixel((x+h1),y+v1,r,g,b)
+            TheMatrix.SetPixel((x+h1),y+v1,r,g,b)
             FlashDot4((x+h1),y+v1,speed)
       #unicorn.show() 
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
           
   def LaserErase(self,h1,v1,speed):
     x = 0
@@ -3215,9 +1942,9 @@ class ColorAnimatedSprite(object):
           r,g,b =  ColorList[self.grid[frame][count]]
           if (r > 0 or g > 0 or b > 0):
             FlashDot4((x+h1),y+v1,speed * 0.001)
-            gv.TheMatrix.SetPixel((x+h1),y+v1,0,0,0)
+            TheMatrix.SetPixel((x+h1),y+v1,0,0,0)
       #unicorn.show() 
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
 
 
@@ -3243,1169 +1970,14 @@ class ColorAnimatedSprite(object):
           r,g,b =  ColorList[self.grid[frame][count]]
           if (r > -1 and g > -1 and b > -1):
               Playfield[y+v][x+h] = TheObject
-              #gv.TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
+              #TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
           else:
               Playfield[y+v][x+h] = EmptyObject('EmptyObject')
-              gv.TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
+              TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
 
            
     return Playfield;
 
-
-
-# --------------------------
-# -- Dot and Ship Sprites --
-# --------------------------
-      
-      
-class Dot(object):
-  def __init__(self,h,v,r,g,b,direction,speed,alive,name,trail,score,maxtrail,erasespeed,HeadRGB=(100,100,100)):
-    self.h          = h 
-    self.v          = v
-    self.r          = r
-    self.g          = g
-    self.b          = b
-    self.direction  = direction
-    self.speed      = speed
-    self.alive      = 1
-    self.name       = name
-    self.trail      = [] # a list of tuples, holding hv coordinates of the dot trail
-    self.score      = 0
-    self.maxtrail   = 0
-    self.erasespeed = erasespeed #sleep time for the erase trail function
-    self.HeadRGB    = HeadRGB
-    self.score      = 0
-
-
-
-
-  def Display(self):
-    #print("hv rgb",self.h,self.v,"-",self.r,self.g,self.b)
-
-    gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-    gv.ScreenArray[self.v][self.h] = (self.r,self.g,self.b)
-
-
-    #r,g,b = self.HeadRGB
-    #gv.TheMatrix.SetPixel(self.h,self.v,r,g,b)
-    
-      
-  def EraseTrail(self,direction,flash):
-    r = self.r
-    g = self.g
-    b = self.b
-    
-    
-    #Turn trail bright, then gradually fade
-    if (flash == 'flash'):
-      for x in range(25):
-        newr = r + (100) - (2*x-1)
-        newg = g + (100) - (2*x-1)
-        newb = b + (100) - (2*x-1)
-        if (newr > 255):
-          newr = 255
-        if (newg > 255):
-          newg = 255
-        if (newb > 255):
-          newb = 255
-        if (newr < r):
-          newr = r 
-        if (newg < g):
-          newg = g
-        if (newb < b):
-          newb = b
-          
-        for i,dot in enumerate(self.trail):
-          h = dot[0]
-          v = dot[1]
-          gv.TheMatrix.SetPixel(h,v,newr,newg,newb)
-          gv.ScreenArray[v][h] = (newr,newg,newb)
-          
-
-      
-    #Erase 
-    if (direction == 'forward'):
-      #print ("Erasing Trail: forward")
-      #for i,dot in enumerate(self.trail):
-
-#--> we need a faster way to go through the trail
-
-      count = len(self.trail)
-      for i in range (0,count):
-        h = self.trail[i][0]
-        v = self.trail[i][1]
-                        
-        gv.TheMatrix.SetPixel(h,v,255,255,255)
-        time.sleep(self.erasespeed)
-        gv.TheMatrix.SetPixel(h,v,0,0,0)
-        gv.ScreenArray[v][h] = (0,0,0)
-        
-
-      
-    else:
-      print ("Erasing Trail: backward")
-      count = len(self.trail)
-      for i in range (count-1,0,-1):
-        h = self.trail[i][0]
-        v = self.trail[i][1]
-
-
-      #for i,dot in reversed(list(enumerate(self.trail))):
-        #h = dot[0]
-        #v = dot[1]
-        gv.TheMatrix.SetPixel(h,v,255,255,255)
-        
-        time.sleep(self.erasespeed)
-        gv.TheMatrix.SetPixel(h,v,0,0,0)
-        gv.ScreenArray[v][h] = (0,0,0)
-
-
-  def ReverseWorm(self):
-    self.h,self.v = self.trail[0]
-    self.trail.reverse()
-    self.direction = ReverseDirection(self.direction)
-    #ShowScreenArray()
-      
-  def ColorizeTrail(self,r,g,b):
-    print ("Colorize Trail: this loop seems wrong.  ")
-    for i,dot in enumerate(self.trail):
-      h = dot[0]
-      v = dot[1]
-      gv.TheMatrix.SetPixel(h,v,r,g,b)
-      gv.ScreenArray[v][h] = (r,g,b)
-
-    time.sleep(self.erasespeed * 1.5)
-    
-  def DisplayTrail(self):
-      count = len(self.trail)
-      print ("Displaying Trail:",count," dots")
-      for i in range (0,count):
-        h = self.trail[i][0]
-        v = self.trail[i][1]
-                        
-        gv.TheMatrix.SetPixel(h,v,self.r,self.g,self.b)
-        gv.ScreenArray[v][h] = (self.r,self.g,self.b)
-
-
-
-
-  def Resurrect(self):
-    #This function is used to bring a superworm back from the dead
-
-    #Find and empty spot
-    resurrected = 'N'
-    count       = 0
-    
-    while (resurrected == 'N' and count <= gv.ResurrectionTries):
-      count = count + 1
-      h = random.randint(0,gv.HatWidth-1)
-      v = random.randint(0,gv.HatHeight-1)
-      r,g,b = getpixel(h,v)
-      if (r == 0 and g == 0 and b == 0):
-        resurrected = 'Y'
-        self.alive     = 1
-        self.h         = h
-        self.v         = v
-        self.direction = (random.randint(1,4))
-        self.trail     = []
-        self.trail     = [(h,v)]
-        self.maxtrail  = gv.ResurrectedMaxTrail
-        self.speed     = gv.StartSpeedLow
-      
-        print ("A holy resurrection!")
-
-
-    return
-
-
-  def IncreaseMaxTrailLength(self,length):
-    if (self.maxtrail < gv.MaxTrailLength):
-      self.maxtrail = self.maxtrail + 1
-      
-
-  def SetStartingPoint(self):
-    done = 'N'
-    while (done == 'N'):
-      h = random.randint(gv.SuperWormStartMinH,gv.SuperWormStartMaxH)
-      v = random.randint(gv.SuperWormStartMinV,gv.SuperWormStartMaxV)
-      r,g,b = getpixel(h,v)
-
-      if (r == 0 and g == 0 and b == 0):
-        self.h         = h
-        self.v         = v
-        done = 'Y'
-
-
-  def TrimTrail(self):
-    if (len(self.trail) >= self.maxtrail):
-      h,v = self.trail[0]
-      setpixel(h,v,0,0,0)
-      del self.trail[0]
-
-
-  def Kill(self):
-    self.alive = 0
-    self.EraseTrail('forward','flash')
-    setpixel(self.h,self.v,0,0,0)
-
-
-
-      
-class Ship(object):
-  def __init__(self,h,v,r,g,b,direction,scandirection,speed,alive,lives,name,score,exploding):
-    self.h          = h 
-    self.v          = v
-    self.r          = r
-    self.g          = g
-    self.b          = b
-    self.direction  = direction
-    self.scandirection = scandirection
-    self.speed      = speed
-    self.alive      = 1
-    self.lives      = 1
-    self.name       = name
-    self.score      = 0
-    self.exploding  = 0
-    self.dropped    = 0
-    
-
-  def Display(self):
-    #print("display HV:", self.h,self.v)
-
-    if (self.alive == 1):
-      gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-      gv.ScreenArray[self.v][self.h] = (self.r,self.g,self.b)
-      
-
-      
-      
-  def Erase(self):
-    if (CheckBoundary(self.h,self.v) == 0):
-      gv.TheMatrix.SetPixel(self.h,self.v,0,0,0)
-      gv.ScreenArray[self.v][self.h] = (0,0,0)
-    
-      
-  def Flash(self):
-    sleep = gv.FlashSleep * 0.75
-    LowR  = int(self.r * 0.75)
-    LowG  = int(self.g * 0.75)
-    LowB  = int(self.b * 0.75)
-    HighR = int(self.r * 1.5)
-    HighG = int(self.g * 1.5)
-    HighB = int(self.b * 1.5)
-    
-    if (LowR < 0 ):
-      LowR = 0
-    if (LowG < 0 ):
-      LowG = 0
-    if (LowB < 0 ):
-      LowBB = 0
-    
-    if (HighR > 255):
-      HighR = 255
-    if (HighG > 255):
-      HighG = 255
-    if (HighB > 255):
-      HighB = 255
-      
-    gv.TheMatrix.SetPixel(self.h,self.v,HighR,HighG,HighB)
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-    time.sleep(sleep)
-    gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-    #unicorn.show()
-    gv.TheMatrix.SetPixel(self.h,self.v,LowR,LowG,LowB)
-    #unicorn.show()
-    time.sleep(sleep)
-    #unicorn.show()
-    gv.TheMatrix.SetPixel(self.h,self.v,HighR,HighG,HighB)
-    #unicorn.show()
-    time.sleep(sleep)
-    gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-    #unicorn.show()
-    gv.TheMatrix.SetPixel(self.h,self.v,LowR,LowG,LowB)
-    #unicorn.show()
-    time.sleep(sleep)
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-  
-
-
-# I tried including a color animated sprite in this class, but could
-# not figure out the syntax.
-# The workaround is to simply define a ship sprite that goes along with this object
-class AnimatedShip(object):
-  def __init__(self,h,v,direction,scandirection,speed,alive,lives,name,score,exploding):
-    self.h              = h 
-    self.v              = v
-    self.direction      = direction
-    self.scandirection  = scandirection
-    self.speed          = speed
-    self.alive          = 1
-    self.lives          = 3
-    self.name           = name
-    self.score          = 0
-    self.exploding      = 0
-    
-
-     
-class Wall(object):
-  def __init__(self,h,v,r,g,b,alive,lives,name):
-    self.h          = h 
-    self.v          = v
-    self.r          = r
-    self.g          = g
-    self.b          = b
-    self.alive      = 1
-    self.lives      = lives
-    self.name       = name
-    
-
-  def Display(self):
-    if (self.alive == 1):
-      gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-
-
-      
-  def Erase(self):
-    gv.TheMatrix.SetPixel(self.h,self.v,0,0,0)
-
-      
-  def IncreaseBrightness(self,increment):
-      
-    self.r = (self.r + increment)
-    self.g = (self.g + increment)
-    self.b = (self.b + increment)
-    
-    if (self.r > 255):
-      self.r = 255
-    if (self.g > 255):
-      self.g = 255
-    if (self.b > 255):
-      self.b = 255
-    
-
-
-
-
-class Door(object):
-  def __init__(self,h,v,alive,locked,name):
-    self.h          = h 
-    self.v          = v
-    self.alive      = 1
-    self.locked     = 0
-    self.name       = name
-
-  def Display(self):
-    #print("Door.Display - alive locked",self.alive,self.locked)
-    if (self.alive == 1):
-    
-      if (self.locked == 1):
-        gv.TheMatrix.SetPixel(self.h,self.v,SDLowPurpleR,SDLowPurpleG,SDLowPurpleB)
-      else:
-        gv.TheMatrix.SetPixel(self.h,self.v,SDDarkYellowR,SDDarkYellowG,SDDarkYellowB)
-      
-    
-
-      
-  def Erase(self):
-    gv.TheMatrix.SetPixel(self.h,self.v,0,0,0)
-    
-
-      
-      
-# ----------------------------
-# -- World Object           --
-# ----------------------------
-
-#DotZerk uses this one
-
-class World(object):
-  def __init__(self,name,width,height,Map,Playfield,CurrentRoomH,CurrentRoomV,DisplayH, DisplayV):
-    self.name      = name
-    self.width     = width
-    self.height    = height
-    self.Map       = ([[]])
-    self.Playfield = ([[]])
-    self.CurrentRoomH = 0
-    self.CurrentRoomV = 0
-    self.DisplayH     = 0
-    self.DisplayV     = 0
-    
-    #(h,v,alive,locked,name):
-    self.Door1 = Door(7,0,0,0,'Door')
-    self.Door2 = Door(15,7,0,0,'Door')
-    self.Door3 = Door(7,15,0,0,'Door')
-    self.Door4 = Door(0,7,0,0,'Door')
-
-    
-    self.Map = [[0 for i in range(width)] for i in range(height)]
-
-    #Playfield is the physical size of the Unicorn Hat (only in this game)
-    self.Playfield = [[0 for i in range(gv.HatWidth)] for i in range(gv.HatWidth)]
-
-  def Display(self):
-    if (self.alive == 1):
-      gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-      #unicorn.show()
-    
-
-  def DisplayWindow(self,h,v):
-  
-  #--> this is only the request to display.  The actual co-ordinates need to be fixed!
-  
-  
-    #This function accepts h,v coordinates for the entire map (e.gv. 1,8  20,20,  64,64)    
-    #The window to be displayed starts at the input co-ordinates and is HatWitdth x gv.HatHeight in size from that point.
-    #hv = location on map/playfield
-    #HV = physical screen.  
-    #check boundaries
-    
-    #print ("DisplayWindow h v gv.HatWidth self.width: ",h,v,gv.HatWidth,self.width)
-    #Check Boundaries
-    if (h + gv.HatWidth >= self.width):
-      print ("WIDTH ERROR: Invalid coordinates passed to DisplayWindow hv: ",h,v)
-      h = self.width - gv.HatWidth
-    if (v + gv.HatHeight >= self.height):
-      print ("HEIGHT ERROR: Invalid coordinates passed to DisplayWindow hv: ",h,v)
-      v = self.height - gv.HatHeight
-
-
-    for V in range(0,gv.HatWidth):
-      for H in range (0,gv.HatHeight):
-        #The map was created visually for me the programmer
-        #turns out the H and V are swapped.  Sorry!
-        #print("WO - Display Window - HV hv",H,V,h,v)
-          
-        #print ("DisplayWindow - HV hv:",H,V,h,v)
-        try:
-          SDColor = self.Map[V+v][H+h]
-          #print ("SDColor: ",SDColor)
-        except:
-          print ("########################")
-          print ("ERROR: Diplay Window function encountered an out of index error.  HV hv",H,V,h,v)
-        
-        r,g,b =  ColorList[SDColor] 
-        #print("WO - Display Window - SDColor rgb",SDColor,r,g,b)
-        gv.TheMatrix.SetPixel(H,V,r,g,b)
-        
-  #WALL(h,v,r,g,b,alive,lives,name):
-           
-  def CopyMapToPlayfield(self):
-    
-        
-    h = self.CurrentRoomH * gv.HatWidth
-    v = self.CurrentRoomV * gv.HatWidth
-    V = 0
-    H = 0
-    self.Door1.alive = 0
-    self.Door2.alive = 0
-    self.Door3.alive = 0
-    self.Door4.alive = 0
-
-    
-    
-    #print ("WO - self.CurrentRoomHV:",h,v,"==============================================")
-    for V in range(0,gv.HatWidth):
-      for H in range (0,gv.HatWidth):
-        #print ("WO - CopyMapToPlayfield - Map[",V+v,"][",H+h,"] SDColor:",self.Map[V+v][H+h])
-        
-        if (self.Map[V+v][H+h] != 0):
-          SDColor = self.Map[V+v][H+h]
-          r,g,b =  ColorList[SDColor]
-          #print ("WO - CopyMapToPlayfield - V+v H+h (rgb)",V+v,H+h,"(",r,g,b,")")
-          
-          #Doors are represented by SDLowYellow (21)
-          #I decided to force their positions in order to cut down the complexity
-          #They are alive if a door exists, otherwise the space is treated as a wall
-          if (SDColor == 21):
-            #print ("WO - CopyMapToPlayfield - placing door")
-            if (H == 7 and V == 0):
-              #print ("###Door1#########################################################################")
-              self.Door1.alive = 1
-              self.Door1.locked == 0
-              self.Playfield[H][V] = self.Door1
-            if (H == 15 and V == 7):
-              #print ("###Door2#########################################################################")
-              self.Door2.alive = 1
-              self.Door2.locked == 0
-              self.Playfield[H][V] = self.Door2
-            if (H == 7 and V == 15):
-              #print ("###Door3#########################################################################")
-              self.Door3.alive = 1
-              self.Door3.locked == 0
-              self.Playfield[H][V] = self.Door3
-            if (H == 0 and V == 7):
-              #print ("###Door4#########################################################################")
-              self.Door4.alive = 1
-              self.Door4.locked == 0
-              self.Playfield[H][V] = self.Door4
-          
-            #print ("Door1.alive:",Door1.alive)
-            #print ("Door2.alive:",Door2.alive)
-            #print ("Door3.alive:",Door3.alive)
-            #print ("Door4.alive:",Door4.alive)
-          
-          else:
-            self.Playfield[H][V] = Wall(H,V,r,g,b,1,1,'Wall')
-            #print ("WO - CopyMapToPlayfield - placing wall")
-
-          
-      
-      
-  def DisplayPlayfield(self,ShowFlash):
-    #print ("WO - Display Playfield")
-    for y in range (0,gv.HatWidth):
-      for x in range (0,gv.HatWidth):
-        #print("WO - DisplayPlayfield XY: ",x,y,self.Playfield[x][y].name)
-        if (self.Playfield[x][y].name == 'Door' ):
-          print ("WO - DisplayPlayfield - Door found locked:",self.Playfield[x][y].locked)
-        if (self.Playfield[x][y].name != 'EmptyObject' ):
-          self.Playfield[x][y].Display()
-          #unicorn.show()
-          #print ("WO - DisplayPlayfield - self.Playfield[x][y].hv",self.Playfield[x][y].h,self.Playfield[x][y].v)
-          if (ShowFlash == 1):
-            FlashDot4(x,y,0.001)
-          
-          
-
-  
-    
-  
-
-  
-  def ScrollMapRoom(self,direction,speed):
-
-    ScrollH = 0
-    SCrollV = 0
-
-    #Scroll Up
-    if (direction == 1):
-      self.CurrentRoomV = self.CurrentRoomV - 1
-
-      ScrollH = self.CurrentRoomH *gv.HatWidth
-      ScrollV = self.CurrentRoomV *gv.HatWidth
-          
-      #We display the window gv.HatWidth times, moving it one column every time
-      #this gives a neat scrolling effect
-      for x in range (ScrollV+gv.HatWidth,ScrollV-1,-1):
-        #print ("DZER X:",x)
-        #print ("DZER ScrollMapRoom calling DisplayWindow ScrollH x:",ScrollH,x)
-        self.DisplayWindow(ScrollH,x)
-        #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-        
-        #time.sleep(speed)
-       
-
-    
-    #Scroll Down
-    if (direction == 3):
-      self.CurrentRoomV = self.CurrentRoomV + 1
-
-      ScrollH = self.CurrentRoomH *gv.HatWidth
-      ScrollV = self.CurrentRoomV *gv.HatWidth
-          
-      #We display the window 8 times, moving it one column every time
-      #this gives a neat scrolling effect
-      for x in range (ScrollV-gv.HatWidth,ScrollV+1):
-        #print ("DZER X:",x)
-        #print ("DZER calling DisplayWindow ScrollH x:",ScrollH,x)
-        self.DisplayWindow(ScrollH,x)
-        #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-        #time.sleep(speed)
-      
-    #Scroll right
-    if (direction == 2):
-      self.CurrentRoomH = self.CurrentRoomH + 1
-
-      ScrollH = self.CurrentRoomH *gv.HatWidth
-      ScrollV = self.CurrentRoomV *gv.HatWidth
-          
-      #We display the window gv.HatWidth times, moving it one column every time
-      #this gives a neat scrolling effect
-      for x in range (ScrollH-gv.HatWidth,ScrollH+1):
-        #print ("DZER X:",x)
-        #print ("DZER calling DisplayWindow x ScrollV:",x,ScrollV)
-        self.DisplayWindow(x,ScrollV)
-        #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-        #time.sleep(speed)
-      
-    
-    #Scroll left
-    elif (direction == 4):
-      self.CurrentRoomH = self.CurrentRoomH -1
-      ScrollH = self.CurrentRoomH *gv.HatWidth
-      ScrollV = self.CurrentRoomV *gv.HatWidth
-      #print("DZER - ScrollHV",ScrollH,ScrollV)
-      for x in range (ScrollH+gv.HatWidth-1,ScrollH-1,-1):
-        #print ("DZER X:",x)
-        #print ("DZER calling DisplayWindow x ScrollV:",x,ScrollV)
-        self.DisplayWindow(x,ScrollV)
-        #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-        #time.sleep(speed)
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-            
-# ----------------------------
-# -- GameWorld Object       --
-# ----------------------------
-
-#Rallydot
-
-#The GameWorld object 4s the entire game layout, the map, the playfield, etc.
-#The map is how we draw the roads and structures.  The playfield holds all the objects currently in play.
-#The playfield is populated with map objects (loaded from the map, they may have extra properties such as getting destroyed) and player objects
-#A window into the playfield is then displayed on the unicorn hat grid.
-
-
-class EmptyObject(object):
-  def __init__(self,name='EmptyObject'):
-    self.name  = name
-    self.alive = 0
-    self.lives = 0
-    self.direction = 0
-    self.h          = -1 
-    self.v          = -1
-    self.r          = 0
-    self.g          = 0
-    self.b          = 0
-    self.scandirection = 0
-    self.speed      = 0
-    self.score      = 0
-    self.exploding  = 0
-    self.dropped    = 0
-
-    
-    
-    
-class GameWorld(object):
-  def __init__(self,name,width,height,Map,Playfield,CurrentRoomH,CurrentRoomV,DisplayH, DisplayV):
-    self.name      = name
-    self.width     = width
-    self.height    = height
-    self.Map       = ([[]])
-    self.Playfield = ([[]])
-    self.CurrentRoomH = 0
-    self.CurrentRoomV = 0
-    self.DisplayH     = 0
-    self.DisplayV     = 0
-    
-    
-    #print ("RD - Initialize map and playfield  width height: ",self.width, self.height)
-    self.Map       = [[0 for i in range(self.width)] for i in range(self.height)]
-    self.Playfield = [[EmptyObject('EmptyObject') for i in range(self.width)] for i in range(self.height)]
-
-    #print ("--Initializing map--")
-    #print (*self.Map[0])
-    #print (*self.Map[2])
-    #print ("Map Length: ",len(self.Map[0]))
-    #print ("Playfield Length",len(self.Playfield[0]))
-    #print ("-------------------")
-    
-
-    
-    
-    
-    
-    
-
-  def DisplayExplodingObjects(self,h,v):
-    #This function accepts h,v coordinates for the entire map (e.gv. 1,8  20,20,  64,64)    
-    #Displays what is on the playfield currently, including walls, cars, etc.
-    r = 0
-    g = 0
-    b = 0
-    count = 0
-
-    for V in range(0,gv.HatHeight):
-      for H in range (0,gv.HatWidth):
-        if (v+V < self.height and h+H < self.height):
-          name = self.Playfield[v+V][h+H].name
-        
-          if (name in ("Enemy") and self.Playfield[v+V][h+H].exploding == 1):
-            #print("Exploding Object - h,v,name ",h,v,name)
-            r = 0
-            g = 0
-            b = 0          
-            
-            #EXPLODE ENEMY CAR BOMBS
-            #Source Car blows up
-            self.Playfield[v+V][h+H].exploding = 0
-            self.Playfield[v+V][h+H].lives = 0
-            self.Playfield[v+V][h+H].alive = 0
-            gv.TheMatrix.SetPixel(H,V,255,255,255)
-            #remove dead object from playfield
-            self.Playfield[v+V][h+H] = EmptyObject('EmptyObject') 
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-    return;    
-    
-    
-
-  def DisplayWindow(self,h,v):
-    #This function accepts h,v coordinates for the entire map (e.gv. 1,8  20,20,  64,64)    
-    #Displays what is on the playfield currently, including walls, cars, etc.
-    r = 0
-    g = 0
-    b = 0
-    count = 0
-
-
-    #HV = 0-15
-    #hv = position on playfield (virtual map)    
-
-    for V in range(0,gv.HatHeight):
-      for H in range (0,gv.HatWidth):
-        #print("WO - Display Window - HV hv",H,V,h,v)
-         
-        if (v+V < self.height and h+H < self.height):
-        
-          name = self.Playfield[v+V][h+H].name
-          
-          if (name == 'EmptyObject'):
-            r = 0
-            g = 0
-            b = 0          
-
-          else:
-            r = self.Playfield[v+V][h+H].r
-            g = self.Playfield[v+V][h+H].g
-            b = self.Playfield[v+V][h+H].b
-            
-          #Our map is an array of arrays [v][h] but we draw h,v
-          gv.TheMatrix.SetPixel(H,V,r,g,b)
-    
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-    return;
-    
-  def DisolveWindow(self,h,v,sleep):
-    #This function accepts h,v coordinates for the entire map (e.gv. 1,8  20,20,  64,64)    
-    #Draw the window with fancy effects
-    r = 255
-    g = 255
-    b = 255
-    count = 0
-
-
-    #HV = 0-15
-    #hv = position on playfield (virtual map)    
-
-    for V in range(0,gv.HatHeight):
-      for H in range (0,gv.HatWidth):
-        #print("WO - Display Window - HV hv",H,V,h,v)
-         
-        if (v+V < self.height and h+H < self.height):
-          name = self.Playfield[v+V][h+H].name
-          
-          if (name != 'EmptyObject'):
-            gv.TheMatrix.SetPixel(H,V,r,g,b)
-            #unicorn.show()
-            #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-            time.sleep(sleep)
-            gv.TheMatrix.SetPixel(H,V,0,0,0)
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-    return;
-    
-
-    
-    
-    
-  def DisplayWindowWithSprite(self,h,v,TheSprite):
-    #This function accepts h,v coordinates for the entire map (e.gv. 1,8  20,20,  64,64)    
-    #Displays what is on the playfield currently, including walls, cars, etc.
-    r = 0
-    g = 0
-    b = 0
-    count = 0
-        
-
-    for V in range(0,gv.HatWidth):
-      for H in range (0,gv.HatHeight):
-        
-                
-        name = self.Playfield[v+V][h+H].name
-        #print ("Display: ",name,V,H)
-        if (name == 'EmptyObject'):
-          r = 0
-          g = 0
-          b = 0          
-
-        else:
-          r = self.Playfield[v+V][h+H].r
-          g = self.Playfield[v+V][h+H].g
-          b = self.Playfield[v+V][h+H].b
-          
-        #Our map is an array of arrays [v][h] but we draw h,v
-        gv.TheMatrix.SetPixel(H,V,r,g,b)
-
-    #Display sprite at current location
-    #sprite hv will allow external functions to slide sprite all over screen
-
-    #print ("Clock info  hv on: ",TheSprite.h,TheSprite.v,TheSprite.on)
-    TheSprite.CopySpriteToBuffer(TheSprite.h,TheSprite.v)
-        
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-    
-        
-
-        
-        
-        
-        
-        
-  def UpdateObjectDisplayCoordinates(self,h,v):
-    #This function looks at a window (an 8x8 display grid for the unicorn hat)
-    #and updates the dh,dv location information for objects in that grid
-    #This is useful if we want to blow something up on screen
-    
-    #scroll off
-    for V in range(0,gv.HatHeight):
-      for H in range (0,gv.HatWidth):
-        name = self.Playfield[v+V][h+H].name
-        if (name == "Player" or name == "Enemy" or name == "Fuel"):
-          self.Playfield[v+V][h+H].dh = H
-          self.Playfield[v+V][h+H].dv = V
-          
-
-  
-  def CopyMapToPlayfield(self):
-    #This function is run once to populate the playfield with wall objects, based on the map drawing
-    #XY is actually implemented as YX.  Counter intuitive, but it works.
-
-    width  = self.width 
-    height = self.height 
-   
-    #print ("RD - CopyMapToPlayfield - Width Height: ", width,height)
-    x = 0
-    y = 0
-    
-    
-    #print ("width height: ",width,height)
-    
-    for y in range (0,height):
-      #print ("-------------------")
-      #print (*self.Map[y])
-  
-      for x in range(0,width):
-        #print ("RD xy color: ",x,y, self.Map[y][x])
-        SDColor = self.Map[y][x]
-        
-        
-  
-        if (SDColor != 0):
-          #print ("Wall")
-          r,g,b =  ColorList[SDColor]
-          #print ("RD xy: ",x,y," rgb(",r,g,b,")")
-          self.Playfield[y][x] = Wall(x,y,r,g,b,1,1,'Wall')
-        else:
-          #print ('EmptyObject')
-          self.Playfield[y][x] = EmptyObject('EmptyObject')
-          
-          
-          
-         
-      
-      
-          
-          
-  def ScrollMapDots(self,direction,dots,speed):
-
-    #we only want to scroll the number of dots, not the whole room
-    #DisplayWindow has HV starting in upper left hand corner
-    
-    x = 0
-    ScrollH = self.DisplayH
-    ScrollV = self.DisplayV
-
-    #print("ScrollMapDots - ScrollH ScrollV direction width",ScrollH,ScrollV, direction, self.width)
-     
-    #Scroll Up
-    if (direction == 1):
-      
-      if (ScrollV - dots >= 0):
-      
-        for x in range (ScrollV-1,ScrollV-dots-1,-1):
-          #print ("ScrollMapDots up: ScrollH x",ScrollH,x)
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-         
-
-    
-    #Scroll Down
-    if (direction == 3):
-          
-      if (ScrollV + gv.HatWidth + dots <= self.height):
-        for x in range (ScrollV+1,ScrollV+dots+1):
-          #print ("ScrollMapDots down: ScrollH x",ScrollH,x)
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-      
-    #Scroll right
-    if (direction == 2):
-      if (ScrollH + gv.HatWidth + dots  <= self.width):
-        for x in range (ScrollH+1,ScrollH+dots+1):
-          #print ("ScrollMapDots right: x ScrollV",x,ScrollV)
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-      
-    
-    #Scroll left
-    elif (direction == 4):
-      if (ScrollH - dots >= 0):
-        for x in range (ScrollH-1,ScrollH-dots-1,-1):
-          #print ("ScrollMapDots left: x ScrollV",x,ScrollV)
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-
-
-    #Set current room number
-    self.CurrentRoomH,r = divmod(ScrollH,8)
-    self.CurrentRoomV,r = divmod(ScrollV,8)
-    self.DisplayH = ScrollH
-    self.DisplayV = ScrollV
-  
-    #time.sleep(speed)
-
-
-    
-  def ScrollMapDots8Way(self,direction,dots,speed):
-
-    #we only want to scroll the number of dots, not the whole room
-    #DisplayWindow has HV starting in upper left hand corner
-    
-    x = 0
-    ScrollH = self.DisplayH
-    ScrollV = self.DisplayV
-
-    #print("ScrollMapDots8Way - ScrollH ScrollV direction width",ScrollH,ScrollV, direction, self.width)
-     
-    #Scroll N
-    if (direction == 1):
-      
-      if (ScrollV - dots >= 0):
-      
-        for x in range (ScrollV-1,ScrollV-dots-1,-1):
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-         
-    #Scroll NE
-    if (direction == 2):
-      
-      #Scroll up and right
-      if (ScrollV - dots >= 0):
-        for x in range (ScrollV-1,ScrollV-dots-1,-1):
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-
-      if (ScrollH + 8 + dots  <= self.width):
-        for x in range (ScrollH+1,ScrollH+dots+1):
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-         
-         
-    #Scroll E
-    if (direction == 3):
-      if (ScrollH + 8 + dots  <= self.width):
-        for x in range (ScrollH+1,ScrollH+dots+1):
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-
-    #Scroll SE
-    
-    #Scroll right then down
-    if (direction == 4):
-      if (ScrollH + 8 + dots  <= self.width):
-        for x in range (ScrollH+1,ScrollH+dots+1):
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-
-      if (ScrollV + 8 + dots <= self.height):
-        for x in range (ScrollV+1,ScrollV+dots+1):
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-
-        
-        
-         
-    #Scroll S
-    if (direction == 5):
-          
-      if (ScrollV + 8 + dots <= self.height):
-        for x in range (ScrollV+1,ScrollV+dots+1):
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-      
-    
-    #Scroll SW
-    
-    #Scroll down then left
-    elif (direction == 6):
-      if (ScrollH - dots >= 0):
-        for x in range (ScrollH-1,ScrollH-dots-1,-1):
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-
-      if (ScrollV + 8 + dots <= self.height):
-        for x in range (ScrollV+1,ScrollV+dots+1):
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-        
-        
-    #Scroll W
-    elif (direction == 7):
-      if (ScrollH - dots >= 0):
-        for x in range (ScrollH-1,ScrollH-dots-1,-1):
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-      
-      
-    #Scroll NW
-    #Scroll upd then left
-    elif (direction == 8):
-      if (ScrollV - dots >= 0):
-        for x in range (ScrollV-1,ScrollV-dots-1,-1):
-          self.DisplayWindow(ScrollH,x)
-        ScrollV = x
-
-      if (ScrollH - dots >= 0):
-        for x in range (ScrollH-1,ScrollH-dots-1,-1):
-          self.DisplayWindow(x,ScrollV)
-        ScrollH = x
-
-    
-    #time.sleep(0.5)
- 
-
-
-    #Set current room number
-    self.CurrentRoomH,r = divmod(ScrollH,8)
-    self.CurrentRoomV,r = divmod(ScrollV,8)
-    self.DisplayH = ScrollH
-    self.DisplayV = ScrollV
-  
-
-
-
-
-# -------------------------
-# --      Cars           --
-# -------------------------
-
-
-
-class CarDot(object):
-  
-  def __init__(self,h,v,dh,dv,r,g,b,direction,scandirection,gear,currentgear,speed,alive,lives,name,score,exploding,radarrange,destination):
-    self.h             = h         # location on playfield (e.gv. 10,35)
-    self.v             = v         # location on playfield (e.gv. 10,35)
-    self.dh            = dh        # location on display   (e.gv. 3,4) 
-    self.dv            = dv        # location on display   (e.gv. 3,4) 
-    self.r             = r
-    self.g             = g
-    self.b             = b
-    self.direction     = direction      #direction of travel
-    self.scandirection = scandirection  #direction of scanners, if equipped
-    self.currentgear   = currentgear    
-    self.speed         = speed
-    self.alive         = 1
-    self.lives         = 3
-    self.name          = name
-    self.score         = 0
-    self.exploding     = 0
-    self.radarrange    = 20
-    self.destination   = ""
-    
-    #Hold speeds in a list, acting like gears
-    self.gear = []
-    self.gear.append(5)
-    self.gear.append(4)
-    self.gear.append(3)
-    self.gear.append(2)
-    self.gear.append(1)
-
-
-  def Display(self):
-    if (self.alive == 1):
-      gv.TheMatrix.SetPixel(self.h,self.v,self.r,self.g,self.b)
-     # print("display HV:", self.h,self.v)
-      #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-      
-  def ShiftGear(self,direction):
-    #Gears is a list with X gears
-    #lists start counting at 0
-    #Min gear = 0
-    #Max gear = x-1
-
-    NumGears = len(self.gear)
-
-    if (direction == 'down'):
-      self.currentgear = self.currentgear -1
-    else:
-      self.currentgear = self.currentgear +1
-    
-    #need to put in the CPUModifier here
-    #don't let player go too fast or too slow
-    if (self.name == "Player"):
-      if self.currentgear > NumGears -2:
-        self.currentgear = NumGears -2
-
-      if self.currentgear <= 3:
-        self.currentgear = 3
-    
-    
-    if (self.currentgear > NumGears -1):
-      self.currentgear = NumGears -1
-    elif (self.currentgear < 0):
-      self.currentgear = 0
-
-
-      
-    #adust speed based on current gear
-    self.speed = self.gear[self.currentgear]
-    #print ("Name: ", self.name, " Current Gear:",self.currentgear, " Speed: ",self.speed)
-  
-  
-    return;  
-
-  
-  def Erase(self):
-    gv.TheMatrix.SetPixel(self.h,self.v,0,0,0)
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-
-  def AdjustSpeed(self, increment):
-    speed = self.speed
-    speed = self.speed + increment
-    if (speed > 1000):
-      speed = 1000
-    elif (speed <= 1):
-      speed = 1
-
-    self.speed = speed
-    return;
 
 
 
@@ -4627,14 +2199,14 @@ class CarDot(object):
     # x = 0
     # y = 0
     # rgb = (0,0,0)
-    # gv.HatWidth  = width
-    # gv.HatHeight = height
+    # HatWidth  = width
+    # HatHeight = height
     # UnicornBuffer = unicorn.get_pixels()
    
     # ints = []
    
-    # for x in range(0,gv.HatHeight):
-      # for y in range(0,gv.HatWidth):
+    # for x in range(0,HatHeight):
+      # for y in range(0,HatWidth):
         # r,g,b = UnicornBuffer[x][y]
         # self.PacketString = self.PacketString + '#%02x%02x%02x' % (r,g,b) + ","
         # #self.PacketString = self.PacketString + str(r) + "," + str(g) + "," + str(b) + ","
@@ -5057,7 +2629,7 @@ def ScrollSprite2(Sprite,h,v,direction,moves,r,g,b,delay):
       #draw new sprite
       DisplaySprite(Sprite,Sprite.width,Sprite.height,h,v,r,g,b)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       time.sleep(delay)
   
   return;
@@ -5088,7 +2660,7 @@ def ScrollSprite(Sprite,width,height,Direction,startH,startV,stopH,stopV,r,g,b,d
       #draw new sprite
       DisplaySprite(Sprite,width,height,h,v,r,g,b)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       time.sleep(delay)
   
   return;
@@ -5102,7 +2674,7 @@ def DisplaySprite(Sprite,width,height,h,v,r,g,b):
     #print("Count:",count,"xy",x,y)
     if Sprite[count] == 1:
       if (CheckBoundary(x+h,y+v) == 0):
-        gv.TheMatrix.SetPixel(x+h,y+v,r,g,b)
+        TheMatrix.SetPixel(x+h,y+v,r,g,b)
   return;    
 
 
@@ -5271,7 +2843,7 @@ def CreateShortWordSprite(ShortWord):
   
   
   #add variables to the object (python allows this, very cool!)
-  TheBanner.h = (gv.HatWidth - TheBanner.width) / 2
+  TheBanner.h = (HatWidth - TheBanner.width) / 2
   TheBanner.v = -4
   TheBanner.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
 
@@ -5397,7 +2969,7 @@ def DrawDigit(Digit,h,v,r,g,b):
 
   DisplaySprite(Sprite,width,height,h,v,r,g,b)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   return;  
 
 
@@ -5410,14 +2982,14 @@ def CheckBoundaries(h,v,Direction):
   if v < 0:
     v = 0
     Direction = TurnRight(Direction)
-  elif v > gv.HatHeight-1:
-    v = gv.HatHeight-1
+  elif v > HatHeight-1:
+    v = HatHeight-1
     Direction = TurnRight(Direction)
   elif h < 0:
     h = 0
     Direction = TurnRight(Direction)
-  elif h > gv.HatWidth-1:
-    h = gv.HatWidth-1
+  elif h > HatWidth-1:
+    h = HatWidth-1
     Direction = TurnRight(Direction)
   return h,v,Direction
 
@@ -5425,7 +2997,7 @@ def CheckBoundaries(h,v,Direction):
   
 def CheckBoundary(h,v):
   BoundaryHit = 0
-  if v < 0 or v > gv.HatHeight-1 or h < 0 or h > gv.HatWidth-1:
+  if v < 0 or v > HatHeight-1 or h < 0 or h > HatWidth-1:
     BoundaryHit = 1
   return BoundaryHit;
 
@@ -5452,7 +3024,7 @@ def ShowDigitalClock(h,v,duration):
   ClockSpriteBackground.DisplayIncludeBlack(h-2,v-1)
   ClockSprite.Display(h,v)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   time.sleep(duration)
   setpixels(Buffer)
   return;
@@ -5492,15 +3064,15 @@ def SaveConfigData():
 
     
   print ("Time to save: ",AdjustedTime)
-  print ("Pacdot score:      " ,gv.PacDotScore)
-  print ("Pacdot high score: " ,gv.PacDotHighScore)
-  print ("Pacdot games played:",gv.PacDotGamesPlayed)
-  print ("Crypto balance:    " ,gv.CryptoBalance)
+  print ("Pacdot score:      " ,PacDotScore)
+  print ("Pacdot high score: " ,PacDotHighScore)
+  print ("Pacdot games played:",PacDotGamesPlayed)
+  print ("Crypto balance:    " ,CryptoBalance)
 
   ConfigFile.set('main',   'CurrentTime',       AdjustedTime)
-  ConfigFile.set('pacdot', 'PacDotHighScore',   str(gv.PacDotHighScore))
-  ConfigFile.set('pacdot', 'PacDotGamesPlayed', str(gv.PacDotGamesPlayed))
-  ConfigFile.set('crypto', 'balance',           str(gv.CryptoBalance))
+  ConfigFile.set('pacdot', 'PacDotHighScore',   str(PacDotHighScore))
+  ConfigFile.set('pacdot', 'PacDotGamesPlayed', str(PacDotGamesPlayed))
+  ConfigFile.set('crypto', 'balance',           str(CryptoBalance))
 
 
   print ("Writing configuration file")
@@ -5515,7 +3087,7 @@ def LoadConfigData():
   
 
   print ("--Load Config Data--")
-  print ("PacDotHighScore Before Load: ",gv.PacDotHighScore)
+  print ("PacDotHighScore Before Load: ",PacDotHighScore)
     
   if (os.path.exists(ConfigFileName)):
     print ("Config file (",ConfigFileName,"): already exists")
@@ -5529,14 +3101,14 @@ def LoadConfigData():
     #os.system(CMD)
    
     #Get pacdot data
-    gv.PacDotHighScore   = ConfigFile.get("pacdot","PacdotHighScore")
-    gv.PacDotGamesPlayed = int(ConfigFile.get("pacdot","PacdotGamesPlayed"))
-    print ("PacDotHighScore: ",  gv.PacDotHighScore)
-    print ("PacDotGamesPlayed: ",gv.PacDotGamesPlayed)
+    PacDotHighScore   = ConfigFile.get("pacdot","PacdotHighScore")
+    PacDotGamesPlayed = int(ConfigFile.get("pacdot","PacdotGamesPlayed"))
+    print ("PacDotHighScore: ",  PacDotHighScore)
+    print ("PacDotGamesPlayed: ",PacDotGamesPlayed)
 
     #Get CryptoBalance
-    gv.CryptoBalance = ConfigFile.get("crypto","balance")
-    print ("CryptoBalance:   ",gv.CryptoBalance)
+    CryptoBalance = ConfigFile.get("crypto","balance")
+    print ("CryptoBalance:   ",CryptoBalance)
 
     
   else:
@@ -5602,9 +3174,9 @@ def SetTimeHHMM():
 
  
   ScreenCap  = copy.deepcopy(unicorn.get_pixels())
-  ScrollScreen('up',ScreenCap,gv.ScrollSleep)
-  ShowScrollingBanner("set time: hours minutes",100,100,0,gv.ScrollSleep)
-  ScrollScreen('down',ScreenCap,gv.ScrollSleep)
+  ScrollScreen('up',ScreenCap,ScrollSleep)
+  ShowScrollingBanner("set time: hours minutes",100,100,0,ScrollSleep)
+  ScrollScreen('down',ScreenCap,ScrollSleep)
 
   
   HHSprite = TrimSprite(CustomHSprite)
@@ -5612,7 +3184,7 @@ def SetTimeHHMM():
   
   HHSprite.Display(1,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   #Get first hour digit
   while (Key != 0 and Key != 1):
@@ -5627,7 +3199,7 @@ def SetTimeHHMM():
   CustomHSprite.Erase(1,1)
   UserH1Sprite.Display(1,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   #Get second hour digit (special conditions to make sure we keep 12 hour time)
   Key = -1
@@ -5642,7 +3214,7 @@ def SetTimeHHMM():
   CustomHSprite.Erase(5,1)
   UserH2Sprite.Display(5,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
     
   #print ("HH: ",H1,H2)
   
@@ -5652,7 +3224,7 @@ def SetTimeHHMM():
   
   #Get minutes
   time.sleep(1)
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
 
   
   MMSprite = TrimSprite(CustomMSprite)
@@ -5660,7 +3232,7 @@ def SetTimeHHMM():
   
   MMSprite.Display(1,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   #Get first minute digit
   Key = -1
@@ -5674,7 +3246,7 @@ def SetTimeHHMM():
   CustomMSprite.Erase(1,1)
   UserM1Sprite.Display(1,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   #Get second hour digit
   Key = -1
@@ -5688,18 +3260,18 @@ def SetTimeHHMM():
   CustomMSprite.Erase(5,1)
   UserM2Sprite.Display(5,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
     
   #print ("MM: ",M1,M2)
   
   time.sleep(1)
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
 
   # a.m / p.m.
-  ShowScrollingBanner("AM or PM",100,100,0,gv.ScrollSleep * 0.65)
+  ShowScrollingBanner("AM or PM",100,100,0,ScrollSleep * 0.65)
   AMPMSprite.Display(1,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   #Get A or P
   KeyChar = ''
   while (KeyChar == '' or (KeyChar != 'A' and KeyChar != 'a' and KeyChar != 'P' and KeyChar != 'p' )):
@@ -5711,7 +3283,7 @@ def SetTimeHHMM():
   AMPMSprite.b = SDLowGreenB
   AMPMSprite.Display(1,1)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   QuestionMarkSprite.Erase(1,1)
 
@@ -5719,13 +3291,13 @@ def SetTimeHHMM():
   if (KeyChar == 'a' or KeyChar == 'A'):
     AMSprite.Display(0,1)
     #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+    #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
     AMPM  = 'am'
     
   elif (KeyChar == 'p' or KeyChar == 'P'):
     PMSprite.Display(0,1)
     #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+    #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
     AMPM = 'pm'
     
   
@@ -5740,8 +3312,8 @@ def SetTimeHHMM():
   CMD = "sudo date --set " + NewTime
   os.system(CMD)
   
-  gv.TheMatrix.Clear()
-  ScrollScreenShowClock('down',gv.ScrollSleep)         
+  TheMatrix.Clear()
+  ScrollScreenShowClock('down',ScrollSleep)         
   
 
 
@@ -5757,7 +3329,7 @@ def ShowScrollingBanner(TheMessage,r,g,b,ScrollSpeed):
   TheBanner.r = r 
   TheBanner.g = g 
   TheBanner.b = b 
-  TheBanner.ScrollAcrossScreen(gv.HatWidth-1,4,"left",ScrollSpeed)
+  TheBanner.ScrollAcrossScreen(HatWidth-1,4,"left",ScrollSpeed)
 
 
 def ShowScrollingBanner2(TheMessage,rgb,ScrollSpeed,v=5):
@@ -5767,7 +3339,7 @@ def ShowScrollingBanner2(TheMessage,rgb,ScrollSpeed,v=5):
   TheBanner.r = r 
   TheBanner.g = g 
   TheBanner.b = b 
-  TheBanner.ScrollAcrossScreen(gv.HatWidth-1,v,"left",ScrollSpeed)
+  TheBanner.ScrollAcrossScreen(HatWidth-1,v,"left",ScrollSpeed)
 
 def ShowFloatingBanner(TheMessage,rgb,ScrollSpeed,v=5):
   r,g,b = rgb
@@ -5776,7 +3348,7 @@ def ShowFloatingBanner(TheMessage,rgb,ScrollSpeed,v=5):
   TheBanner.r = r 
   TheBanner.g = g 
   TheBanner.b = b 
-  TheBanner.FloatAcrossScreen(gv.HatWidth-1,v,"left",ScrollSpeed)
+  TheBanner.FloatAcrossScreen(HatWidth-1,v,"left",ScrollSpeed)
 
 
 
@@ -5792,29 +3364,29 @@ def ShowFloatingBanner(TheMessage,rgb,ScrollSpeed,v=5):
   
 def FlashDot(h,v,FlashSleep):
   r,g,b = getpixel(h,v)
-  gv.TheMatrix.SetPixel(h,v,0,0,255)
+  TheMatrix.SetPixel(h,v,0,0,255)
   time.sleep(FlashSleep)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-  gv.TheMatrix.SetPixel(h,v,r,g,b)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
+  TheMatrix.SetPixel(h,v,r,g,b)
   time.sleep(FlashSleep)
   #unicorn.show()
-  gv.TheMatrix.SetPixel(h,v,0,255,0)
+  TheMatrix.SetPixel(h,v,0,255,0)
   time.sleep(FlashSleep)
   #unicorn.show()
-  gv.TheMatrix.SetPixel(h,v,r,g,b)
+  TheMatrix.SetPixel(h,v,r,g,b)
   time.sleep(FlashSleep)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   return;
 
 def FlashDot2(h,v,FlashSleep):
   r,g,b = getpixel(h,v)
-  gv.TheMatrix.SetPixel(h,v,100,100,0)
-  gv.TheMatrix.SetPixel(h,v,200,200,0)
-  gv.TheMatrix.SetPixel(h,v,255,255,255)
+  TheMatrix.SetPixel(h,v,100,100,0)
+  TheMatrix.SetPixel(h,v,200,200,0)
+  TheMatrix.SetPixel(h,v,255,255,255)
   time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,r,g,b)
+  TheMatrix.SetPixel(h,v,r,g,b)
 
   return;
 
@@ -5845,47 +3417,47 @@ def FlashDot3(h,v,r,g,b,FlashSleep):
   if (HighB > 255):
     HighB = 255
     
-  gv.TheMatrix.SetPixel(h,v,HighR,HighG,HighB)
+  TheMatrix.SetPixel(h,v,HighR,HighG,HighB)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,r,g,b)
+  TheMatrix.SetPixel(h,v,r,g,b)
   #unicorn.show()
-  gv.TheMatrix.SetPixel(h,v,LowR,LowG,LowB)
-  #unicorn.show()
-  time.sleep(FlashSleep)
-  #unicorn.show()
-  gv.TheMatrix.SetPixel(h,v,HighR,HighG,HighB)
-  #unicorn.show()
-  time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,r,g,b)
-  #unicorn.show()
-  gv.TheMatrix.SetPixel(h,v,LowR,LowG,LowB)
+  TheMatrix.SetPixel(h,v,LowR,LowG,LowB)
   #unicorn.show()
   time.sleep(FlashSleep)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  TheMatrix.SetPixel(h,v,HighR,HighG,HighB)
+  #unicorn.show()
+  time.sleep(FlashSleep)
+  TheMatrix.SetPixel(h,v,r,g,b)
+  #unicorn.show()
+  TheMatrix.SetPixel(h,v,LowR,LowG,LowB)
+  #unicorn.show()
+  time.sleep(FlashSleep)
+  #unicorn.show()
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   
 def FlashDot4(h,v,FlashSleep):
   r,g,b = getpixel(h,v)
-  #gv.TheMatrix.SetPixel(h,v,0,0,100)
+  #TheMatrix.SetPixel(h,v,0,0,100)
   #unicorn.show()
   #time.sleep(FlashSleep)
-  #gv.TheMatrix.SetPixel(h,v,0,0,175)
+  #TheMatrix.SetPixel(h,v,0,0,175)
   #unicorn.show()
   time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,0,0,255)
+  TheMatrix.SetPixel(h,v,0,0,255)
   #unicorn.show()
   time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,0,255,255)
+  TheMatrix.SetPixel(h,v,0,255,255)
   #unicorn.show()
   time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,255,255,255)
+  TheMatrix.SetPixel(h,v,255,255,255)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   time.sleep(FlashSleep)
-  gv.TheMatrix.SetPixel(h,v,r,g,b)
+  TheMatrix.SetPixel(h,v,r,g,b)
   #unicorn.show()
   time.sleep(FlashSleep)
   return;
@@ -5899,7 +3471,7 @@ def FlashDot5(h,v,TimeSleep):
 
   setpixel(h,v,255,255,255)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   time.sleep(TimeSleep)
   setpixel(h,v,r,g,b)
   
@@ -5909,16 +3481,16 @@ def FlashDot5(h,v,TimeSleep):
 
 def FlashDot6(h,v):
   r,g,b = getpixel(h,v)
-  gv.TheMatrix.SetPixel(h,v,255,255,255)
+  TheMatrix.SetPixel(h,v,255,255,255)
   #unicorn.show()
-  #gv.TheMatrix.SetPixel(h,v,r,g,b)
+  #TheMatrix.SetPixel(h,v,r,g,b)
   return;
 
 
 def FlashDot7(h,v):
-  gv.TheMatrix.SetPixel(h,v,255,150,0)
+  TheMatrix.SetPixel(h,v,255,150,0)
   #unicorn.show()
-  gv.TheMatrix.SetPixel(h,v,0,0,0)
+  TheMatrix.SetPixel(h,v,0,0,0)
   return;
 
 
@@ -5926,464 +3498,6 @@ def FlashDot7(h,v):
   
 
   
-def CalculateMovement(h,v,Direction):
-  # I am not sure why this function returns the direction 
-  #1N 2E 3S 4W
-  if (Direction == 1):
-    v = v -1
-  if (Direction == 2):
-    h = h + 1
-  if (Direction == 3):
-    v = v + 1
-  if (Direction == 4):
-    h = h -1
-  return h,v,Direction;
-
-
-def CalculateDotMovement(h,v,Direction):
-  #1N 2E 3S 4W
-  if (Direction == 1):
-    v = v -1
-  if (Direction == 2):
-    h = h + 1
-  if (Direction == 3):
-    v = v + 1
-  if (Direction == 4):
-    h = h -1
-  return h,v;
-
-
-  
-
-  
-  
-def ScanDot(h,v):
-  BoundaryHit = CheckBoundary(h,v)
-  if BoundaryHit == 1:
-    item = "boundary"
-  else:
-    r,g,b = getpixel(h,v)
-    #print ("rgb:",r,g,b," DotRGB:",DotR,DotG,DotB)
-    #FlashDot(h,v,0)
- 
-  
-
-    if r == DotR and g == DotG and b == DotB:
-      item = "dot"
-      #print ("Scanned dot:",h,v)
-    elif r == PillR and g == PillG and b == PillB:
-      item = "pill"
-    elif r == Ghost1R and g == Ghost1G and b == Ghost1B:
-      item = "ghost"
-    elif r == Ghost2R and g == Ghost2G and b == Ghost2B:
-      item = "ghost"
-    elif r == Ghost3R and g == Ghost3G and b == Ghost3B:
-      item = "ghost"
-    elif r == Ghost4R and g == Ghost4G and b == Ghost4B:
-      item = "ghost"
-    elif r == PacR and g == PacG and b == PacB:
-      item = "pacdot"
-    elif r == BlueGhostR and g == BlueGhostG and b == BlueGhostB:
-      item = "blueghost"
-    elif r == WallR and g == WallG and b == WallB:
-      item = "wall"
-    elif ((r,g,b) == gv.SpriteFillerRGB or (r,g,b) == WallRGB):
-      item = "wall"
-    else: 
-      item = "empty"
-  
-
-    if (gv.DotMatrix[h][v] == 1):
-      #print ("ScanDot Override DOT hv:",h,v)
-      item = "dot"
-
-    if (gv.DotMatrix[h][v] == 2):
-      #print ("ScanDot Override PILL hv:",h,v)
-      item = "pill"
-
-
-  return item;
-
-def ScanBox(h,v,Direction):
-  #pass in current h,v,direction
-  #will examine multiple dots in front and to sides
-  
-  
-  item = "NULL"
-  ScanHit = "NULL"
-  ScanH = 0
-  ScanV = 0
-  ScanDirection = 0
-  
-  #print ("--------")
-
-
-  
-  
-  #Front
-  ScanDirection = Direction
-  ScanH, ScanV, ScanDirection = CalculateMovement(h,v,ScanDirection)
-  item = ScanDot(ScanH,ScanV)
-  if item == "dot":
-    ScanHit = "frontdot"
-  elif item == "ghost":  
-    ScanHit = "frontghost"
-  elif item == "blueghost":  
-    ScanHit = "frontblueghost"
-  elif item == "pill":
-    ScanHit = "frontpill"
-  elif item == "wall":
-    ScanHit = "frontwall"
-
-  #Left
-  if ScanHit == "NULL":
-    ScanDirection = TurnLeft(Direction)
-    ScanH, ScanV, ScanDirection = CalculateMovement(h,v,ScanDirection)
-    item = ScanDot(ScanH,ScanV)
-    if item == "dot":
-      ScanHit = "leftdot"
-    elif item == "ghost":  
-      ScanHit = "leftghost"
-    elif item == "blueghost":  
-      ScanHit = "leftblueghost"
-    elif item == "pill":
-      ScanHit = "leftpill"
-    elif item == "wall":
-      ScanHit = "leftwall"
-
-  
-      
- #Right
-  if ScanHit == "NULL" or ScanHit == "leftwall":
-    ScanDirection = TurnRight(Direction)
-    ScanH, ScanV, ScanDirection = CalculateMovement(h,v,ScanDirection)
-    item = ScanDot(ScanH,ScanV)
-    if item == "dot":
-      ScanHit  = "rightdot"
-      print ("Rightdot")
-    elif item == "ghost":  
-      ScanHit  = "rightghost"
-    elif item == "blueghost":  
-      ScanHit  = "rightblueghost"
-    elif item == "pill":
-      ScanHit  = "rightpill"
-    elif item == "wall":
-      ScanHit  = "rightwall"
-
- 
-  
-
- 
-  
-  if (ScanHit == "NULL"):
-    ScanHit = "empty"
-  #print ("ScanHit: ",ScanHit)
-  return ScanHit;
-
-
-
-
-
-
-
-
-
-  
-#----------------------------------------------------------------------------
-#--                                                                        --
-#--                                                                        --
-#--          RallyDot                                                      --
-#--                                                                        --
-#--                                                                        --
-#----------------------------------------------------------------------------
-
-
-
-
-# - the player car will not move, but the maze around him will
-# - the playfield contains all objects, including cars walls enemies and bullets
-# - we loop through the playfield, examining each object
-    # - ignore empty
-    # - ignore walls
-    # - if player/enemy then give it a turn to use radar to find nearby items
-        # - make a decision on what to to
-        # - decisions are priority based
-        # - shoot opponent
-        # - run
-        # - hide
-    # - we still  use a clock/speed value to see if a player/enemy object is going to make a decision this turn
-# - objects off screen will still move, but will not be visible
-# - draw window function will be used to display the current visible sqare in the map (8x8)    
-
-
-
-
-def ExaminePlayfield(RaceWorld):
-  #The array is [V][H]
-  print ("--Examine Playfield--")
-  width  = RaceWorld.width
-  height = RaceWorld.height
-  h      = 0
-  v      = 0
-  Playfield = RaceWorld.Playfield
-  
-  #Iterate through playfield (left to right, top to bottom)
-  for v in range (height):
-    for h in range (width):
-      print ("vh name: ",v,h,Playfield[v][h].name)
-
-      
-def TurnLeftOrRight8Way(direction):
-  WhichWay = random.randint(1,4)
-  #print ("WhichWay:",WhichWay)
-  if (WhichWay == 1):
-    #print ("turning W")
-    direction = TurnLeft8Way(direction)
-    direction = TurnLeft8Way(direction)
-  elif (WhichWay == 2):
-    #print ("turning NW")
-    direction = TurnLeft8Way(direction)
-  elif (WhichWay == 3):
-    #print ("turning NE")
-    direction = TurnRight8Way(direction)
-  elif (WhichWay == 4):
-    #print ("turning E")
-    direction = TurnRight8Way(direction)
-    direction = TurnRight8Way(direction)
-    
-  return direction;
-
-      
-def TurnLeftOrRightTwice8Way(direction):
-  WhichWay = random.randint(1,2)
-  #print ("WhichWay:",WhichWay)
-  if (WhichWay == 1):
-    direction = TurnLeft8Way(direction)
-    direction = TurnLeft8Way(direction)
-  elif (WhichWay == 2):
-    direction = TurnRight8Way(direction)
-    direction = TurnRight8Way(direction)
-    
-  return direction;
-
-
-  
-      
-def ReverseDirection8Way(direction):
-  if direction == 1:
-    direction = 5
-  elif direction == 2:
-    direction = 6
-  elif direction == 3:
-    direction = 7
-  elif direction == 4:
-    direction = 8
-  elif direction == 5:
-    direction = 1
-  elif direction == 6:
-    direction = 2
-  elif direction == 7:
-    direction = 3
-  elif direction == 8:
-    direction = 4
-  return direction;
-
-  
-
-def CalculateDotMovement8Way(h,v,Direction):
-  #1N 2NE 3E 4SE 5S 6SW 7W 8NW
-  # 8 1 2
-  # 7 x 3
-  # 6 5 4
-  
-  if (Direction == 1):
-    v = v -1
-  if (Direction == 2):
-    h = h + 1
-    v = v - 1
-  if (Direction == 3):
-    h = h + 1
-  if (Direction == 4):
-    h = h + 1
-    v = v + 1
-  if (Direction == 5):
-    v = v + 1
-  if (Direction == 6):
-    h = h - 1
-    v = v + 1
-  if (Direction == 7):
-    h = h - 1
-  if (Direction == 8):
-    h = h - 1
-    v = v - 1
-  return h,v;
-
-
-
-def TurnRight8Way(direction):
-  if direction == 1:
-    direction = 2
-  elif direction == 2:
-    direction = 3
-  elif direction == 3:
-    direction = 4
-  elif direction == 4:
-    direction = 5
-  elif direction == 5:
-    direction = 6
-  elif direction == 6:
-    direction = 7
-  elif direction == 7:
-    direction = 8
-  elif direction == 8:
-    direction = 1
-  #print "  new: ",direction
-  return direction;
-    
-
-def TurnLeft8Way(direction):
-  #print "ChangeDirection!"
-  #print "  old: ",direction
-  if direction == 1:
-    direction = 8
-  elif direction == 8:
-    direction = 7
-  elif direction == 7:
-    direction = 6
-  elif direction == 6:
-    direction = 5
-  elif direction == 5:
-    direction = 4
-  elif direction == 4:
-    direction = 3
-  elif direction == 3:
-    direction = 2
-  elif direction == 2:
-    direction = 1
-  #print ("  new: ",direction)
-  return direction;
-
-
-
-def ChanceOfTurning8Way(Direction,Chance):
-  #print ("Chance of turning: ",Chance)
-  if Chance > randint(1,100):
-    if randint(0,1) == 0:
-      Direction = TurnLeft8Way(Direction)
-    else:
-      Direction = TurnRight8Way(Direction)
-  return Direction;
-
-
-  
-
-
-  
-  
-def IncreaseColor(Car):
-
-  #Make player car more blue
-  if (Car.name == "Player"):
-    Car.b = Car.b + 20
-    
-    if (Car.b >= 255):
-      Car.b = 255
-
-  #Make enemy more red
-  else:
-    Car.r = Car.r + 50
-    
-    if (Car.r >= 255):
-      Car.r = 255
-
-  #print ("Carname rgb",Car.name,Car.r,Car.g,Car.b)      
-      
-def DecreaseColor(Car):
-  #Make player car less blue
-  if (Car.name == "Player"):
-    Car.b = Car.b - 1
-
-    if (Car.b <= 60):
-      Car.b = 60
-      
-    
-  #Make player car less blue
-  else:
-    Car.r = Car.r - 1
-
-    if (Car.r <= 60):
-      Car.r = 60
-
-      
-      
-
-
-def ReverseDirection(direction):
-  if direction == 1:
-    direction = 3
-  elif direction == 2:
-    direction = 4
-  elif direction == 3:
-    direction = 1
-  elif direction == 4:
-    direction = 2
-  return direction;
-    
-
-def TurnRight(direction):
-  if direction == 1:
-    direction = 2
-  elif direction == 2:
-    direction = 3
-  elif direction == 3:
-    direction = 4
-  elif direction == 4:
-    direction = 1
-  #print "  new: ",direction
-  return direction;
-    
-
-def TurnLeft(direction):
-  #print "ChangeDirection!"
-  #print "  old: ",direction
-  if direction == 1:
-    direction = 4
-  elif direction == 2:
-    direction = 1
-  elif direction == 3:
-    direction = 2
-  elif direction == 4:
-    direction = 3
-  #print "  new: ",direction
-  return direction;
-    
-def ChanceOfTurning(Direction,Chance):
-  #print ("Chance of turning: ",Chance)
-  if Chance > randint(1,100):
-    if randint(0,1) == 0:
-      Direction = TurnLeft(Direction)
-    else:
-      Direction = TurnRight(Direction)
-  return Direction;
-
-
-
-
-
-def TurnLeftOrRight(direction):
-  WhichWay = random.randint(1,2)
-  #print ("WhichWay:",WhichWay)
-  if (WhichWay == 1):
-    #print ("turning left")
-    direction = TurnLeft(direction)
-  else:
-    #print ("turning right")
-    direction = TurnRight(direction)
-    
-  return direction;
-
-
-
 
 
 
@@ -6429,7 +3543,7 @@ def CreateClockSprite(format):
   
   
   #add variables to the object (python allows this, very cool!)
-  ClockSprite.h = (gv.HatWidth - ClockSprite.width) // 2
+  ClockSprite.h = (HatWidth - ClockSprite.width) // 2
   ClockSprite.v = -4
   ClockSprite.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
 
@@ -6454,106 +3568,6 @@ def CreateClockSprite(format):
 
 
 
-def GetEthereumBalance():
-
-  #Use CoinGeckoAPI to check current Ethereum price in currency
-  
-  try:
-    ETHPrice = CoinGeckoAPI().get_price(ids='ethereum', vs_currencies='cad')
-    CurrencyPrice = float(('{}'.format(ETHPrice['ethereum']['cad'])))
-    print ("Etherium price CDN: ", CurrencyPrice)
-
-    #Get current balance
-    url     = "https://mainnet.infura.io/v3/b426370b8d7d4847b57db1b1a8603938"
-    data    = {'jsonrpc':'2.0', 'id':1, 'method':'eth_getBalance', 'params':['0x3D15798193ecdc14217F431FC341fA81C70AAd45', 'latest']}
-    headers = {'Content-type': 'application/json'}
-    r       = requests.post(url, data=json.dumps(data), headers=headers)
-    r_dict  = json.loads(r.text)
-  
-    ETHWalletBalance = float(int(r_dict['result'],0) / 1000000000000000000.0)
-    CashBalance      = str(ETHWalletBalance * CurrencyPrice)
-
-    print ("Ethereum balance:   ",ETHWalletBalance)
-    print ("Cash value:         ",CashBalance," CDN")
-    
-    return CashBalance, CurrencyPrice, ETHWalletBalance
-  
-  except:
-    CurrencyPrice = 0
-    print ("Error occurred while getting ETH information")
-    return 0, 0, 0
-
-  
-  
-
-# Commented out April 1, 2021.  Please delete after April 5, 2021
-# def CreateCurrencySprite():   
-  
-
-  # #Use CoinGeckoAPI to check current Ethereum price in currency
-  # print ("Get currency price")
-  # ETHPrice = CoinGeckoAPI().get_price(ids='ethereum', vs_currencies='cad')
-  # CurrencyPrice = float(('{}'.format(ETHPrice['ethereum']['cad'])))
-  
-  # #Get current balance
-  # print ("Getting wallet balance")
-  # url     = "https://mainnet.infura.io/v3/b426370b8d7d4847b57db1b1a8603938"
-  # data    = {'jsonrpc':'2.0', 'id':1, 'method':'eth_getBalance', 'params':['0x3D15798193ecdc14217F431FC341fA81C70AAd45', 'latest']}
-  # headers = {'Content-type': 'application/json'}
-  # r       = requests.post(url, data=json.dumps(data), headers=headers)
-
-  # r_dict  = json.loads(r.text)
-  
-  
-  # AccountBalance = str(float(int(r_dict['result'],0) / 1000000000000000000.0) * CurrencyPrice)
-  # print ("Balance:",AccountBalance,"CDN")
-
-   
-  # #get dollars
-  # d1 = int(AccountBalance[0])
-  # d2 = int(AccountBalance[1])
-  # d3 = int(AccountBalance[2])
-  # #get cents
-  # c1 = int(AccountBalance[4])
-  # c2 = int(AccountBalance[5])
-
-
-  # ClockSprite = DigitSpriteList[d1]  
-  # ClockSprite = JoinSprite(ClockSprite, DigitSpriteList[d2], 1)
-  # ClockSprite = JoinSprite(ClockSprite, DigitSpriteList[d3], 1)
-  # ClockSprite = JoinSprite(ClockSprite, DigitSpriteList[c1], 1)
-    
-
-  # ClockSprite.r = SDMedRedR
-  # ClockSprite.g = SDMedRedG
-  # ClockSprite.b = SDMedRedB
-  
-  
-  # #add variables to the object (python allows this, very cool!)
-  # ClockSprite.h = (gv.HatWidth - ClockSprite.width) // 2
-  # ClockSprite.v = -4
-  # ClockSprite.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
-  # ClockSprite.AccountBalance = AccountBalance[0:6]
-
-  # #used for displaying clock
-  # ClockSprite.StartTime = time.time()
-
-  # #used for scrolling clock
-  # ClockSprite.PauseStartTime = time.time()
-  # ClockSprite.IsScrolling     = 0
-  # ClockSprite.Delay           = 2
-  # ClockSprite.PausePositionV  = 1
-  # ClockSprite.PauseTimerOn    = 0
-
-  
-  # ClockSprite.on = 1
-  # ClockSprite.DirectionIncrement = 1
-  # ClockSprite.name = 'Currency'
-
-  
-  # return ClockSprite 
-
-
 
 def CreateSecondsSprite():   
   
@@ -6572,7 +3586,7 @@ def CreateSecondsSprite():
   
   
   #add variables to the object (python allows this, very cool!)
-  SecondsSprite.h = (gv.HatWidth - SecondsSprite.width) // 2
+  SecondsSprite.h = (HatWidth - SecondsSprite.width) // 2
   SecondsSprite.v = 5
   SecondsSprite.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
   
@@ -6609,7 +3623,7 @@ def CreateDayOfWeekSprite():
   
   
   #add variables to the object (python allows this, very cool!)
-  DowSprite.h = ((gv.HatWidth - DowSprite.width) // 2) -1
+  DowSprite.h = ((HatWidth - DowSprite.width) // 2) -1
   DowSprite.v = 5
   DowSprite.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
   
@@ -6631,7 +3645,7 @@ def CreateMonthSprite():
   
   
   #add variables to the object (python allows this, very cool!)
-  MonthSprite.h = ((gv.HatWidth - MonthSprite.width) // 2) -1
+  MonthSprite.h = ((HatWidth - MonthSprite.width) // 2) -1
   MonthSprite.v = 5
   MonthSprite.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
   
@@ -6653,7 +3667,7 @@ def CreateDayOfMonthSprite():
   
   
   #add variables to the object (python allows this, very cool!)
-  DayOfMonthSprite.h = ((gv.HatWidth - DayOfMonthSprite.width) // 2) -1
+  DayOfMonthSprite.h = ((HatWidth - DayOfMonthSprite.width) // 2) -1
   DayOfMonthSprite.v = 5
   DayOfMonthSprite.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
   
@@ -6745,7 +3759,7 @@ def CreateShortMessageSprite(ShortMessage):
     
   
   #add variables to the object (python allows this, very cool!)
-  ShortMessageSprite.h = (gv.HatWidth - ShortMessageSprite.width) // 2
+  ShortMessageSprite.h = (HatWidth - ShortMessageSprite.width) // 2
   ShortMessageSprite.v = 0 - ShortMessageSprite.height
   ShortMessageSprite.rgb = (ShortMessageSprite.r,ShortMessageSprite.g,ShortMessageSprite.b)
   ShortMessageSprite.StartTime = time.time()
@@ -6778,7 +3792,7 @@ def CreateShortWordSprite(ShortWord):
   
   
   #add variables to the object (python allows this, very cool!)
-  TheBanner.h = (gv.HatWidth - TheBanner.width) // 2
+  TheBanner.h = (HatWidth - TheBanner.width) // 2
   TheBanner.v = -4
   TheBanner.rgb = (SDMedGreenR,SDMedGreenG,SDMedGreenB)
 
@@ -6847,16 +3861,16 @@ def CreateBannerSprite(TheMessage):
 
 def ShowLevelCount(LevelCount):
   global MainSleep
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
       
   SDColor = (random.randint (0,6) *4 + 1) 
   print ("LevelCountColor:",SDColor)
   
   r,g,b =  ColorList[SDColor]  
   max   = 50
-  #sleep = 0.06 * gv.MainSleep
+  #sleep = 0.06 * MainSleep
   
-  #print ("sleep: ",sleep," gv.MainSleep: ",MainSleep)
+  #print ("sleep: ",sleep," MainSleep: ",MainSleep)
   
   LevelSprite = Sprite(1,5,r,g,b,[0,0,0,0,0])
   
@@ -6887,10 +3901,10 @@ def ShowLevelCount(LevelCount):
       if(LevelSprite2.b > 255):
         LevelSprite2.b = 255
 
-      LevelSprite.Display((gv.HatWidth-6) // 2 ,(gv.HatHeight -5)//2)
-      LevelSprite.Display((gv.HatWidth-10) // 2 ,(gv.HatHeight -5)//2)      
+      LevelSprite.Display((HatWidth-6) // 2 ,(HatHeight -5)//2)
+      LevelSprite.Display((HatWidth-10) // 2 ,(HatHeight -5)//2)      
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       #time.sleep(sleep)
 
     
@@ -6918,7 +3932,7 @@ def ShowLevelCount(LevelCount):
       LevelSprite1.Display(6,1)
       LevelSprite2.Display(10,1)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
       #time.sleep(sleep) 
      
@@ -6938,9 +3952,9 @@ def ShowLevelCount(LevelCount):
       if(LevelSprite.b > 255):
         LevelSprite.b = 255
 
-      LevelSprite.Display((gv.HatWidth-3) // 2 ,(gv.HatHeight -5)//2)
+      LevelSprite.Display((HatWidth-3) // 2 ,(HatHeight -5)//2)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       #time.sleep(sleep) 
       
     for x in range(0,max,1):
@@ -6954,14 +3968,14 @@ def ShowLevelCount(LevelCount):
         LevelSprite.g = g
       if(LevelSprite.b < b):
         LevelSprite.b = b
-      LevelSprite.Display((gv.HatWidth-3) // 2 ,(gv.HatHeight -5)//2)
+      LevelSprite.Display((HatWidth-3) // 2 ,(HatHeight -5)//2)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       #time.sleep(sleep)
       
 
   
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
   return
   
 
@@ -6979,11 +3993,11 @@ def ShowLevelCount(LevelCount):
   
 def ScreenWipe(Wipe, Speed):
   if Wipe == "RedCurtain":
-    for x in range (gv.HatWidth):
-      for y in range (gv.HatHeight):
-        gv.TheMatrix.SetPixel(x,y,255,0,0)
+    for x in range (HatWidth):
+      for y in range (HatHeight):
+        TheMatrix.SetPixel(x,y,255,0,0)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(Speed)
     
 #Primitive, single color
@@ -7010,8 +4024,8 @@ def MoveBigSprite(sprite,FlashSleep):
     if (x >=12  and x<= 14):
       BigSprite.grid[i] = DigitSpriteList[7].grid[x-(3*4)+(y*3)]
     #"looping"
-  BigSprite.Scroll(-16,0,"right",24,gv.FlashSleep)
-  BigSprite.Scroll(9,0,"left",24,gv.FlashSleep)
+  BigSprite.Scroll(-16,0,"right",24,FlashSleep)
+  BigSprite.Scroll(9,0,"left",24,FlashSleep)
     
 
   
@@ -7205,7 +4219,7 @@ def LeftTrimSprite(Sprite1,Columns):
 #------------------------------------------------------------------------------
 
 
-import curses
+
 
 def ProcessKeypress(Key):
 
@@ -7229,10 +4243,10 @@ def ProcessKeypress(Key):
   if (Key == "p" or Key == " "):
     time.sleep(5)
   elif (Key == "q"):
-    gv.TheMatrix.Clear()
-    ShowScrollingBanner2("Quit!",(MedRed),gv.ScrollSleep)
+    TheMatrix.Clear()
+    ShowScrollingBanner2("Quit!",(MedRed),ScrollSleep)
   elif (Key == "r"):
-    gv.TheMatrix.Clear()
+    TheMatrix.Clear()
     #ShowScrollingBanner("Reboot!",100,0,0,ScrollSleep * 0.55)
     os.execl(sys.executable, sys.executable, *sys.argv)
   elif (Key == "t"):
@@ -7245,43 +4259,7 @@ def ProcessKeypress(Key):
     SetTimeHHMM()
   elif (Key == "i"):
     ShowIPAddress()
-  elif (Key == "a"):
-    ShowAllAnimations(ScrollSleep * 0.5)
 
-
-  elif (Key == "1"): 
-    PlayPacDot(30)
-  elif (Key == "2"):
-    PlaySuperWorms()
-  elif (Key == "3"):
-    PlayWormDot()
-  elif (Key == "4"):
-    PlaySpaceDot()
-  elif (Key == "5"):
-    PlayDotZerk()
-  elif (Key == "6"):
-    PlayDotInvaders()
-  elif (Key == "7"):
-    gv.TheMatrix.Clear()
-    PlayRallyDot()
-  elif (Key == "8"):
-    gv.TheMatrix.Clear()
-    PlayOutbreak()
-
-
-    
-  elif (Key == "9"):
-    gv.TheMatrix.Clear()
-    ShowDotZerkRobotTime(0.03)
-    ShowFrogTime(0.04)
-  elif (Key == "0"):
-    gv.TheMatrix.Clear()
-    DrawSnake(random.randint(0,gv.HatWidth-1),random.randint(0,gv.HatWidth-1),255,0,0,random.randint(1,4),.5)
-    DrawSnake(random.randint(0,gv.HatWidth-1),random.randint(0,gv.HatWidth-1),0,255,0,random.randint(1,4),.5)
-    DrawSnake(random.randint(0,gv.HatWidth-1),random.randint(0,gv.HatWidth-1),0,0,255,random.randint(1,4),.5)
-    DrawSnake(random.randint(0,gv.HatWidth-1),random.randint(0,gv.HatWidth-1),125,125,0,random.randint(1,4),.5)
-    DrawSnake(random.randint(0,gv.HatWidth-1),random.randint(0,gv.HatWidth-1),0,125,125,random.randint(1,4),.5)
-    DrawSnake(random.randint(0,gv.HatWidth-1),random.randint(0,gv.HatWidth-1),125,0,125,random.randint(1,4),.5)
   elif (Key == "+"):
     MainSleep = MainSleep -0.01
     ScrollSleep = ScrollSleep * 0.75
@@ -7390,7 +4368,6 @@ def PollKeyboardInt():
 
   
   
-  
 # This section deals with getting specific input from a question and does not
 # trigger events  
   
@@ -7464,7 +4441,7 @@ def GetClockDot(time):
 def DrawTinyClock(Minutes):
   print ("--DrawTinyClock--")
   print ("Minutes:",Minutes)
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
   MinDate = datetime.now()
   MaxDate = datetime.now() + timedelta(minutes=Minutes)
   now     = datetime.now()
@@ -7473,7 +4450,7 @@ def DrawTinyClock(Minutes):
 
   while (now >= MinDate and now <= MaxDate and Quit == 0):
     print ("--DrawTinyClock--")
-    gv.TheMatrix.Clear()
+    TheMatrix.Clear()
     ClockSprite = CreateClockSprite(2)
     ClockSprite.r = SDDarkRedR
     ClockSprite.g = SDDarkRedG
@@ -7495,7 +4472,7 @@ def DrawTinyClock(Minutes):
     print("Quit:",Quit)
     now = datetime.now()
 
-  gv.TheMatrix.Clear()
+  TheMatrix.Clear()
     
 def DrawClockMinutes():
 
@@ -7509,17 +4486,17 @@ def DrawClockMinutes():
 #  #Erase  
   for i in range(1,28):
     h,v = GetClockDot(i)
-  gv.TheMatrix.SetPixel(h,v,0,0,0)
+  TheMatrix.SetPixel(h,v,0,0,0)
   #unicorn.show()
-  #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+  #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
 
   
   for i in range(1,dots+1):
     print ("Setting minute dot:",i)
     h,v = GetClockDot(i)
-    gv.TheMatrix.SetPixel(h,v,SDDarkBlueR,SDDarkBlueG,SDDarkBlueB)
+    TheMatrix.SetPixel(h,v,SDDarkBlueR,SDDarkBlueG,SDDarkBlueB)
     #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+    #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
   
   
   
@@ -7542,7 +4519,7 @@ def DrawClockSeconds():
   y = -1
   
   
-  gv.TheMatrix.SetPixel(3,0,0,0,0)
+  TheMatrix.SetPixel(3,0,0,0,0)
 
 
   for i in range(ss,61):
@@ -7556,21 +4533,21 @@ def DrawClockSeconds():
     #print ("xy hv:",x,y,h,v)
     if (x >= 0):
       #print ("writing old pixel")
-      gv.TheMatrix.SetPixel(x,y,r,g,b)
+      TheMatrix.SetPixel(x,y,r,g,b)
 
     
     #capture previous pixel
     x,y = h,v
     
     r,g,b = getpixel(h,v)
-    gv.TheMatrix.SetPixel(h,v,SDLowWhiteR,SDLowWhiteG,SDLowWhiteB)
+    TheMatrix.SetPixel(h,v,SDLowWhiteR,SDLowWhiteG,SDLowWhiteB)
     #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+    #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
     time.sleep(0.005)
 
-    gv.TheMatrix.SetPixel(h,v,SDDarkPurpleR,SDDarkPurpleG,SDDarkPurpleB)
+    TheMatrix.SetPixel(h,v,SDDarkPurpleR,SDDarkPurpleG,SDDarkPurpleB)
     #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+    #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
     
     #Check for keyboard input
     Key = PollKeyboard()
@@ -7585,22 +4562,10 @@ def DrawClockSeconds():
   return 0
   
 
-def GetDistanceBetweenDots(h1,v1,h2,v2):
-  a = abs(h1 - h2)
-  b = abs(v1 - v2)
-  c = math.sqrt(a**2 + b**2)
-
-  return c;  
-
-
-
-
-
 
 #--------------------------------------
 #  Transitions and Sequences         --
 #--------------------------------------
-
 
 
 
@@ -7614,25 +4579,25 @@ def ScrollBigClock(direction,speed,ZoomFactor):
  
   RGB, ShadowRGB = GetBrightAndShadowRGB()
 
-  #gv.Canvas.Clear()
+  #Canvas.Clear()
   
   #ClockScreen
   ClockScreen  = [[]]
-  ClockScreen  = [[ (0,0,0) for i in range(gv.HatWidth)] for i in range(gv.HatHeight)]
+  ClockScreen  = [[ (0,0,0) for i in range(HatWidth)] for i in range(HatHeight)]
   
 
-  ScreenCopy = copy.deepcopy(gv.ScreenArray)
-  ScreenCopy2 = copy.deepcopy(gv.ScreenArray)
+  ScreenCopy = copy.deepcopy(ScreenArray)
+  ScreenCopy2 = copy.deepcopy(ScreenArray)
 
   #ClearBuffers()
   print("about to create clock sprite")
   TheTime = CreateClockSprite(12)
-  TheTime.h = (gv.HatWidth  //2) - (TheTime.width  * ZoomFactor // 2) - ZoomFactor
-  TheTime.v = (gv.HatHeight //2) - (TheTime.height * ZoomFactor // 2) - ZoomFactor
+  TheTime.h = (HatWidth  //2) - (TheTime.width  * ZoomFactor // 2) - ZoomFactor
+  TheTime.v = (HatHeight //2) - (TheTime.height * ZoomFactor // 2) - ZoomFactor
   
 
   print ("create clock scren")
-  #this will copy the clock sprite to the regular screen buffer gv.ScreenBuffer
+  #this will copy the clock sprite to the regular screen buffer ScreenBuffer
   #make drop shadow then draw current time
   ClockScreen = CopySpriteToBufferZoom(TheBuffer=ClockScreen, TheSprite=TheTime,h=TheTime.h-2,v=TheTime.v+2, ColorTuple=ShadowRGB,FillerTuple=(-1,-1,-1),ZoomFactor = ZoomFactor,Fill=False)
   ClockScreen = CopySpriteToBufferZoom(TheBuffer=ClockScreen, TheSprite=TheTime,h=TheTime.h-1,v=TheTime.v+1, ColorTuple=ShadowRGB,FillerTuple=(-1,-1,-1),ZoomFactor = ZoomFactor,Fill=False)
@@ -7648,14 +4613,14 @@ def ScrollBigClock(direction,speed,ZoomFactor):
   if (direction == 'up'):
     
   
-    for x in range (0,gv.HatHeight):
+    for x in range (0,HatHeight):
       #Take a line from the clock sprite 
       InsertLine = ClockScreen[x]
       ScreenCopy = numpy.delete(ScreenCopy,(0),axis=0)
-      ScreenCopy  = numpy.insert(ScreenCopy,gv.HatHeight-1,InsertLine,axis=0)
+      ScreenCopy  = numpy.insert(ScreenCopy,HatHeight-1,InsertLine,axis=0)
       setpixelsLED(ScreenCopy)
 
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       time.sleep(speed)
 
     
@@ -7678,12 +4643,12 @@ def ScrollBigClock(direction,speed,ZoomFactor):
       
 
       TheTime = CreateClockSprite(12)
-      TheTime.h = (gv.HatWidth //2 )  - (TheTime.width * ZoomFactor // 2)  - ZoomFactor
-      TheTime.v = (gv.HatHeight //2 ) - (TheTime.height * ZoomFactor // 2) - ZoomFactor
+      TheTime.h = (HatWidth //2 )  - (TheTime.width * ZoomFactor // 2)  - ZoomFactor
+      TheTime.v = (HatHeight //2 ) - (TheTime.height * ZoomFactor // 2) - ZoomFactor
 
       #Display New Time
       ClockScreen  = [[]]
-      ClockScreen  = [[ (0,0,0) for i in range(gv.HatWidth)] for i in range(gv.HatHeight)]
+      ClockScreen  = [[ (0,0,0) for i in range(HatWidth)] for i in range(HatHeight)]
       #make drop shadow then draw current time
       ClockScreen = CopySpriteToBufferZoom(TheBuffer=ClockScreen, TheSprite=TheTime,h=TheTime.h-2,v=TheTime.v+2, ColorTuple=ShadowRGB,FillerTuple=(-1,-1,-1),ZoomFactor = ZoomFactor,Fill=False)
       ClockScreen = CopySpriteToBufferZoom(TheBuffer=ClockScreen, TheSprite=TheTime,h=TheTime.h-1,v=TheTime.v+1, ColorTuple=ShadowRGB,FillerTuple=(-1,-1,-1),ZoomFactor = ZoomFactor,Fill=False)
@@ -7695,13 +4660,13 @@ def ScrollBigClock(direction,speed,ZoomFactor):
 
     Key = PollKeyboard()
     if (Key =='q'):
-      for x in range (0,gv.HatHeight):
+      for x in range (0,HatHeight):
         InsertLine = ScreenCopy2[x]
         ClockScreen = numpy.delete(ClockScreen,(0),axis=0)
-        ClockScreen = numpy.insert(ClockScreen,gv.HatHeight-1,InsertLine,axis=0)
+        ClockScreen = numpy.insert(ClockScreen,HatHeight-1,InsertLine,axis=0)
         setpixelsLED(ClockScreen)
         #unicorn.show()
-        #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+        #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
         time.sleep(speed)
       return;
 
@@ -7724,7 +4689,7 @@ def ScrollScreen(direction,ScreenCap,speed):
   #For now, we scroll, replacing with empty screen.  Also, reverse.
  
  
-  EmptyCap   = [[(0,0,0) for i in range (0,gv.HatWidth)]]
+  EmptyCap   = [[(0,0,0) for i in range (0,HatWidth)]]
   InsertLine = copy.deepcopy(EmptyCap)
   Buffer     = copy.deepcopy(EmptyCap)
 
@@ -7735,15 +4700,15 @@ def ScrollScreen(direction,ScreenCap,speed):
     Buffer = copy.deepcopy(ScreenCap)
     #print ("Buffer",Buffer)
 
-    for x in range (0,gv.HatHeight):
+    for x in range (0,HatHeight):
       
       Buffer = numpy.delete(Buffer,(0),axis=1)
-      Buffer = numpy.insert(Buffer,gv.HatHeight-1,InsertLine,axis=1)
+      Buffer = numpy.insert(Buffer,HatHeight-1,InsertLine,axis=1)
       setpixelsLED(Buffer)
 
 
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       #print(Buffer)
       time.sleep(speed)
 
@@ -7751,20 +4716,20 @@ def ScrollScreen(direction,ScreenCap,speed):
   #Screen is blank, start adding lines from ScreenCap
   if (direction == 'down'):
     # Make an empty Buffer, axis must be 0 to match the EmptyBuffer layout [(0,0,0),(0,0,0),(0,0,0)...etc.]
-    Buffer = [[(0,0,0) for i in range(gv.HatHeight)] for i in range(gv.HatWidth)]
+    Buffer = [[(0,0,0) for i in range(HatHeight)] for i in range(HatWidth)]
 
-    for x in range (0,gv.HatWidth):
+    for x in range (0,HatWidth):
       InsertLine = [()]
       #copy line from the ScreenCap into the Buffer
       #we do this one element at a time because I could not figure out how to slice the array properly
-      for y in range (0,gv.HatWidth):
-        InsertLine = numpy.append(InsertLine, ScreenCap[y][abs(gv.HatWidth-1 - x)])
+      for y in range (0,HatWidth):
+        InsertLine = numpy.append(InsertLine, ScreenCap[y][abs(HatWidth-1 - x)])
 
-      InsertLine = InsertLine.reshape(1,gv.HatWidth,3)
+      InsertLine = InsertLine.reshape(1,HatWidth,3)
       Buffer = numpy.insert(Buffer,0,InsertLine,axis=1)
       setpixelsLED(Buffer)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       time.sleep(speed)
 
 
@@ -7775,13 +4740,13 @@ def ScrollScreen(direction,ScreenCap,speed):
   #Delete right row, insert blank on left, pushing remaining to the right
   if (direction == 'right'):
     Buffer = copy.deepcopy(ScreenCap)
-    for x in range (0,gv.HatWidth):
+    for x in range (0,HatWidth):
       
       Buffer = numpy.delete(Buffer,(0),axis=0)
       Buffer = numpy.append(Buffer,EmptyCap,axis=0)
       setpixelsLED(Buffer)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       #time.sleep(speed)
   
   
@@ -7791,21 +4756,21 @@ def ScrollScreen(direction,ScreenCap,speed):
   #Delete left row, insert blank on right, pushing remaining to the left
   if (direction == 'left'):
     # Make an empty Buffer
-    for x in range (0,gv.HatWidth-1):
+    for x in range (0,HatWidth-1):
       Buffer = numpy.append(Buffer,EmptyCap,axis=0)
 
-    for x in range (0,gv.HatWidth):
+    for x in range (0,HatWidth):
       Buffer = numpy.delete(Buffer,(-1),axis=0)
       
       #Copy each tuple to the line to be inserted (gotta be a better way!)
-      for j in range (gv.HatWidth):
-        InsertLine[0][j] = ScreenCap[abs(gv.HatWidth-x)][j]
+      for j in range (HatWidth):
+        InsertLine[0][j] = ScreenCap[abs(HatWidth-x)][j]
       
       Buffer = numpy.insert(Buffer,0,InsertLine,axis=0)
       
       setpixelsLED(Buffer)
       #unicorn.show()
-      #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
+      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
       time.sleep(speed)
 
 
@@ -7825,7 +4790,7 @@ def ZoomScreen(ScreenArray,ZoomStart,ZoomStop,ZoomSleep,Fade=False):
  
   ZoomFactor    = 0
   DimIncrement  = max(round(100 / abs(ZoomStart - ZoomStop)),1)
-  OldBrightness = gv.TheMatrix.brightness
+  OldBrightness = TheMatrix.brightness
   Brightness    = OldBrightness
 
   if (ZoomStart <= ZoomStop):
@@ -7833,9 +4798,9 @@ def ZoomScreen(ScreenArray,ZoomStart,ZoomStop,ZoomSleep,Fade=False):
       if (Fade == True):
         Brightness = Brightness - DimIncrement
         if (Brightness >= 0):
-          gv.TheMatrix.brightness = Brightness
+          TheMatrix.brightness = Brightness
           #print("Brightness:",Brightness)
-      gv.TheMatrix.Clear()        
+      TheMatrix.Clear()        
       DisplayScreenCap(ScreenArray,ZoomFactor)
       if (ZoomSleep > 0):
         time.sleep(ZoomSleep)
@@ -7846,21 +4811,21 @@ def ZoomScreen(ScreenArray,ZoomStart,ZoomStop,ZoomSleep,Fade=False):
       if (Fade == True):
         Brightness = Brightness - DimIncrement
         if (Brightness >= 0):
-          gv.TheMatrix.brightness = Brightness
+          TheMatrix.brightness = Brightness
           #print("Brightness:",Brightness)
-      gv.TheMatrix.Clear()        
+      TheMatrix.Clear()        
       DisplayScreenCap(ScreenArray,ZoomFactor)
       if (ZoomSleep > 0):
         time.sleep(ZoomSleep)
 
   #go back to old brightness
-  gv.TheMatrix.brightness = OldBrightness
+  TheMatrix.brightness = OldBrightness
 
 
-  # for y in range (gv.HatWidth):
-    # for x in range (gv.HatWidth):
+  # for y in range (HatWidth):
+    # for x in range (HatWidth):
       # r,g,b = ScreenCap[abs(15-x)][y]
-      # gv.TheMatrix.SetPixel(x,y,r,g,b)
+      # TheMatrix.SetPixel(x,y,r,g,b)
 
 
 
@@ -7888,34 +4853,34 @@ def DisplayScreenCap(ScreenCap,ZoomFactor = 0):
 
 
   if (ZoomFactor > 1):
-    H_modifier = (1 / gv.HatWidth ) * ZoomFactor * 2  #BigLED is 2 times wider than tall. Hardcoding now, will fix later. 
-    V_modifier = (1 / gv.HatHeight ) * ZoomFactor
+    H_modifier = (1 / HatWidth ) * ZoomFactor * 2  #BigLED is 2 times wider than tall. Hardcoding now, will fix later. 
+    V_modifier = (1 / HatHeight ) * ZoomFactor
 
     #calculate the newsize of the zoomed screen cap
-    NewHeight = round(gv.HatHeight * V_modifier)
-    NewWidth  = round(gv.HatWidth * H_modifier)
+    NewHeight = round(HatHeight * V_modifier)
+    NewWidth  = round(HatWidth * H_modifier)
 
-    HIndentFactor = (gv.HatWidth / 2)  - (NewWidth /2)
-    VIndentFactor = (gv.HatHeight / 2) - (NewHeight /2)
+    HIndentFactor = (HatWidth / 2)  - (NewWidth /2)
+    VIndentFactor = (HatHeight / 2) - (NewHeight /2)
   else:
     IndentFactor = 0
 
 
 
-#  for V in range(max(math.floor((0 + V_modifier * 2) ),0) ,min(math.floor((gv.HatHeight - V_modifier * 2) ),gv.HatHeight-1)) :
-#    for H in range (max(math.floor((0 + H_modifier * 4)),0),min(math.floor((gv.HatWidth - H_modifier * 4) ),gv.HatWidth-1)):
-  for V in range(0,gv.HatHeight):
-    for H in range (0,gv.HatWidth):
+#  for V in range(max(math.floor((0 + V_modifier * 2) ),0) ,min(math.floor((HatHeight - V_modifier * 2) ),HatHeight-1)) :
+#    for H in range (max(math.floor((0 + H_modifier * 4)),0),min(math.floor((HatWidth - H_modifier * 4) ),HatWidth-1)):
+  for V in range(0,HatHeight):
+    for H in range (0,HatWidth):
       if (CheckBoundary((H * H_modifier) + HIndentFactor ,(V * V_modifier) + VIndentFactor) == 0):
       
         r,g,b = ScreenCap[V][H]
         if (ZoomFactor > 0):
-          gv.Canvas.SetPixel((H * H_modifier) + HIndentFactor ,(V * V_modifier) + VIndentFactor,r,g,b)
+          Canvas.SetPixel((H * H_modifier) + HIndentFactor ,(V * V_modifier) + VIndentFactor,r,g,b)
         
         else:
-          gv.Canvas.SetPixel(H,V,r,g,b)
+          Canvas.SetPixel(H,V,r,g,b)
 
-  gv.TheMatrix.SwapOnVSync(gv.Canvas)
+  TheMatrix.SwapOnVSync(Canvas)
         
   
   #unicorn.show()
@@ -7943,104 +4908,8 @@ def ScrollScreenScrollBanner(message,r,g,b,direction,speed):
 
 
 
-def PointTowardsObject8Way(SourceH,SourceV,TargetH,TargetV):
-
-  #   8 1 2
-  #   7 . 3
-  #   6 5 4
-
-  #d = GetDistanceBetweenDots(SourceH, SourceV, TargetH, TargetV):
-  
-  #source is upper left of target
-  if (SourceH < TargetH and SourceV < TargetV):
-    direction = 4
-
-  #source is directly above target
-  elif (SourceH == TargetH and SourceV < TargetV):
-    direction = 5
-
-  #source is upper right of target
-  elif (SourceH > TargetH and SourceV < TargetV):
-    direction = 6
-
-  #source is directly right of target
-  elif (SourceH > TargetH and SourceV == TargetV):
-    direction = 7
-
-  #source is lower right of target
-  elif (SourceH > TargetH and SourceV > TargetV):
-    direction = 8
-
-  #source is directly below target
-  elif (SourceH == TargetH and SourceV > TargetV):
-    direction = 1
-    
-  #source is lower left of target
-  elif (SourceH < TargetH and SourceV > TargetV):
-    direction = 2
-
-  #source is directly left of target
-  elif (SourceH < TargetH and SourceV == TargetV):
-    direction = 3
-
-  else: direction = random.randint(1,8)
-
-  return direction;
 
 
-
-
-def TurnTowardsShipWay(SourceShip, TargetShip):
-
-#     1 
-#   4   2
-#     3
-
-  #Source is to the left of target
-  if (SourceShip.h < TargetCar.h):
-    if (SourceShip.direction in (1,4)):
-      SourceShip.direction =  TurnRight(SourceShip.direction)
-    if (SourceShip.direction == 3):
-      SourceShip.direction = TurnLeft(SourceShip.direction)
-      
-  if (SourceShip.h > TargetCar.h):
-    if (SourceShip.direction in (1,2)):
-      SourceShip.direction = TurnLeft(SourceShip.direction)
-    if (SourceShip.direction in (3,12)):
-      SourceShip.direction =  TurnRight(SourceShip.direction)
-
-
-  if (SourceShip.v < TargetCar.v):
-    if (SourceShip.direction in (1,4)):
-      SourceShip.direction = TurnLeft(SourceShip.direction)
-    if (SourceShip.direction == 2):
-      SourceShip.direction =  TurnRight(SourceShip.direction)
-      
-  if (SourceShip.v > TargetCar.v):
-    if (SourceShip.direction in (4,3)):
-      SourceShip.direction =  TurnRight(SourceShip.direction)
-    if (SourceShip.direction == 2):
-      SourceShip.direction = TurnLeft(SourceShip.direction)
-
-  SourceShip.scandirection = SourceShip.direction
-  return;
-  
-
-
-
-
-def PointTowardsObjectH(Source, Target):
-
-#     1 
-#   4   2
-#     3
-
-  #Source is to the left of target
-  if (Source.h < Target.h and Source.direction == 4) or (Source.h > Target.h and Source.direction == 2):
-    Source.direction = ReverseDirection(Source.direction)
-
-  return;
-  
 
 
 
@@ -8050,8 +4919,7 @@ def PointTowardsObjectH(Source, Target):
 def ShowIPAddress():
   IPAddress = str(subprocess.check_output("hostname -I", shell=True)[:-1]);
   print ("-->",IPAddress,"<--")
-  af.ShowScrollingBanner2(IPAddress,(af.HighGreen),gv.ScrollSleep )
-  af.ShowScrollingBanner2(IPAddress,(af.HighGreen),gv.ScrollSleep )
+  ShowScrollingBanner2(IPAddress[2:17],(HighGreen),ScrollSleep)
 
 
 
@@ -8067,19 +4935,18 @@ def ShowIPAddress():
 
 
 def ShowGlowingText(
-    h          = -1,
-    v          = -1,
-    Text       = 'Test',
-    RGB        = (100,100,100),
-    ShadowRGB  = (20,20,20),
-    ZoomFactor = 2,
-    GlowLevels = 200,
-    DropShadow = True,
-    CenterHoriz = False,
-    CenterVert  = False,
-    FadeLevels  = 0,
-    FadeDelay   = 0.25
-    
+    h          = -1,            #horizontal placement of upper left corner of text banner
+    v          = -1,            #vertical   placement of upper left corner of text banner
+    Text       = 'Test',        #Text messatge to display (make sure it fits!)
+    RGB        = (100,100,100), #color value of the text
+    ShadowRGB  = (20,20,20),    #color value of the shadow
+    ZoomFactor = 2,             #scale the text (1=normal, 2=twice the size, etc.)
+    GlowLevels = 200,           #how many brightness increments to show the text
+    DropShadow = True,          #show a drop shadow of the text
+    CenterHoriz = False,        #center text horizontally, overrides H
+    CenterVert  = False,        #center text vertically, overrides V
+    FadeLevels  = 0,            #Fade the text in this many brightness decrements
+    FadeDelay   = 0.25          #How long to keep text on screen before fading
   ):
 
 
@@ -8093,10 +4960,9 @@ def ShowGlowingText(
 
   #Center if HV not specified
   if (CenterHoriz == True):
-    h = (gv.HatWidth // 2)  - ((TheBanner.width * ZoomFactor) // 2) - ZoomFactor
+    h = (HatWidth // 2)  - ((TheBanner.width * ZoomFactor) // 2) - ZoomFactor
   if (CenterVert  == True):
-    v = (gv.HatHeight // 2) - ((TheBanner.height * ZoomFactor) // 2) - ZoomFactor
-
+    v = (HatHeight // 2) - ((TheBanner.height * ZoomFactor) // 2) - ZoomFactor
   #Draw Shadow Text
   if(DropShadow == True):
     CopySpriteToPixelsZoom(TheBanner,h-1,v+1,ShadowRGB,(0,0,0),ZoomFactor,Fill=False)
@@ -8127,10 +4993,6 @@ def ShowGlowingText(
     #erase remnants
     CopySpriteToPixelsZoom(TheBanner,h,v,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
     CopySpriteToPixelsZoom(TheBanner,h-1,v+1,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
-
-
-
-
 
  
   return   
@@ -8183,15 +5045,15 @@ def CopySpriteToPixelsZoom(TheSprite,h,v, ColorTuple=(-1,-1,-1),FillerTuple=(-1,
           if(CheckBoundary(H,V) == 0):
 
             if TheSprite.grid[count] != 0:
-              gv.Canvas.SetPixel(H,V,r,g,b)
-              gv.ScreenArray[V][H]=(r,g,b)
+              Canvas.SetPixel(H,V,r,g,b)
+              ScreenArray[V][H]=(r,g,b)
             else:
               if (Fill == True):
-                gv.Canvas.SetPixel(H,V,fr,fg,fb)
-                gv.ScreenArray[V][H]=(fr,fg,fb)
+                Canvas.SetPixel(H,V,fr,fg,fb)
+                ScreenArray[V][H]=(fr,fg,fb)
 
   #draw the contents of the buffer to the LED matrix
-  gv.TheMatrix.SwapOnVSync(gv.Canvas)
+  TheMatrix.SwapOnVSync(Canvas)
   
 
 
@@ -8243,14 +5105,14 @@ def CopySpriteToBufferZoom(TheBuffer,TheSprite,h,v, ColorTuple=(-1,-1,-1),Filler
           if(CheckBoundary(H,V) == 0):
 
             if TheSprite.grid[count] != 0:
-              #gv.Canvas.SetPixel(H,V,r,g,b)
-              #gv.ScreenArray[V][H]=(r,g,b)
+              #Canvas.SetPixel(H,V,r,g,b)
+              #ScreenArray[V][H]=(r,g,b)
               TheBuffer[V][H]=(r,g,b)
 
             else:
               if (Fill == True):
-                #gv.Canvas.SetPixel(H,V,fr,fg,fb)
-                #gv.ScreenArray[V][H]=(fr,fg,fb)
+                #Canvas.SetPixel(H,V,fr,fg,fb)
+                #ScreenArray[V][H]=(fr,fg,fb)
                 TheBuffer[V][H]=(fr,fg,fb)
 
 
@@ -8270,10 +5132,10 @@ def CopySpriteToBufferZoom(TheBuffer,TheSprite,h,v, ColorTuple=(-1,-1,-1),Filler
       #print("Count:",count,"xy",x,y)
       if self.grid[count] == 1:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
+          TheMatrix.SetPixel(x+h1,y+v1,self.r,self.g,self.b)
       elif self.grid[count] == 0:
         if (CheckBoundary(x+h1,y+v1) == 0):
-          gv.TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
+          TheMatrix.SetPixel(x+h1,y+v1,0,0,0)
     #unicorn.show()
 
 
@@ -8283,8 +5145,8 @@ def DisplayScore(score,rgb):
   r,g,b = rgb
 
   ScoreSprite = CreateBannerSprite(str(score))
-  ScoreH      = gv.HatWidth  - ScoreSprite.width
-  ScoreV      = gv.HatHeight - ScoreSprite.height
+  ScoreH      = HatWidth  - ScoreSprite.width
+  ScoreV      = HatHeight - ScoreSprite.height
   ScoreSprite.r = r
   ScoreSprite.g = g
   ScoreSprite.b = b
@@ -8308,9 +5170,9 @@ def DisplayScoreMessage(h=0,v=0,Message='TEST',RGB=(100,100,100),FillerRGB=(0,0,
   ScoreMessage = CreateBannerSprite(str(Message.upper()))
   
   if (ScoreH == 0):
-    ScoreH      = (gv.HatWidth  - ScoreMessage.width) // 2
+    ScoreH      = (HatWidth  - ScoreMessage.width) // 2
   if (ScoreV == 0):
-    ScoreV      = gv.HatHeight - ScoreMessage.height
+    ScoreV      = HatHeight - ScoreMessage.height
   ScoreMessage.r = r
   ScoreMessage.g = g
   ScoreMessage.b = b
@@ -8325,8 +5187,8 @@ def DisplayLevel(level,rgb):
   r,g,b = rgb
 
   ScoreSprite = CreateBannerSprite(str(level))
-  ScoreH      = gv.HatWidth  - 33
-  ScoreV      = gv.HatHeight - ScoreSprite.height
+  ScoreH      = HatWidth  - 33
+  ScoreV      = HatHeight - ScoreSprite.height
   ScoreSprite.r = r
   ScoreSprite.g = g
   ScoreSprite.b = b
@@ -8340,96 +5202,6 @@ def DisplayLevel(level,rgb):
 
 
   
-
-def DebugPlayfield(Playfield,width,height):
-  #Show contents of playfield - in text window, for debugging purposes
-    
-  print ("Map width height:",width,height)
-
-  
-  print ("=======================================")
-
-  for V in range(0,height):
-    for H in range (0,width):
-       
-      name = Playfield[V][H].name
-      #print ("Display: ",name,V,H)
-      if (name == 'EmptyObject'):
-        print ('--',end='')
-
-      #draw border walls
-      elif (V == 0 or V == height-1):
-        print(' _',end='')
-      
-      #draw border walls
-      elif (H == 0 or H == width-1):
-        print(' |',end='')
-        
-      #draw interior
-      elif (name == 'Wall'):
-        print (' #',end='')
-
-      elif (name == 'Ground'):
-        print (' G',end='')
-
-      #draw asteroid
-      elif (name == 'Asteroid'):
-        if (Playfield[V][H].alive == 1):
-          print (' A',end='')
-        else:
-          print ('*a')
-        
-        FlashDot(H,V,0.01)
-
-
-      #draw asteroid
-      elif (name == 'UFO'):
-        print (' U',end='')
-
-      #draw asteroid
-      elif (name == 'BomberShip'):
-        print (' B',end='')
-
-      #draw UFOMissile
-      elif (name == 'UFOMissile'):
-        print (' m',end='')
-
-      #draw UFOMissile
-      elif (name == 'PlayerMissile'):
-        print (' p',end='')
-
-      #draw UFOMissile
-      elif (name == 'Explosion'):
-        print (' E',end='')
-
-      #draw HomingMissile
-      elif (name == 'HomingMissile'):
-        print (' H',end='')
-
-
-
-      #draw interior
-      elif (name == 'WallBreakable'):
-        print (' o',end='')
-
-      elif (Playfield[V][H].alive == 1):
-        print (' ?',end='')
-        #print ("Name?:",name," alive:",Playfield[V][H].alive)
-      elif (Playfield[V][H].alive == 0):
-        print (' !',end='')
-        #print ("Name!:",name," alive:",Playfield[V][H].alive)
-      else:
-        print (' X',end='')
-        #print ("NameX:",name," alive:",Playfield[V][H].alive)
-
-    print('')
-  print ("=============================================")
-  time.sleep(1)
-
-  return
-
-
-
 
 
 
@@ -8445,98 +5217,6 @@ def GetElapsedSeconds(starttime):
 
 
 
-def CleanupDebris(StartH,EndH,StartV,EndV,Playfield):
-  
-
-  for V in range(StartV,EndV):
-    for H in range (StartH,EndH):
-      if ((Playfield[V][H].name  == 'EmptyObject') 
-       or (Playfield[V][H].name  in ('Explosion','HomingMissile') and Playfield[V][H].alive == 0)):
-        setpixel(H,V,0,0,0)
-        Playfield[V][H] = gv.EmptyObject
-
-
-
-
-def CenterSpriteOnShip(Sprite,Ship):
-  Sprite.h = Ship.h - (Sprite.width // 2)
-  Sprite.v = Ship.v - (Sprite.height // 2)
-
-
-
-
-# def Displaybuffer(Buffer,h,v,ZoomFactor = 0):
-  # #This function accepts a buffer, HV coordinates and zoomfactor
-  
-    
-  # r = 0
-  # g = 0
-  # b = 0
-  # count = 0
-  # H_modifier = 0
-  # V_modifier = 0
-  
-  # HIndentFactor = 0    
-  # VIndentFactor = 0    
-
-  # #make a canvas/buffer for display purposes
-  # ZoomBuffer = TheMatrix.CreateFrameCanvas()
-  # ZoomBuffer.Fill(0,0,0)
-
-
-    # if (ZoomFactor > 1):
-      # H_modifier = (1 / gv.HatWidth ) * ZoomFactor * 2  #BigLED is 2 times wider than tall. Hardcoding now, will fix later. 
-      # V_modifier = (1 / gv.HatHeight ) * ZoomFactor
-      # NewHeight = round(gv.HatHeight * V_modifier)
-      # NewWidth  = round(gv.HatWidth * H_modifier)
-
-      # HIndentFactor = (gv.HatWidth / 2)  - (NewWidth /2)
-      # VIndentFactor = (gv.HatHeight / 2) - (NewHeight /2)
-    # else:
-      # IndentFactor = 0
-
-    # #print("gv.HatWidth",gv.HatWidth," NewWidth",NewWidth," ZoomFactor:",ZoomFactor,"HV_modifier",HV_modifier, "IndentFactor:",IndentFactor)
-
-    # for V in range(0,gv.HatHeight):
-      # for H in range (0,gv.HatWidth):
-        # #print ("DisplayWindow hv HV: ",h,v,H,V) 
-        
-        # r,g,b = Buffer[ 
-
-        # else:
-          # r = self.Playfield[v+V][h+H].r
-          # g = self.Playfield[v+V][h+H].g
-          # b = self.Playfield[v+V][h+H].b
-          
-        # #Our map is an array V of array H  [V][1,2,3,4...etc]
-        # if (ZoomFactor > 0):
-          # gv.TheMatrix.SetPixel((H * H_modifier) + HIndentFactor ,(V * V_modifier) + VIndentFactor,r,g,b)
-        
-    
-
-        # else:
-          # gv.TheMatrix.SetPixel(H,V,r,g,b)
-    
-    #unicorn.show()
-    #SendBufferPacket(RemoteDisplay,gv.HatHeight,gv.HatWidth)
-
-
-
-  # def DisplayWindowZoom(self,h,v,Z1=8,Z2=1,ZoomSleep=0.05):
-    # #uses playfield to display items
-
-    # if (Z1 <= Z2):
-      # for Z in range (Z1,Z2):
-        # gv.TheMatrix.Clear()
-        # self.DisplayWindow(h,v,Z)
-        # time.sleep(ZoomSleep)
-        
-    # else:
-      # for Z in reversed(range(Z2,Z1)):
-        # gv.TheMatrix.Clear()        
-        # self.DisplayWindow(h,v,Z)
-        # time.sleep(ZoomSleep)
-        
 
 
 def TronGetRandomMessage(MessageType = 'TAUNT'):
@@ -8663,8 +5343,8 @@ def TronGetRandomMessage(MessageType = 'TAUNT'):
 
 
 def EraseMessageArea(LinesFromBottom = 5):
-  for x in range (0,gv.HatWidth):
-    for y in range (gv.HatHeight-LinesFromBottom,gv.HatHeight):
+  for x in range (0,HatWidth):
+    for y in range (HatHeight-LinesFromBottom,HatHeight):
       setpixel(x,y,0,0,0)
 
 
@@ -8687,13 +5367,63 @@ def GetBrightAndShadowRGB():
   return BrightRGB, ShadowRGB
 
 
+
+
+
+
+def ShowTitleScreen(
+  
+
+  BigText    = 'BIGTEXT',
+  LittleText = 'LITTLE TEXT',
+  ScrollText = 'SCROLLING TEXT',
+  RGB        = HighBlue,
+  ShadowRGB  = ShadowBlue ):
+  
+  BigText    = BigText.upper()
+  LittleText = LittleText.upper()
+  ScrollText = ScrollText.upper()
+
+  print ("RGB: ",RGB)
+
+
+
+  TheMatrix.Clear()
+  Canvas.Clear()
+ 
+
+
+  #Big Text
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 8,GlowLevels=0,DropShadow=False)
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 7,GlowLevels=0,DropShadow=False)
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 6,GlowLevels=0,DropShadow=False)
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 5,GlowLevels=0,DropShadow=False)
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 4,GlowLevels=0,DropShadow=False)
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 3,GlowLevels=0,DropShadow=False)
+  TheMatrix.Clear()
+  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 2,GlowLevels=0,DropShadow=False)
+  
+
+  #Little Text
+  BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
+  ShowGlowingText(CenterHoriz = True,h = 0 ,v = 12,  Text = LittleText, RGB = BrightRGB,  ShadowRGB = ShadowRGB,  ZoomFactor = 1,GlowLevels=200,DropShadow=True,FadeLevels=0)
+
+
+
+  #Scrolling Message
+  EraseMessageArea(LinesFromBottom=6)
+  BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
+  ShowScrollingBanner2(ScrollText,BrightRGB,ScrollSleep,26)
+
+  LED.ZoomScreen(ScreenArray,32,256,0,Fade=True)
   
   
-
-
-
-
-
 
 
 
