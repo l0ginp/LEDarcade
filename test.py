@@ -35,10 +35,10 @@ LED.ShowTitleScreen(
   BigText             = 'LED FUN',
   BigTextRGB          = LED.HighGreen,
   BigTextShadowRGB    = LED.ShadowGreen,
-  LittleText          = 'LITTLE TEXT',
+  LittleText          = 'HACKATHON',
   LittleTextRGB       = LED.HighRed,
   LittleTextShadowRGB = LED.ShadowRed, 
-  ScrollText          = 'THE END',
+  ScrollText          = 'CLONE THIS PROJECT AND START CONTRIBUTING',
   ScrollTextRGB       = LED.HighYellow,
   ScrollSleep         = ScrollSleep,
   DisplayTime         = 2,      # time in seconds to wait before exiting 
