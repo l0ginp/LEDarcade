@@ -832,9 +832,11 @@ def ClearBigLED():
 
 
 def ClearBuffers():
-  global ScreenArray
+  #There are TWO buffers.  One is built into the API, and we can write to it but now query it.  That is the Canvas.
+  #The second one is ScreenArray, which is our own version, kept up to date when we draw to the Canvas or the Matrix.
 
-  print(ScreenArray)
+
+  global ScreenArray
 
   ScreenArray  = [[]]
   ScreenArray  = [[ (0,0,0) for i in range(HatWidth)] for i in range(HatHeight)]
@@ -892,6 +894,7 @@ def setpixelsWithClock(TheBuffer,ClockSprite,h,v):
       
 
 def setpixel(x, y, r, g, b):
+  global ScreenArray
 
   if (CheckBoundary(x,y) == 0):
     TheMatrix.SetPixel(x,y,r,g,b)
@@ -899,6 +902,7 @@ def setpixel(x, y, r, g, b):
 
     
 def setpixelRGB(x, y, RGB):
+  global ScreenArray
   r,g,b = RGB
   if (CheckBoundary(x,y) == 0):
     TheMatrix.SetPixel(x,y,r,g,b)
@@ -4949,6 +4953,7 @@ def ShowGlowingText(
     FadeDelay   = 0.25          #How long to keep text on screen before fading
   ):
 
+  global ScreenArray
 
   r,g,b = RGB 
   r2 = 0
@@ -5011,7 +5016,7 @@ def CopySpriteToPixelsZoom(TheSprite,h,v, ColorTuple=(-1,-1,-1),FillerTuple=(-1,
   width   = TheSprite.width 
   height  = TheSprite.height
 
-  
+  global ScreenArray  
   
   if (ColorTuple == (-1,-1,-1)):
     r = TheSprite.r
@@ -5069,6 +5074,7 @@ def CopySpriteToBufferZoom(TheBuffer,TheSprite,h,v, ColorTuple=(-1,-1,-1),Filler
   #Apply a ZoomFactor i.e  1 = normal / 2 = double in size / 3 = 3 times the size
   #print ("Copying sprite to playfield:",TheSprite.name, ObjectType, Filler)
 
+  global ScreenArray
 
   width   = TheSprite.width 
   height  = TheSprite.height
@@ -5372,57 +5378,119 @@ def GetBrightAndShadowRGB():
 
 
 def ShowTitleScreen(
-  
+  BigText          = 'BIGTEXT',
+  BigTextRGB       = HighBlue,
+  BigTextShadowRGB = ShadowBlue,
 
-  BigText    = 'BIGTEXT',
-  LittleText = 'LITTLE TEXT',
-  ScrollText = 'SCROLLING TEXT',
-  RGB        = HighBlue,
-  ShadowRGB  = ShadowBlue ):
+  LittleText          = 'LITTLE TEXT',
+  LittleTextRGB       = HighRed,
+  LittleTextShadowRGB = ShadowRed, 
   
+  ScrollText    = 'SCROLLING TEXT',
+  ScrollTextRGB = HighYellow,
+  ScrollSleep   = 0.05,    #how long to wait between each frame of scrolling
+  DisplayTime   = 5,       #how long to wait before exiting
+  ExitEffect   = True
+  ):
+
+
+  global ScreenArray  
+  #Draw the Big text
+  #Clear only the LED matrix
+  #Draw the next size down
+  #When at the final zoom level
+  #  - clear the LED Matrix
+  #  - clear all buffers (canvas and ScreenArray[V][H])
+  #  - draw the text at desired last zoom level
+  #  - draw the rest of the text, at this point it is all written to ArrayBuffer
+  #  - clear the LED Matrix
+  #  - clear all buffers (canvas and ScreenArray[V][H])
+  #Call the ZoomScreen function to redraw the display using ScreenArray[V][H] which at this point
+  #contains the values last written to the screen.
+
   BigText    = BigText.upper()
   LittleText = LittleText.upper()
   ScrollText = ScrollText.upper()
 
-  print ("RGB: ",RGB)
 
 
 
   TheMatrix.Clear()
-  Canvas.Clear()
- 
+  ClearBuffers()
+  
 
 
   #Big Text
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 8,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=0,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 8,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 7,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 7,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 6,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 6,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 5,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 5,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 4,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 4,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 3,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 3,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
-  ShowGlowingText(CenterHoriz = True, CenterVert = False, h = 0, v = 0, Text = BigText,   RGB = RGB, ShadowRGB = ShadowRGB, ZoomFactor = 2,GlowLevels=0,DropShadow=False)
+  ClearBuffers() #We do this to erase our ScreenArray (which we draw to manually because we cannot read the matrix as a whole)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 2,GlowLevels=0,DropShadow=False)
   
+
+  time.sleep(0.5)
 
   #Little Text
   BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
-  ShowGlowingText(CenterHoriz = True,h = 0 ,v = 12,  Text = LittleText, RGB = BrightRGB,  ShadowRGB = ShadowRGB,  ZoomFactor = 1,GlowLevels=200,DropShadow=True,FadeLevels=0)
+  ShowGlowingText(CenterHoriz=True,h=0,v=14,Text=LittleText,RGB=LittleTextRGB,ShadowRGB=LittleTextShadowRGB,ZoomFactor= 1,GlowLevels=100,DropShadow=True)
 
-
+  
 
   #Scrolling Message
   EraseMessageArea(LinesFromBottom=6)
   BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
-  ShowScrollingBanner2(ScrollText,BrightRGB,ScrollSleep,26)
+  ShowScrollingBanner2(ScrollText,BrightRGB,ScrollSpeed=ScrollSleep,v=25)
 
-  LED.ZoomScreen(ScreenArray,32,256,0,Fade=True)
-  
+  time.sleep(DisplayTime)
+
+  #Pick a random special affect
+ 
+  if(ExitEffect == 0):
+    r = random.randint(0,3)
+    if (r == 0):
+      #Zoom out
+      print('Random Zoom out')
+      ZoomScreen(ScreenArray,32,256,Fade=True,ZoomSleep=0.02)
+    elif (r == 1):
+      #Shrink
+      print('Random Shrink')
+      ZoomScreen(ScreenArray,32,1,Fade=True,ZoomSleep=0.02)
+    elif (r == 2):
+      #Bounce1
+      print('Random Bounce1')
+      ZoomScreen(ScreenArray,32,10,Fade=False,ZoomSleep=0.01)
+      ZoomScreen(ScreenArray,20,128,Fade=True,ZoomSleep=0.02)
+    elif (r == 3):
+      #Bounce2
+      print('Random Bounce2')
+      ZoomScreen(ScreenArray,32,42,Fade=False,ZoomSleep=0.15)
+      ZoomScreen(ScreenArray,42,1,Fade=True,ZoomSleep=0.02)
+
+  elif(ExitEffect == 1):
+      #Zoom out
+      print('Zoom out')
+      ZoomScreen(ScreenArray,32,256,Fade=True,ZoomSleep=0.02)
+  elif(ExitEffect == 2):
+      #Shrink
+      print('Shrink')
+      ZoomScreen(ScreenArray,32,1,Fade=True,ZoomSleep=0.02)
+  elif(ExitEffect == 3):
+      #Bounce
+      print('Bounce')
+      ZoomScreen(ScreenArray,32,10,Fade=False,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,10,128,Fade=True,ZoomSleep=0.02)
+
+    
   
 
 

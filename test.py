@@ -8,11 +8,7 @@ import time
 
 
 
-
-
-
 print ("hello")
-
 
 
 
@@ -31,8 +27,21 @@ print ("")
 
 
 
-LED.ClearBuffers()
-LED.ShowTitleScreen()
+#LED.ClearBuffers()
+LED.ShowTitleScreen(
+  BigText             = 'BIGTEXT',
+  BigTextRGB          = LED.HighGreen,
+  BigTextShadowRGB    = LED.ShadowGreen,
+  LittleText          = 'LITTLE TEXT',
+  LittleTextRGB       = LED.HighRed,
+  LittleTextShadowRGB = LED.ShadowRed, 
+  ScrollText          = 'THE END',
+  ScrollTextRGB       = LED.HighYellow,
+  ScrollSleep         = 0.025,
+  DisplayTime         = 2,      # time in seconds to wait before exiting 
+  ExitEffect          = 0       # 0=Random / 1=shrink / 2=zoom out / 3=bounce 
+  )
+
 
 
 #LED.ShowIPAddress()
@@ -43,6 +52,6 @@ LED.ShowTitleScreen()
 #gv.Canvas.Clear()
 #LED.ClearBuffers()
 
-print (gv.ScreenArray)
+
 
 
