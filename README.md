@@ -37,6 +37,14 @@ There are 4 games that have been converted to this new playform so far.
 
 
 ## Usage
+Modify the test.py script to contain the messages you want to display.  Then execute by issuing the comand:
+ ~~~
+ sudo python3 test.py
+ 
+![Usage](https://github.com/datagod/LEDarcade/blob/main/images/BIGLED_Usage.jpg )
+ 
+ 
+
  
  
  
