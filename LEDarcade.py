@@ -2238,6 +2238,8 @@ class ColorAnimatedSprite(object):
 #------------------------------------------------------------------------------
 
 
+
+
 DigitList = []
 #0
 DigitList.append([1,1,1, 
@@ -2602,6 +2604,244 @@ DollarSignSprite = Sprite(
    0,0,1,1,
    1,1,1,0]
 )
+
+
+#------------------------------------------------------------------------------
+# CUSTOM SPRITES                                                             --
+#   These sprites come from various video games in the Arcade Retro Clock.   --
+#   They were created for an 8x8 display but work quite well on any size.    --
+#   Animated sprites have frames of animations that are displayed as the     --
+#   sprite moves.                                                            --
+#                                                                            --
+#   Note:                                                                    --
+#   These sprites are "drawn" with a lot of imagination but are stored as    --
+#   a list of integers.  This is a technique I created back in the 80's      --
+#   while programming my TRS-80 color computer, and certainly WAY before     --
+#   I had a firm grasp on Python arrays/lists/tuples and all that jazz.      --
+#------------------------------------------------------------------------------
+
+
+
+
+ThreeGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=5, currentframe=0,framerate=1,grid=[])
+
+
+
+ThreeGhostPacSprite.grid.append(
+  [
+   0, 0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 0, 0,22,22,22, 0, 0,
+   0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 22,22,22, 0,0, 0,
+   0,33, 1,33, 1,33, 0,18, 1,18, 1,18, 0, 7, 1, 7, 1, 7, 0, 0, 22,22, 0, 0,0, 0,
+   0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 22,22,22, 0,0, 0,
+   0,33, 0,33, 0,33, 0,18, 0,18, 0,18, 0, 7, 0, 7, 0, 7, 0, 0, 0,22,22,22, 0, 0
+  
+   ]
+)
+
+
+ThreeGhostPacSprite.grid.append(
+  [
+     0,0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 0, 0,22,22,22,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 22,22,22,22,22, 0,
+    0,33, 1,33, 1,33, 0,18, 1,18, 1,18, 0, 7, 1, 7, 1, 7, 0, 0, 22,22,22,0,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 22,22,22,22,22, 0,
+    0,33, 0,33, 0,33, 0,18, 0,18, 0,18, 0, 7, 0, 7, 0, 7, 0, 0, 0,22,22,22,0, 0
+  
+   ]
+)
+
+
+
+ThreeGhostPacSprite.grid.append(
+  [
+    0, 0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 0, 0,23,23,23,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 23,23,23,23,23, 0,
+    0,33, 1,33, 1,33, 0,18, 1,18, 1,18, 0, 7, 1, 7, 1, 7, 0, 0, 23,23,23,23,23, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 23,23,23,23,23, 0,
+    0,33, 0,33, 0,33, 0,18, 0,18, 0,18, 0, 7, 0, 7, 0, 7, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+
+
+ThreeGhostPacSprite.grid.append(
+  [
+    0,0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 0,  0,23,23,23,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 23,23,23,23,0, 0,
+    0,33, 1,33, 1,33, 0,18, 1,18, 1,18, 0, 7, 1, 7, 1, 7, 0, 0, 23,23,23,0,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 23,23,23,23,0,  0,
+    0,33, 0,33, 0,33, 0,18, 0,18, 0,18, 0, 7, 0, 7, 0, 7, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+ 
+ThreeGhostPacSprite.grid.append(
+  [
+     0,0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 0, 0,23,23,23,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 23,23,0,0,0, 0,
+    0,33, 1,33, 1,33, 0,18, 1,18, 1,18, 0, 7, 1, 7, 1, 7, 0, 0, 23,23,0,0,0, 0,
+    0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 0, 23,23,0,0,0, 0,
+    0,33, 0,33, 0,33, 0,18, 0,18, 0,18, 0, 7, 0, 7, 0, 7, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+
+
+
+ThreeBlueGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=6, currentframe=0,framerate=1,grid=[])
+
+ThreeBlueGhostPacSprite.grid.append(
+  [
+     0,0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0, 0,23,23,23,0, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,0,23,23,23, 0,
+    0,14, 2,14, 1,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 0, 0,0,0,23,23, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,0,23,23,23, 0,
+    0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+
+ThreeBlueGhostPacSprite.grid.append(
+  [
+     0,0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0, 0,23,23,23,0, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 23,23,23,23,23, 0,
+    0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 0, 0,0,0,23,23, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 23,23,23,23,23, 0,
+    0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+
+
+ThreeBlueGhostPacSprite.grid.append(
+  [
+     0,0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0, 0,23,23,23,0, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 23,23,23,23,23, 0,
+    0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 0, 23,23,23,23,23, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 23,23,23,23,23, 0,
+    0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+ThreeBlueGhostPacSprite.grid.append(
+  [
+     0,0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0, 0,23,23,23,0, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,23,23,23,23, 0,
+    0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 0, 0,0,23,23,23, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,23,23,23,23, 0,
+    0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+ 
+ThreeBlueGhostPacSprite.grid.append(
+  [
+     0,0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0, 0,23,23,23,0, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,0,0,23,23, 0,
+    0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 0, 0,0,0,0,23, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,0,0,23,23, 0,
+    0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0, 0, 0,23,23,23,0, 0
+  
+   ]
+)
+
+ThreeBlueGhostPacSprite.grid.append(
+  [
+     0,0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0, 0,23,23,23,0, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,0,0,23,23, 0,
+    0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 0, 0,0,0,0,23, 0,
+    0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 0, 0,0,0,23,23, 0,
+    0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0, 0, 0,23,23,23,0,  0
+  
+   ]
+)
+
+
+
+
+
+
+ThreeGhostSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=19, height=5, frames=1, currentframe=0,framerate=1,grid=[])
+ThreeGhostSprite.grid.append(
+  [
+   0, 0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 
+   0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 
+   0,33, 1,33, 1,33, 0,18, 1,18, 1,18, 0, 7, 1, 7, 1, 7, 0, 
+   0,33,33,33,33,33, 0,18,18,18,18,18, 0, 7, 7, 7, 7, 7, 0, 
+   0,33, 0,33, 0,33, 0,18, 0,18, 0,18, 0, 7, 0, 7, 0, 7, 0 
+  
+   ]
+)
+
+
+ThreeBlueGhostSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeBlueGhost", width=19, height=5, frames=1, currentframe=0,framerate=1,grid=[])
+ThreeBlueGhostSprite.grid.append(
+  [
+   0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 
+   0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 
+   0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0,14, 2,14, 2,14, 0, 
+   0,14,14,14,14,14, 0,14,14,14,14,14, 0,14,14,14,14,14, 0, 
+   0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0,14, 0 
+  
+   ]
+)
+
+
+
+
+PacDotAnimatedSprite = AnimatedSprite(5,5,YellowR,YellowG,YellowB,4,[])
+PacDotAnimatedSprite.grid.append(
+  [0,1,1,1,0,
+   1,1,1,0,0,
+   1,1,0,0,0,
+   1,1,1,0,0,
+   0,1,1,1,0]
+)
+
+PacDotAnimatedSprite.grid.append(
+  [0,1,1,1,0,
+   1,1,1,1,1,
+   1,1,0,0,0,
+   1,1,1,1,1,
+   0,1,1,1,0]
+)
+
+
+PacDotAnimatedSprite.grid.append(
+  [0,1,1,1,0,
+   1,1,1,1,1,
+   1,1,1,1,1,
+   1,1,1,1,1,
+   0,1,1,1,0]
+)
+PacDotAnimatedSprite.grid.append(
+  [0,1,1,1,0,
+   1,1,1,1,0,
+   1,1,1,0,0,
+   1,1,1,1,0,
+   0,1,1,1,0]
+)
+
+PacDotAnimatedSprite.grid.append(
+  [0,1,1,1,0,
+   1,1,0,0,0,
+   1,0,0,0,0,
+   1,1,0,0,0,
+   0,1,1,1,0]
+)
+
+
+# Make left and right facing pacmen
+PacRightAnimatedSprite = copy.deepcopy(PacDotAnimatedSprite)
+PacLeftAnimatedSprite  = copy.deepcopy(PacDotAnimatedSprite)
+PacLeftAnimatedSprite.HorizontalFlip()
 
 
 
@@ -5435,13 +5675,13 @@ def ShowTitleScreen(
   ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 3,GlowLevels=0,DropShadow=False)
   TheMatrix.Clear()
   ClearBuffers() #We do this to erase our ScreenArray (which we draw to manually because we cannot read the matrix as a whole)
-  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 2,GlowLevels=0,DropShadow=False)
+  ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text=BigText,RGB=BigTextRGB,ShadowRGB=BigTextShadowRGB,ZoomFactor= 2,GlowLevels=0,DropShadow=True)
   
 
   time.sleep(0.5)
 
   #Little Text
-  BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
+  #BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
   ShowGlowingText(CenterHoriz=True,h=0,v=14,Text=LittleText,RGB=LittleTextRGB,ShadowRGB=LittleTextShadowRGB,ZoomFactor= 1,GlowLevels=100,DropShadow=True)
 
   
@@ -5449,7 +5689,12 @@ def ShowTitleScreen(
   #Scrolling Message
   EraseMessageArea(LinesFromBottom=6)
   BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
-  ShowScrollingBanner2(ScrollText,BrightRGB,ScrollSpeed=ScrollSleep,v=25)
+  ShowScrollingBanner2(ScrollText,ScrollTextRGB,ScrollSpeed=ScrollSleep,v=25)
+
+  #LED.PacDotAnimatedSprite.ScrollAcrossScreen(15,15,'right',ScrollSleep)
+  ThreeGhostPacSprite.ScrollAcrossScreen(0,26,'right',ScrollSleep)
+  ThreeBlueGhostPacSprite.ScrollAcrossScreen(HatWidth,26,'left',ScrollSleep)
+
 
   time.sleep(DisplayTime)
 
@@ -5460,35 +5705,35 @@ def ShowTitleScreen(
     if (r == 0):
       #Zoom out
       print('Random Zoom out')
-      ZoomScreen(ScreenArray,32,256,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,256,Fade=True,ZoomSleep=0.01)
     elif (r == 1):
       #Shrink
       print('Random Shrink')
-      ZoomScreen(ScreenArray,32,1,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,1,Fade=True,ZoomSleep=0.01)
     elif (r == 2):
       #Bounce1
       print('Random Bounce1')
-      ZoomScreen(ScreenArray,32,10,Fade=False,ZoomSleep=0.01)
-      ZoomScreen(ScreenArray,20,128,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,5,Fade=False,ZoomSleep=0.005)
+      ZoomScreen(ScreenArray,6,96,Fade=True,ZoomSleep=0)
     elif (r == 3):
       #Bounce2
       print('Random Bounce2')
-      ZoomScreen(ScreenArray,32,42,Fade=False,ZoomSleep=0.15)
-      ZoomScreen(ScreenArray,42,1,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,42,Fade=False,ZoomSleep=0.015)
+      ZoomScreen(ScreenArray,42,1,Fade=True,ZoomSleep=0.0)
 
   elif(ExitEffect == 1):
       #Zoom out
       print('Zoom out')
-      ZoomScreen(ScreenArray,32,256,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,256,Fade=True,ZoomSleep=0.01)
   elif(ExitEffect == 2):
       #Shrink
       print('Shrink')
-      ZoomScreen(ScreenArray,32,1,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,1,Fade=True,ZoomSleep=0.01)
   elif(ExitEffect == 3):
       #Bounce
       print('Bounce')
-      ZoomScreen(ScreenArray,32,10,Fade=False,ZoomSleep=0.02)
-      ZoomScreen(ScreenArray,10,128,Fade=True,ZoomSleep=0.02)
+      ZoomScreen(ScreenArray,32,10,Fade=False,ZoomSleep=0.005)
+      ZoomScreen(ScreenArray,11,128,Fade=True,ZoomSleep=0)
 
     
   

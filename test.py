@@ -7,29 +7,32 @@ from rgbmatrix import RGBMatrix, RGBMatrixOptions
 import time
 
 
-
-print ("hello")
-
-
-
-ScrollSleep = 0.05
+#Variable declaration section
+ScrollSleep = 0.025
 
 
-TheMessage = "THIS IS SCROLLING TEXT"
 
-print ("--------------------------------------")
+print ("---------------------------------------------------------------")
 print ("WELCOME TO THE LED ARCADE             ")
 print ("")
 print ("BY DATAGOD")
-print ("--------------------------------------")
+print ("")
+print ("This program will demonstrate several LED functions that have")
+print ("been developed as part of the Arcade Retro Clock RGB project.")
+print ("---------------------------------------------------------------")
 print ("")
 print ("")
 
 
+
+
+
+#This allows you to create a title screen with different size text
+#some scrolling text, an animation and even a nice fade to black
 
 #LED.ClearBuffers()
 LED.ShowTitleScreen(
-  BigText             = 'BIGTEXT',
+  BigText             = 'LED FUN',
   BigTextRGB          = LED.HighGreen,
   BigTextShadowRGB    = LED.ShadowGreen,
   LittleText          = 'LITTLE TEXT',
@@ -37,20 +40,15 @@ LED.ShowTitleScreen(
   LittleTextShadowRGB = LED.ShadowRed, 
   ScrollText          = 'THE END',
   ScrollTextRGB       = LED.HighYellow,
-  ScrollSleep         = 0.025,
+  ScrollSleep         = ScrollSleep,
   DisplayTime         = 2,      # time in seconds to wait before exiting 
   ExitEffect          = 0       # 0=Random / 1=shrink / 2=zoom out / 3=bounce 
   )
 
 
 
-#LED.ShowIPAddress()
 
 
-
-#gv.TheMatrix.Clear()
-#gv.Canvas.Clear()
-#LED.ClearBuffers()
 
 
 
