@@ -2623,6 +2623,273 @@ DollarSignSprite = Sprite(
 
 
 
+
+
+
+
+PacSprite = Sprite(
+  5,
+  5,
+  YellowR,
+  YellowG,
+  YellowB,
+  [0, 0,1,1,1,0,
+   0, 1,1,1,0,0,
+   0, 1,1,0,0,0,
+   0, 1,1,1,0,0,
+   0, 0,1,1,1,0]
+)
+
+
+RedGhostSprite = Sprite(
+  5,
+  5,
+  RedR,
+  RedG,
+  RedB,
+  [0,1,1,1,0,
+   1,1,1,1,1,
+   1,0,1,0,1,
+   1,1,1,1,1,
+   1,0,1,0,1]
+)
+    
+
+OrangeGhostSprite = Sprite(
+  5,
+  5,
+  OrangeR,
+  OrangeG,
+  OrangeB,
+  [0,1,1,1,0,
+   1,1,1,1,1,
+   1,0,1,0,1,
+   1,1,1,1,1,
+   1,0,1,0,1]
+)
+    
+BlueGhostSprite = Sprite(
+  5,
+  5,
+  BlueR,
+  BlueG,
+  BlueB,
+  [0,1,1,1,0,
+   1,1,1,1,1,
+   1,0,1,0,1,
+   1,1,1,1,1,
+   1,0,1,0,1]
+)
+
+PurpleGhostSprite = Sprite(
+  5,
+  5,
+  PurpleR,
+  PurpleG,
+  PurpleB,
+  [0,1,1,1,0,
+   1,1,1,1,1,
+   1,0,1,0,1,
+   1,1,1,1,1,
+   1,0,1,0,1]
+)
+
+
+
+ChickenRunning = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=8, height=8, frames=4, currentframe=0,framerate=1,grid=[])
+ChickenRunning.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0,
+    0, 0, 0,22, 0,21, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+
+  ]
+)
+
+ChickenRunning.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+
+  ]
+)
+
+ChickenRunning.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0,
+    0, 0, 0,21, 0,22, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+
+  ]
+)
+
+
+ChickenRunning.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+
+  ]
+)
+
+
+
+
+
+
+
+WormChasingChicken = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=24, height=8, frames=4, currentframe=0,framerate=1,grid=[])
+WormChasingChicken.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0, 0, 0, 0, 0,17,17,17,17,17,17,17,17, 0, 0, 0, 0,
+    0, 0, 0,22, 0,21, 0, 0, 0, 0, 0, 0,17,17,17,17,17,17,17,17, 0, 0, 0, 0,
+
+  ]
+)
+
+WormChasingChicken.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,17,17, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0, 0, 0, 0, 0, 0,17,17,17,17,17,17,17, 0, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0, 0, 0, 0, 0, 0,17,17,17, 0, 0,17,17, 0, 0, 0, 0,
+
+  ]
+)
+
+WormChasingChicken.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,17,17, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,17,17, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0, 0, 0, 0, 0, 0, 0,17,17, 0, 0,17,17, 0, 0, 0, 0,
+    0, 0, 0,21, 0,22, 0, 0, 0, 0, 0, 0, 0, 0,17,17, 0, 0,17,17, 0, 0, 0, 0
+
+  ]
+)
+
+
+WormChasingChicken.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0,17, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,17,17, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0, 0, 0, 0, 0, 0,17,17,17,17,17,17,17, 0, 0, 0, 0,
+    0, 0, 0, 0,22, 0, 0, 0, 0, 0, 0, 0, 0,17,17,17, 0, 0,17,17, 0, 0, 0, 0
+
+  ]
+)
+
+
+
+
+
+
+
+
+
+
+
+
+ChickenChasingWorm = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=16, height=8, frames=4, currentframe=0,framerate=1,grid=[])
+ChickenChasingWorm.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22, 0, 0, 0,
+    5,17, 5,17,17, 0, 0, 0, 0, 0, 0,22, 0,21, 0, 0
+
+  ]
+)
+
+ChickenChasingWorm.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0,22, 0, 0, 0,
+    0, 5,17, 0,17, 0, 0, 0, 0, 0, 0, 0,22, 0, 0, 0
+
+  ]
+)
+
+ChickenChasingWorm.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22, 0, 0, 0,
+    5,17, 5,17,17, 0, 0, 0, 0, 0, 0,21, 0,22, 0, 0
+
+  ]
+)
+
+
+ChickenChasingWorm.grid.append(
+  [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,17, 2, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 2, 0, 2, 2, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0,
+    0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0,22, 0, 0, 0,
+    0, 5,17, 0,17, 0, 0, 0, 0, 0, 0, 0,22, 0, 0, 0
+
+  ]
+)
+
+
+
+
 ThreeGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=5, currentframe=0,framerate=1,grid=[])
 
 
@@ -5245,6 +5512,72 @@ def ShowGlowingText(
 
 
 
+def ShowGlowingSprite(
+    h          = -1,                #horizontal placement of upper left corner of text banner
+    v          = -1,                #vertical   placement of upper left corner of text banner
+    TheSprite  = ExclamationSprite, #Text message to display (make sure it fits!)
+    RGB        = HighRed,
+    ShadowRGB  = ShadowRed,         #color value of the shadow
+    ZoomFactor = 2,                 #scale the text (1=normal, 2=twice the size, etc.)
+    GlowLevels = 200,               #how many brightness increments to show the text
+    DropShadow = True,          #show a drop shadow of the text
+    CenterHoriz = False,        #center text horizontally, overrides H
+    CenterVert  = False,        #center text vertically, overrides V
+    FadeLevels  = 0,            #Fade the text in this many brightness decrements
+    FadeDelay   = 0.25          #How long to keep text on screen before fading
+  ):
+
+  #Note: alphanumeric sprites have RGB = 0, so you need to pass in the desired RGB
+
+  global ScreenArray
+
+  r,g,b = (RGB)
+  r2 = 0
+  g2 = 0
+  b2 = 0
+    
+
+  #Center if HV not specified
+  if (CenterHoriz == True):
+    h = (HatWidth // 2)  - ((TheSprite.width * ZoomFactor) // 2) - ZoomFactor
+  if (CenterVert  == True):
+    v = (HatHeight // 2) - ((TheSprite.height * ZoomFactor) // 2) - ZoomFactor
+  #Draw Shadow Text
+  if(DropShadow == True):
+    CopySpriteToPixelsZoom(TheSprite,h-1,v+1,ShadowRGB,(0,0,0),ZoomFactor,Fill=False)
+
+                                    
+  if (GlowLevels > 0):
+    for i in range (1,GlowLevels):
+      r2 = math.ceil((r / GlowLevels) * i)
+      g2 = math.ceil((g / GlowLevels) * i)
+      b2 = math.ceil((b / GlowLevels) * i)
+      CopySpriteToPixelsZoom(TheSprite,h,v,(r2,g2,b2),(0,0,0),ZoomFactor,Fill=False)
+
+  #Draw Sprite
+  CopySpriteToPixelsZoom(TheSprite,h,v,RGB,(0,0,0),ZoomFactor,Fill=False)
+
+
+  #Fade away!
+  if (FadeLevels > 0):
+    time.sleep(FadeDelay)
+    if(DropShadow == True):
+      CopySpriteToPixelsZoom(TheSprite,h-1,v+1,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
+
+    for i in range (FadeLevels,0,-1):
+      r2 = math.ceil((r / GlowLevels) * i)
+      g2 = math.ceil((g / GlowLevels) * i)
+      b2 = math.ceil((b / GlowLevels) * i)
+      CopySpriteToPixelsZoom(TheSprite,h,v,(r2,g2,b2),(0,0,0),ZoomFactor,Fill=False)
+    #erase remnants
+    CopySpriteToPixelsZoom(TheSprite,h,v,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
+    CopySpriteToPixelsZoom(TheSprite,h-1,v+1,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
+
+ 
+  return   
+
+
+
 
 
 def CopySpriteToPixelsZoom(TheSprite,h,v, ColorTuple=(-1,-1,-1),FillerTuple=(-1,-1,-1),ZoomFactor = 1,Fill=True):
@@ -5691,9 +6024,6 @@ def ShowTitleScreen(
   BrightRGB, ShadowRGB = GetBrightAndShadowRGB()
   ShowScrollingBanner2(ScrollText,ScrollTextRGB,ScrollSpeed=ScrollSleep,v=25)
 
-  #LED.PacDotAnimatedSprite.ScrollAcrossScreen(15,15,'right',ScrollSleep)
-  ThreeGhostPacSprite.ScrollAcrossScreen(0,26,'right',ScrollSleep)
-  ThreeBlueGhostPacSprite.ScrollAcrossScreen(HatWidth,26,'left',ScrollSleep)
 
 
   time.sleep(DisplayTime)
@@ -5714,7 +6044,7 @@ def ShowTitleScreen(
       #Bounce1
       print('Random Bounce1')
       ZoomScreen(ScreenArray,32,5,Fade=False,ZoomSleep=0.005)
-      ZoomScreen(ScreenArray,6,96,Fade=True,ZoomSleep=0)
+      ZoomScreen(ScreenArray,6,128,Fade=True,ZoomSleep=0)
     elif (r == 3):
       #Bounce2
       print('Random Bounce2')

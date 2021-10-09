@@ -5,11 +5,12 @@ import GlobalVariables as gv
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 import time
-
+import random
 
 #Variable declaration section
-ScrollSleep = 0.025
-
+ScrollSleep   = 0.025
+HatHeight = 32
+HatWidth  = 64
 
 
 print ("---------------------------------------------------------------")
@@ -27,10 +28,86 @@ print ("")
 
 
 
+
+
+#--------------------------------------
+#  SHOW SIMPLE SPRITES               --
+#--------------------------------------
+
+
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+time.sleep(1)
+
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighBlue,LED.ShadowBlue,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighRed,LED.ShadowRed,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighYellow,LED.ShadowYellow,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighGreen,LED.ShadowGreen,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighBlue,LED.ShadowBlue,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighRed,LED.ShadowRed,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighYellow,LED.ShadowYellow,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(0.05)
+LED.CopySpriteToPixelsZoom(LED.BlueGhostSprite,random.randint(5,45),random.randint(0,20),LED.HighGreen,LED.ShadowGreen,ZoomFactor=random.randint(1,4),Fill=False)
+time.sleep(1)
+
+LED.ClearBigLED()
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='ZOOM!',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+time.sleep(1)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 1,GlowLevels=100,FadeLevels=20,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=100,FadeLevels=20,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 3,GlowLevels=100,FadeLevels=20,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 4,GlowLevels=100,FadeLevels=20,DropShadow=True,FadeDelay=2)
+
+
+
+
+#--------------------------------------
+#  ANIMATIONS                        --
+#--------------------------------------
+
+
+
+#Show small animations
+
+
+
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='PACMAN',RGB=LED.HighYellow,ShadowRGB=LED.ShadowYellow,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ThreeGhostPacSprite.ScrollAcrossScreen(0,26,'right',ScrollSleep)
+LED.ThreeBlueGhostPacSprite.ScrollAcrossScreen(HatWidth,26,'left',ScrollSleep)
+
+
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='CHICKN',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ChickenRunning.ScrollAcrossScreen(HatWidth,24,'left',ScrollSleep)
+LED.ChickenRunning.HorizontalFlip()
+LED.ChickenRunning.ScrollAcrossScreen(0,24,'right',ScrollSleep)
+
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='WORMZ',RGB=LED.HighPink,ShadowRGB=LED.ShadowPink,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ChickenChasingWorm.ScrollAcrossScreen(HatWidth,23,'left',ScrollSleep * 2)  #make this one a little slower
+LED.WormChasingChicken.HorizontalFlip()
+LED.WormChasingChicken.ScrollAcrossScreen(0,23,'right',ScrollSleep *1.5 )
+
+
+
+
+
+#--------------------------------------
+#  SHOW TITLE SCREEN                 --
+#--------------------------------------
+
+
 #This allows you to create a title screen with different size text
 #some scrolling text, an animation and even a nice fade to black
 
-#LED.ClearBuffers()
 LED.ShowTitleScreen(
   BigText             = 'LED FUN',
   BigTextRGB          = LED.HighGreen,
@@ -49,6 +126,10 @@ LED.ShowTitleScreen(
 
 
 
+#TheMatrix.Clear()
+#  ClearBuffers() #We do this to erase our ScreenArray (which we draw to manually because we cannot read the matrix as a whole)
+
+  
 
 
 
