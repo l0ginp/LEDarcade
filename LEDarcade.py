@@ -39,7 +39,7 @@
 #   Reason:  Initial Creation                                                --
 #------------------------------------------------------------------------------
 
-import GlobalVariables as gv 
+
 import time
 import gc
 import random
@@ -3113,6 +3113,211 @@ PacLeftAnimatedSprite.HorizontalFlip()
 
 
 
+DotZerkRobot = ColorAnimatedSprite(h=0, v=0, name="Robot", width=10, height=8, frames=9, currentframe=0,framerate=1,grid=[])
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 8, 1, 6, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 1, 8, 6, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 6, 1, 8, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 6, 6, 1, 8, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+
+
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 6, 6, 1, 8, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 6, 6, 8, 1, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+
+
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 6, 8, 1, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+
+
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 8, 1, 6, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0
+
+  ]
+)
+
+DotZerkRobot.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6, 8, 1, 6, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 0, 6, 6, 0, 0,
+
+  ]
+)
+
+
+
+
+DotZerkRobotWalking = ColorAnimatedSprite(h=0, v=0, name="Robot", width=10, height=8, frames=2, currentframe=0,framerate=1,grid=[])
+DotZerkRobotWalking.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6,14,14, 6, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 0, 6, 0, 0, 6, 0, 0, 0,
+    0, 0, 6, 6, 0, 6, 6, 0, 0, 0,
+
+  ]
+)
+DotZerkRobotWalking.grid.append(
+  [
+    0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
+    0, 0, 6,14,14, 6, 6, 6, 0, 0,
+    0, 6, 6, 6, 6, 6, 6, 6, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 6, 0, 6, 6, 6, 6, 0, 6, 0,
+    0, 0, 0, 0, 6, 6, 0, 0, 0, 0,
+    0, 0, 0, 0, 6, 6, 0, 0, 0, 0,
+    0, 0, 0, 6, 6, 6, 0, 0, 0, 0
+
+  ]
+)
+
+
+DotZerkRobotWalkingSmall = ColorAnimatedSprite(h=0, v=0, name="Robot", width=9, height=5, frames=4, currentframe=0,framerate=1,grid=[])
+DotZerkRobotWalkingSmall.grid.append(
+  [
+   0, 0, 0,10,10,10,10, 0, 0,
+   0, 0,10, 7, 7,10,10,10, 0,
+   0, 0,10,10,10,10,10,10, 0,
+   0, 0,10, 0, 0, 0, 0,10, 0,
+   0, 10,10, 0, 0, 0,10,10, 0
+
+  ]
+)
+DotZerkRobotWalkingSmall.grid.append(
+  [
+   0, 0, 0,10,10,10,10, 0, 0,
+   0, 0,10, 7, 7,10,10,10, 0,
+   0, 0,10,10,10,10,10,10, 0,
+   0, 0, 0,10, 0, 0,10, 0, 0,
+   0, 0,10,10, 0,10,10, 0, 0,
+
+  ]
+)
+
+DotZerkRobotWalkingSmall.grid.append(
+  [
+   0, 0, 0,10,10,10,10, 0, 0,
+   0, 0,10, 7, 7,10,10,10, 0,
+   0, 0,10,10,10,10,10,10, 0,
+   0, 0, 0, 0,10,10, 0, 0, 0,
+   0, 0, 0,10,10,10, 0, 0, 0,
+
+  ]
+)
+DotZerkRobotWalkingSmall.grid.append(
+  [
+   0, 0, 0,10,10,10,10, 0, 0,
+   0, 0,10, 7, 7,10,10,10, 0,
+   0, 0,10,10,10,10,10,10, 0,
+   0, 0, 0,10, 0, 0,10, 0, 0,
+   0, 0,10,10, 0,10,10, 0, 0,
+
+  ]
+)
+
+
+
+
 
 #------------------------------------------------------------------------------
 # FUNCTIONS                                                                  --
@@ -5635,6 +5840,54 @@ def CopySpriteToPixelsZoom(TheSprite,h,v, ColorTuple=(-1,-1,-1),FillerTuple=(-1,
   
 
 
+
+  return;
+
+
+
+
+def CopyAnimatedSpriteToPixelsZoom(TheSprite,h,v, ZoomFactor = 1):
+  #Copy a color animated sprite to the LED and the ScreenArray buffer
+  #Apply a ZoomFactor i.e  1 = normal / 2 = double in size / 3 = 3 times the size
+  #print ("Copying sprite to playfield:",TheSprite.name, ObjectType, Filler)
+  #if Fill = False, don't write anything for filler, that way we can leave existing lights on LED
+
+  width   = TheSprite.width 
+  height  = TheSprite.height
+
+  global ScreenArray  
+  
+  TheFrame = TheSprite.currentframe
+
+  #Copy sprite to LED pixels
+  for count in range (0,(TheSprite.width * TheSprite.height)):
+    y,x = divmod(count,TheSprite.width)
+
+    y = y * ZoomFactor
+    x = x * ZoomFactor
+
+
+    if (ZoomFactor >= 1):
+      for zv in range (0,ZoomFactor):
+        for zh in range (0,ZoomFactor):
+          H = x+h+zh
+          V = y+v+zv
+         
+          if(CheckBoundary(H,V) == 0):
+
+            #if TheSprite.grid[TheFrame][count] != 0:
+            r,g,b =  ColorList[TheSprite.grid[TheFrame][count]]
+            Canvas.SetPixel(H,V,r,g,b)
+            ScreenArray[V][H]=(r,g,b)
+  
+  #draw the contents of the buffer to the LED matrix
+  TheMatrix.SwapOnVSync(Canvas)
+  
+  TheFrame = TheFrame + 1
+  if (TheFrame >= TheSprite.frames):
+    TheFrame = 0
+
+  TheSprite.currentframe = TheFrame
 
   return;
 

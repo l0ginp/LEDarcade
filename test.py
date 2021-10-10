@@ -28,6 +28,32 @@ print ("")
 
 
 
+#--------------------------------------
+#  SHOW TITLE SCREEN                 --
+#--------------------------------------
+
+
+#This allows you to create a title screen with different size text
+#some scrolling text, an animation and even a nice fade to black
+
+LED.ShowTitleScreen(
+  BigText             = 'L.E.D.',
+  BigTextRGB          = LED.HighGreen,
+  BigTextShadowRGB    = LED.ShadowGreen,
+  LittleText          = 'ARCADE',
+  LittleTextRGB       = LED.HighRed,
+  LittleTextShadowRGB = LED.ShadowRed, 
+  ScrollText          = 'HACKATHON 2021',
+  ScrollTextRGB       = LED.HighYellow,
+  ScrollSleep         = ScrollSleep, # time in seconds to control the scrolling (0.005 is fast, 0.1 is kinda slow)
+  DisplayTime         = 1,           # time in seconds to wait before exiting 
+  ExitEffect          = 0            # 0=Random / 1=shrink / 2=zoom out / 3=bounce 
+  )
+
+
+
+
+
 
 #--------------------------------------
 #  SHOW SIMPLE SPRITES               --
@@ -49,21 +75,9 @@ for x in range(1,10):
   time.sleep(0.25)
 
 
-LED.ClearBuffers() #clean the internal graphic buffers
-LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='MOVING',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-time.sleep(1)
-
-#Show 8x8 sprites zoomed
-for x in range(1,50):
-  #Currently there are 27 colorful "bright" RGB values, stored in BrightColorList[].
-  LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobotWalkingSmall,h=28,v=22, ZoomFactor=2)
-  LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobot,h=5,v=16, ZoomFactor=2)
-  LED.CopyAnimatedSpriteToPixelsZoom(LED.ChickenRunning,h=45,v=18, ZoomFactor=2)
-  time.sleep(0.05)
-
-
-
+#--------------------------------------
+#  ZOOM AND GLOW SPRITES             --
+#--------------------------------------
 
 LED.ClearBigLED()
 LED.ClearBuffers() #clean the internal graphic buffers
@@ -76,6 +90,27 @@ LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.Bl
 LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 4,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
 LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 5,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
 LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 6,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
+
+
+
+#--------------------------------------
+#  SHOW COLOR ANIMATED SPRITES       --
+#--------------------------------------
+
+
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='MOVING',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+time.sleep(1)
+
+#Show 8x8 sprites zoomed
+for x in range(1,75):
+  #Currently there are 27 colorful "bright" RGB values, stored in BrightColorList[].
+  LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobotWalkingSmall,h=28,v=22, ZoomFactor=2)
+  LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobot,h=5,v=16, ZoomFactor=2)
+  LED.CopyAnimatedSpriteToPixelsZoom(LED.ChickenRunning,h=45,v=18, ZoomFactor=2)
+  time.sleep(0.05)
+
 
 
 
@@ -111,34 +146,6 @@ LED.WormChasingChicken.ScrollAcrossScreen(0,23,'right',ScrollSleep *1.5 )
 
 
 
-#--------------------------------------
-#  SHOW TITLE SCREEN                 --
-#--------------------------------------
-
-
-#This allows you to create a title screen with different size text
-#some scrolling text, an animation and even a nice fade to black
-
-LED.ShowTitleScreen(
-  BigText             = 'LED FUN',
-  BigTextRGB          = LED.HighGreen,
-  BigTextShadowRGB    = LED.ShadowGreen,
-  LittleText          = 'HACKATHON',
-  LittleTextRGB       = LED.HighRed,
-  LittleTextShadowRGB = LED.ShadowRed, 
-  ScrollText          = 'CLONE THIS PROJECT AND START CONTRIBUTING',
-  ScrollTextRGB       = LED.HighYellow,
-  ScrollSleep         = ScrollSleep, # time in seconds to control the scrolling (0.005 is fast, 0.1 is kinda slow)
-  DisplayTime         = 2,           # time in seconds to wait before exiting 
-  ExitEffect          = 0            # 0=Random / 1=shrink / 2=zoom out / 3=bounce 
-  )
-
-
-
-
-
-#TheMatrix.Clear()
-#  ClearBuffers() #We do this to erase our ScreenArray (which we draw to manually because we cannot read the matrix as a whole)
 
   
 
