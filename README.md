@@ -3,6 +3,9 @@
 
 Follow us on Facebook: https://www.facebook.com/ArcadeRetroClock
 
+See the LEDarcade in action:
+https://github.com/datagod/LEDarcade
+
 ![ArcadeRetroClockTitleSmall](https://user-images.githubusercontent.com/7650580/112741888-64bd8200-8f57-11eb-9737-7b443b0ef523.jpg)
 
 Watch the Video: https://youtu.be/Z9uW0MQYcrE?t=10
