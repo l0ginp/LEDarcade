@@ -1,7 +1,6 @@
 # %%
 
 import LEDarcade as LED
-import GlobalVariables as gv
 from rgbmatrix import graphics
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 import time
@@ -34,8 +33,11 @@ print ("")
 #  SHOW SIMPLE SPRITES               --
 #--------------------------------------
 
+
+
 LED.ClearBuffers() #clean the internal graphic buffers
-LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='PLAIN',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
 time.sleep(1)
 
 for x in range(1,10):
@@ -47,18 +49,33 @@ for x in range(1,10):
   time.sleep(0.25)
 
 
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='MOVING',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+time.sleep(1)
+
+#Show 8x8 sprites zoomed
+for x in range(1,50):
+  #Currently there are 27 colorful "bright" RGB values, stored in BrightColorList[].
+  LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobotWalkingSmall,h=28,v=22, ZoomFactor=2)
+  LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobot,h=5,v=16, ZoomFactor=2)
+  LED.CopyAnimatedSpriteToPixelsZoom(LED.ChickenRunning,h=45,v=18, ZoomFactor=2)
+  time.sleep(0.05)
+
+
+
+
 LED.ClearBigLED()
 LED.ClearBuffers() #clean the internal graphic buffers
-LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='ZOOM!',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='ZOOMED',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
 time.sleep(1)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 1,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 3,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 4,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 5,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 6,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 7,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=0)
-LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 8,GlowLevels=10,FadeLevels=10,DropShadow=True,FadeDelay=1)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 1,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 3,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 4,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 5,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
+LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.BlueGhostSprite,RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 6,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=0)
 
 
 
