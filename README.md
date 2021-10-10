@@ -46,6 +46,8 @@ Modify the test.py script to contain the messages you want to display.  Then exe
  
  
 
- 
+# Blog
+ I blog about my Raspberry Pi projects.
+  https://datagod.hashnode.dev/ledarcade-upping-your-led-game
  
  
