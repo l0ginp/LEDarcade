@@ -1912,7 +1912,7 @@ class ColorAnimatedSprite(object):
       
 
   #Draw the sprite using an affect like in the movie Tron 
-  def LaserScan(self,h1,v1,speed):
+  def LaserScan(self,h1,v1,speed=0.005):
     x = 0
     y = 0
     r = 0
@@ -1926,12 +1926,15 @@ class ColorAnimatedSprite(object):
         if (CheckBoundary((x+h1),y+v1) == 0):
           r,g,b =  ColorList[self.grid[frame][count]]
           if (r > 0 or g > 0 or b > 0):
-            TheMatrix.SetPixel((x+h1),y+v1,r,g,b)
             FlashDot4((x+h1),y+v1,speed)
-      #unicorn.show() 
-      #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
-          
-  def LaserErase(self,h1,v1,speed):
+            TheMatrix.SetPixel((x+h1),y+v1,r,g,b)
+
+            TheMatrix.SwapOnVSync(Canvas)
+
+
+
+
+  def LaserErase(self,h1,v1,speed=0.005):
     x = 0
     y = 0
     r = 0
@@ -1945,7 +1948,7 @@ class ColorAnimatedSprite(object):
         if (CheckBoundary((x+h1),y+v1) == 0):
           r,g,b =  ColorList[self.grid[frame][count]]
           if (r > 0 or g > 0 or b > 0):
-            FlashDot4((x+h1),y+v1,speed * 0.001)
+            FlashDot4((x+h1),y+v1,speed)
             TheMatrix.SetPixel((x+h1),y+v1,0,0,0)
       #unicorn.show() 
       #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
@@ -5890,6 +5893,60 @@ def CopyAnimatedSpriteToPixelsZoom(TheSprite,h,v, ZoomFactor = 1):
   TheSprite.currentframe = TheFrame
 
   return;
+
+
+
+
+
+
+# ** work **
+#this function will copy an exisiting sprite with an indicated zoom factor.
+
+def ZoomAnimatedSprite(TheSprite,h,v, ZoomFactor = 1):
+  #Copy a color animated sprite to the LED and the ScreenArray buffer
+  #Apply a ZoomFactor i.e  1 = normal / 2 = double in size / 3 = 3 times the size
+  #print ("Copying sprite to playfield:",TheSprite.name, ObjectType, Filler)
+  #if Fill = False, don't write anything for filler, that way we can leave existing lights on LED
+
+  width   = TheSprite.width 
+  height  = TheSprite.height
+
+  global ScreenArray  
+  
+  TheFrame = TheSprite.currentframe
+
+  #Copy sprite to LED pixels
+  for count in range (0,(TheSprite.width * TheSprite.height)):
+    y,x = divmod(count,TheSprite.width)
+
+    y = y * ZoomFactor
+    x = x * ZoomFactor
+
+
+    if (ZoomFactor >= 1):
+      for zv in range (0,ZoomFactor):
+        for zh in range (0,ZoomFactor):
+          H = x+h+zh
+          V = y+v+zv
+         
+          if(CheckBoundary(H,V) == 0):
+
+            #if TheSprite.grid[TheFrame][count] != 0:
+            r,g,b =  ColorList[TheSprite.grid[TheFrame][count]]
+            Canvas.SetPixel(H,V,r,g,b)
+            ScreenArray[V][H]=(r,g,b)
+  
+  #draw the contents of the buffer to the LED matrix
+  TheMatrix.SwapOnVSync(Canvas)
+  
+  TheFrame = TheFrame + 1
+  if (TheFrame >= TheSprite.frames):
+    TheFrame = 0
+
+  TheSprite.currentframe = TheFrame
+
+  return;
+
 
 
 

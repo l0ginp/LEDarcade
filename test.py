@@ -28,6 +28,8 @@ print ("")
 
 
 
+
+
 #--------------------------------------
 #  SHOW TITLE SCREEN                 --
 #--------------------------------------
@@ -58,8 +60,6 @@ LED.ShowTitleScreen(
 #--------------------------------------
 #  SHOW SIMPLE SPRITES               --
 #--------------------------------------
-
-
 
 LED.ClearBuffers() #clean the internal graphic buffers
 LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='PLAIN',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
@@ -97,7 +97,6 @@ LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=False,h=0,v=0,TheSprite=LED.Bl
 #  SHOW COLOR ANIMATED SPRITES       --
 #--------------------------------------
 
-
 LED.ClearBuffers() #clean the internal graphic buffers
 LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='MOVING',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
 LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='SPRITES',RGB=LED.HighCyan,ShadowRGB=LED.ShadowCyan,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
@@ -110,6 +109,30 @@ for x in range(1,75):
   LED.CopyAnimatedSpriteToPixelsZoom(LED.DotZerkRobot,h=5,v=16, ZoomFactor=2)
   LED.CopyAnimatedSpriteToPixelsZoom(LED.ChickenRunning,h=45,v=18, ZoomFactor=2)
   time.sleep(0.05)
+
+
+
+#--------------------------------------
+#  SHOW COOL EFFECTS                 --
+#--------------------------------------
+
+LED.ClearBuffers() #clean the internal graphic buffers
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='COOL',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='EFFECTS',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+time.sleep(1)
+
+LED.DotZerkRobot.LaserScan(h1=5,v1=24)
+LED.DotZerkRobotWalkingSmall.LaserScan(h1=28,v1=27)
+LED.ChickenRunning.LaserScan(h1=45,v1=24)
+
+LED.DotZerkRobot.LaserErase(h1=5,v1=24)
+LED.DotZerkRobotWalkingSmall.LaserErase(h1=28,v1=27)
+LED.ChickenRunning.LaserErase(h1=45,v1=24)
+time.sleep(1)
+
+#Zoom fade screen
+LED.ZoomScreen(LED.ScreenArray,32,42,Fade=False,ZoomSleep=0.015)
+LED.ZoomScreen(LED.ScreenArray,42,1,Fade=True,ZoomSleep=0.0)
 
 
 
