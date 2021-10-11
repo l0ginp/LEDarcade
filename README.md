@@ -15,13 +15,20 @@ Arcade Retro Clock started out as a project on an 8x8 matrix.  Over the years it
 
 For LEDarcade, I decided to isolate classes, functions, sprites, etc. that are used specifically for displaying messages and animations and to exclude any functions used to control the specific games.
 
-## Examples
-There are 4 games that have been converted to this new playform so far.
-<BR><BR>
- ![OutbreakTitle](https://user-images.githubusercontent.com/7650580/112741795-a13cae00-8f56-11eb-876c-cc1321538479.jpg)
+## What it can do
+LEDArcade has many classes, functions, pre-defined sprites that are used to do the following:
 
- Watch the video: https://youtu.be/Z9uW0MQYcrE?t=260
- 
+draw a sprite
+move a sprite
+make a sprite float across the screen
+draw animated sprites floating across the screen
+draw text of multiple sizes
+scroll text left or right at various speeds
+multiple ways to clear the screen (zooming in / zooming out / fading)
+scroll the screen around a large map, displaying only a section of the map in a window
+There are many more functions available but they are fairly complex. As this project moves forward I will create more examples and document each function.
+
+# Example title screens
 <BR><BR>
 ![PacDotTitleSmall](https://user-images.githubusercontent.com/7650580/112771840-ce8f6780-8ffb-11eb-84b0-9d89e4e62e90.jpg)
 
