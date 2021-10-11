@@ -18,14 +18,15 @@ For LEDarcade, I decided to isolate classes, functions, sprites, etc. that are u
 ## What it can do
 LEDArcade has many classes, functions, pre-defined sprites that are used to do the following:
 
-draw a sprite
-move a sprite
-make a sprite float across the screen
-draw animated sprites floating across the screen
-draw text of multiple sizes
-scroll text left or right at various speeds
-multiple ways to clear the screen (zooming in / zooming out / fading)
-scroll the screen around a large map, displaying only a section of the map in a window
+- draw a sprite
+- move a sprite
+- make a sprite float across the screen
+- raw animated sprites floating across the screen
+- draw text of multiple sizes
+- scroll text left or right at various speeds
+- multiple ways to clear the screen (zooming in / zooming out / fading)
+- scroll the screen around a large map, displaying only a section of the map in a window
+
 There are many more functions available but they are fairly complex. As this project moves forward I will create more examples and document each function.
 
 # Example title screens
