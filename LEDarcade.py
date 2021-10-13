@@ -3396,8 +3396,8 @@ RunningManSpriteMap.ColorList = {
   ' ' : 0,
   '-' : 1,
   '.' : 2,
-  'o' : 3,
-  'O' : 4,
+  'o' : 15,  # Med Blue
+  'O' : 4,  
   'r' : 5,
   'R' : 8,
   'b' : 12,

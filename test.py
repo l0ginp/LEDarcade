@@ -163,12 +163,14 @@ while (1==1):
   LED.ChickenRunning.ScrollAcrossScreen(HatWidth,24,'left',ScrollSleep)
   LED.ChickenRunning.HorizontalFlip()
   LED.ChickenRunning.ScrollAcrossScreen(0,24,'right',ScrollSleep)
+  LED.ChickenRunning.HorizontalFlip()
 
   LED.ClearBuffers() #clean the internal graphic buffers
   LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='WORMZ',RGB=LED.HighPink,ShadowRGB=LED.ShadowPink,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
   LED.ChickenChasingWorm.ScrollAcrossScreen(HatWidth,23,'left',ScrollSleep * 2)  #make this one a little slower
   LED.WormChasingChicken.HorizontalFlip()
   LED.WormChasingChicken.ScrollAcrossScreen(0,23,'right',ScrollSleep *1.5 )
+  LED.WormChasingChicken.HorizontalFlip()
 
 
 
@@ -181,7 +183,12 @@ while (1==1):
     for i in range (1,Frames+1):
       LED.RunningManSprite.currentframe = i
       LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningManSprite,h=0,v=0, ZoomFactor=2)
-      time.sleep(0.08)
+      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningManSprite,h=45,v=15, ZoomFactor=1)
+      time.sleep(0.05)
+
+  #Zoom fade screen
+  LED.ZoomScreen(LED.ScreenArray,32,52,Fade=False,ZoomSleep=0.005)
+  LED.ZoomScreen(LED.ScreenArray,42,1,Fade=True,ZoomSleep=0.0)
 
 
   LED.ClearBuffers() #clean the internal graphic buffers
@@ -192,6 +199,7 @@ while (1==1):
   LED.RunningManSprite.ScrollAcrossScreen(0,15,'right',0.005)
   LED.RunningManSprite.HorizontalFlip()
   LED.RunningManSprite.ScrollAcrossScreen(0,15,'left',0 )
+  LED.RunningManSprite.HorizontalFlip()
   time.sleep(1)
 
 
