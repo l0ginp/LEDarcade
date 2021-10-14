@@ -986,7 +986,24 @@ class Sprite(object):
   
   
   
-  
+    #Draw the sprite using an affect like in the movie Tron 
+  def LaserScan(self,h1,v1,speed=0.005):
+    x = 0
+    y = 0
+    r = self.r
+    g = self.g
+    b = self.b
+    #print ("CAS - LaserScan -")
+    for count in range (0,(self.width * self.height)):
+      y,x = divmod(count,self.width)
+      if(self.grid[count] >= 0):
+        if (CheckBoundary((x+h1),y+v1) == 0):
+          FlashDot4((x+h1),y+v1,speed)
+          TheMatrix.SetPixel((x+h1),y+v1,r,g,b)
+          TheMatrix.SwapOnVSync(Canvas)
+
+
+
   
   def DisplayIncludeBlack(self,h1,v1):
     x = 0,
@@ -1536,7 +1553,7 @@ class ColorAnimatedSprite(object):
     self.currentframe = 1
     self.framerate    = framerate #how many ticks per frame of animation, higher the number the slower the animation
     self.grid         = [[]]      #holds numbers that indicate color of the pixel
-    self.ticks        = 0         #used for calculating when the next frame should be displayed
+    self.ticks        = 0         #internal calculation of how many times a frame has been displayed.  
   
 
 
@@ -1605,7 +1622,7 @@ class ColorAnimatedSprite(object):
 
     self.ticks = self.ticks + 1
    
-
+    #NOTE: This usage of ticks is different than in ScrollWithFrames
     if (self.ticks == self.framerate):
       self.currentframe = self.currentframe + 1
       self.ticks        = 0
@@ -1734,12 +1751,15 @@ class ColorAnimatedSprite(object):
 
 
   def ScrollWithFrames(self,h,v,direction,moves,delay):
+
+  #NOTE: We need a rewrite.  We need to take into account movenet per tick as well as frames per tick
+
+
     #print("CAS - ScrollWithFrames - HV direction moves delay", h,v,direction,moves,delay)
     x    = 0
     oldh = 0
-    Buffer = copy.deepcopy(unicorn.get_pixels())
     self.currentframe = 1
-    self.ticks = self.ticks + 1
+    self.ticks = 0
 
 
     #modifier is used to increment or decrement the location
@@ -1757,34 +1777,26 @@ class ColorAnimatedSprite(object):
     if direction == "left" or direction == "right":
       for count in range (0,moves):
         #print ("Count:",count)
+        self.ticks = self.ticks + 1
+
+#this is where we need to include distance per tick
+
         if (count >= 1):
           oldh = h
           h = h + (modifier)
           #print ("CAS - SWF - H oldh modifier",h,oldh,modifier)
         
 
-        for f in range (0, self.frames+1):
-          #erase old sprite
-          #setpixels(Buffer)
-          setpixels(Buffer)
-
-          #draw new sprite
-         #print ("CAS - SWF - currentframe: ",self.currentframe)
+        m,r = divmod(self.ticks, self.framerate)
+        if (r== 0):
           self.Display(h,v)
-          #unicorn.show()
-          #SendBufferPacket(RemoteDisplay,HatHeight,HatWidth)
-
           #Increment current frame counter (taking into account framerate)
-          
-          m,r = divmod(self.ticks, self.framerate)
-          if (r == 0):
-            if (self.currentframe < (self.frames)):
-              self.currentframe = self.currentframe + 1
-            else:
-              self.currentframe = 1
-              self.ticks        = 0
-              
-          time.sleep(delay)
+          #print("Ticks:",self.ticks,"Framerate:",self.framerate, "CurrentFrame:",self.currentframe)
+          if (self.currentframe <= (self.frames)):
+            self.currentframe = self.currentframe + 1
+          if (self.currentframe > (self.frames)):
+            self.currentframe = 1
+        time.sleep(delay)
           
   def HorizontalFlip(self):
     #print ("CAS - Horizontalflip width heigh frames",self.width, self.height,self.frames)
@@ -1811,12 +1823,13 @@ class ColorAnimatedSprite(object):
        
   
   def ScrollAcrossScreen(self,h,v,direction,ScrollSleep):
+    #hv seem a little messed up, investigate what their original purpose was and fix
     if (direction == "right"):
-      self.Scroll((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
+      self.ScrollWithFrames((0- self.width),v,"right",(HatWidth + self.width),ScrollSleep)
     elif (direction == "left"):
-      self.Scroll(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
+      self.ScrollWithFrames(HatWidth-1,v,"left",(HatWidth + self.width),ScrollSleep)
     elif (direction == "up"):
-      self.Scroll(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
+      self.ScrollWithFrames(h,HatWidth-1,"left",(HatWidth + self.height),ScrollSleep)
 
 
 
@@ -3380,7 +3393,7 @@ RunningManSprite = ColorAnimatedSprite(
   width  = 25, 
   height = 18, 
   frames = 0, 
-  framerate=1,
+  framerate=2,
   grid=[]  )
 
                  
@@ -3618,6 +3631,460 @@ RunningManSpriteMap.map= (
 
 RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
 
+
+
+
+
+
+RunningMan2Sprite = ColorAnimatedSprite(
+  h=0, 
+  v=0, 
+  name="RunningMan", 
+  width  = 25, 
+  height = 18, 
+  frames = 0, 
+  framerate=2,
+  grid=[]  )
+
+                 
+
+RunningMan2SpriteMap = TextMap(
+  h      = 1,
+  v      = 1,
+  width  = 25, 
+  height = 18
+  )
+
+RunningMan2SpriteMap.ColorList = {
+  ' ' : 0,
+  '-' : 17, # Dark orange
+  '.' : 19, # Med  orange
+  'o' : 6,  # Low  Red
+  'O' : 7,  # Med  Red
+  'r' : 5,
+  'R' : 8,
+  'b' : 12,
+  'B' : 13,
+  '#' : 27
+}
+
+RunningMan2SpriteMap.TypeList = {
+  ' ' : 'Empty',
+  '-' : 'wall',
+  '.' : 'wall',
+  'o' : 'wall',
+  'O' : 'wall'
+}
+
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "      oooooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooo    OO       ", 
+  "    oo  oooooooo         ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "    oooo      oo         ", 
+  "    oo        --         ", 
+  "  oooo                   ", 
+  "  .o                     ", 
+  "  .o                     ", 
+  "                         ", 
+
+  )
+      
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "  oooooooooooo           ", 
+  "  oo    oooo             ", 
+  "  oo    ooooooooOO       ", 
+  "        oooo             ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "    oooo        oo       ", 
+  "    oo          --       ", 
+  "  .ooo                   ", 
+  "  .o                     ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "      oooooooo           ", 
+  "    oooooooo             ", 
+  "    oo  ooooooOO         ", 
+  "    oo  oooo             ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooo           ", 
+  "      oo    oo           ", 
+  "    oooo    oooo         ", 
+  "  .ooo        oo         ", 
+  "  .o          oo         ", 
+  "              ----       ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooooo           ", 
+  "    oo  oooo  OO         ", 
+  "                         ", 
+  "        oooo             ", 
+  "      oooooo             ", 
+  "      oooooooo           ", 
+  "      oo    oo           ", 
+  "  .ooooo    oo           ", 
+  "  .o        oo           ", 
+  "  .o        oo           ", 
+  "            ----         ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      ooooooOO           ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "    .ooooooo             ", 
+  "    .o    oo             ", 
+  "    .o    oo             ", 
+  "          ----           ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      ooooOO             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "    .ooooooo             ", 
+  "    .o  oo               ", 
+  "    .o  oo               ", 
+  "        ----             ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooooo           ", 
+  "      oooooooo           ", 
+  "      ooOOoooooo         ", 
+  "        oooo             ", 
+  "        oooooo           ", 
+  "      oooooooooo         ", 
+  "      oo      oo         ", 
+  "      oo  .ooooo         ", 
+  "      oo  .o             ", 
+  "      oo                 ", 
+  "        --               ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "    oooooooo             ", 
+  "    oo  oooooooo         ", 
+  "    OO                   ", 
+  "        oooo             ", 
+  "        oooooo           ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "      oo    .ooooo       ", 
+  "    -o      .o           ", 
+  "    -o                   ", 
+  "    -o                   ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "      oooooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooo    oo       ", 
+  "    OO  oooooooo         ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "    oooo      .o         ", 
+  "    oo        .o         ", 
+  "  -ooo                   ", 
+  "  -o                     ", 
+  "  -o                     ", 
+  "                         ", 
+
+  )
+      
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "  oooooooooooo           ", 
+  "  oo    oooo             ", 
+  "  OO    oooooooooo       ", 
+  "        oooo             ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "    oooo        oo       ", 
+  "    oo          ..       ", 
+  "  -ooo                   ", 
+  "  -o                     ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "      oooooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooooooo         ", 
+  "    OO  oooo             ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooo           ", 
+  "      oo    oo           ", 
+  "    oooo    oooo         ", 
+  "  -ooo        oo         ", 
+  "  -o          oo         ", 
+  "              ....       ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooooo           ", 
+  "    OO  oooo  oo         ", 
+  "                         ", 
+  "        oooo             ", 
+  "      oooooo             ", 
+  "      oooooooo           ", 
+  "      oo    oo           ", 
+  "  -ooooo    oo           ", 
+  "  -o        oo           ", 
+  "  -o        oo           ", 
+  "            ....         ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      ooOOoooo           ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "    -ooooooo             ", 
+  "    -o    oo             ", 
+  "    -o    oo             ", 
+  "          ....           ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      ooooOO             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "    -ooooooo             ", 
+  "    -o  oo               ", 
+  "    -o  oo               ", 
+  "        ....             ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooooo           ", 
+  "      oooooooo           ", 
+  "      ooooooooOO         ", 
+  "        oooo             ", 
+  "        oooooo           ", 
+  "      oooooooooo         ", 
+  "      oo      oo         ", 
+  "      oo  -ooooo         ", 
+  "      oo  -o             ", 
+  "      oo                 ", 
+  "        ..               ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
+
+
+
+
+RunningMan2SpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "    oooooooo             ", 
+  "    oo  ooooooOO         ", 
+  "    oo                   ", 
+  "        oooo             ", 
+  "        oooooo           ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "      oo    -ooooo       ", 
+  "    oo      -o           ", 
+  "    oo                   ", 
+  "    oo                   ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
 
 
 
@@ -5968,7 +6435,8 @@ def ShowGlowingText(
     CenterHoriz = False,        #center text horizontally, overrides H
     CenterVert  = False,        #center text vertically, overrides V
     FadeLevels  = 0,            #Fade the text in this many brightness decrements
-    FadeDelay   = 0.25          #How long to keep text on screen before fading
+    FadeDelay   = 0.25         #How long to keep text on screen before fading
+
   ):
 
   global ScreenArray
@@ -6017,7 +6485,7 @@ def ShowGlowingText(
     CopySpriteToPixelsZoom(TheBanner,h,v,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
     CopySpriteToPixelsZoom(TheBanner,h-1,v+1,(0,0,0),(0,0,0),ZoomFactor,Fill=False)
 
- 
+
   return   
 
 
@@ -6118,7 +6586,7 @@ def CopySpriteToPixelsZoom(TheSprite,h,v, ColorTuple=(-1,-1,-1),FillerTuple=(-1,
 
 
   #Copy sprite to LED pixels
-  for count in range (0,(TheSprite.width * TheSprite.height)):
+  for count in range (0,(TheSprite.width * TheSprite.height) ):
     y,x = divmod(count,TheSprite.width)
 
     y = y * ZoomFactor
