@@ -2277,9 +2277,9 @@ class TextMap(object):
 
     #read the map string and process one character at a time
     #decode the color and type of dot to place
-    print ("Height:",self.height)
+    #print ("Height:",self.height)
     for y in range (0,self.height):
-      print ("map[",y,"] =",self.map[y])
+      #print ("map[",y,"] =",self.map[y])
       for x in range (0,self.width):
         mapchar = self.map[y][x]
         TheColor =  self.ColorList.get(mapchar)
@@ -4093,7 +4093,7 @@ RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
 
 
 
-MachineSprite = ColorAnimatedSprite(
+BigSpiderLegOutSprite = ColorAnimatedSprite(
   h=0, 
   v=0, 
   name="Spider", 
@@ -4105,14 +4105,14 @@ MachineSprite = ColorAnimatedSprite(
 
                 
 
-MachineSpriteMap = TextMap(
+BigSpiderLegOutSpriteMap = TextMap(
   h      = 1,
   v      = 1,
   width  = 40, 
   height = 11
   )
 
-MachineSpriteMap.ColorList = {
+BigSpiderLegOutSpriteMap.ColorList = {
   ' ' : 0,
   '.' : 1,
   '-' : 2,
@@ -4125,13 +4125,13 @@ MachineSpriteMap.ColorList = {
 
 }
 
-MachineSpriteMap.TypeList = {
+BigSpiderLegOutSpriteMap.TypeList = {
   ' ' : 'Empty',
   'O' : 'wall'
 }
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3
   "                                        ",
   "      ..    ......    ..                ", 
@@ -4146,10 +4146,10 @@ MachineSpriteMap.map= (
   "                                        ", 
   )
 
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3
   "                     ..                 ", 
   "      ..    ......  .--.                ", 
@@ -4164,10 +4164,10 @@ MachineSpriteMap.map= (
   "                                        ",
   )
 
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3
   "                     ...                ", 
   "      ..    ......  .---.               ", 
@@ -4183,10 +4183,10 @@ MachineSpriteMap.map= (
    )
 
 
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3
   "                     .....              ", 
   "      ..    ......  .-----.             ", 
@@ -4202,11 +4202,11 @@ MachineSpriteMap.map= (
    )
 
 
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3.........4
   "                                         ",
   "                          .....          ",
@@ -4221,12 +4221,12 @@ MachineSpriteMap.map= (
   "                                         ",
   "                                         ",
    )
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3.........4
   "                                         ",
   "                                         ",
@@ -4240,10 +4240,10 @@ MachineSpriteMap.map= (
   "   .-             ......                 ",
   "                                         ",
    )
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3.........4
   "                                           ",
   "                                           ",
@@ -4257,10 +4257,10 @@ MachineSpriteMap.map= (
   "   .-              ......              -.  ",
   "                                            ",
    )
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3.........4
   "                                         ",
   "                                         ",
@@ -4274,10 +4274,10 @@ MachineSpriteMap.map= (
   "   .-             ......                 ",
   "                                         ",
    )
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3.........4
   "                                         ",
   "                          .....          ",
@@ -4292,10 +4292,10 @@ MachineSpriteMap.map= (
   "                                         ",
   "                                         ",
    )
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3
   "                     .....              ", 
   "      ..    ......  .-----.             ", 
@@ -4311,12 +4311,12 @@ MachineSpriteMap.map= (
    )
 
 
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
 
 
 
-MachineSpriteMap.map= (
+BigSpiderLegOutSpriteMap.map= (
   #0.........1.........2.........3
   "                     ...                ", 
   "      ..    ......  .---.               ", 
@@ -4332,8 +4332,278 @@ MachineSpriteMap.map= (
    )
 
 
-MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+BigSpiderLegOutSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderLegOutSprite)
 
+
+
+
+
+
+
+#----------------------------
+# Big Spider Walking       --
+#----------------------------
+
+
+BigSpiderWalkingSprite = ColorAnimatedSprite(
+  h=0, 
+  v=0, 
+  name="Spider", 
+  width  = 40, 
+  height = 11, 
+  frames = 0, 
+  framerate=1,
+  grid=[]  )
+
+                
+
+BigSpiderWalkingSpriteMap = TextMap(
+  h      = 1,
+  v      = 1,
+  width  = 40, 
+  height = 11
+  )
+
+BigSpiderWalkingSpriteMap.ColorList = {
+  ' ' : 0,
+  '.' : 1,
+  '-' : 2,
+  'o' : 3,  
+  'O' : 4,  
+  '*' : 8,
+  '#' : 14,
+  'b' : 15,
+  'B' : 16
+
+}
+
+BigSpiderWalkingSpriteMap.TypeList = {
+  ' ' : 'Empty',
+  'O' : 'wall'
+}
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                                        ",
+  "      ..    ......    ..                ", 
+  "     .--.  .------.  .--.               ", 
+  "    .-  -..-o*oo*o-..-  -.              ", 
+  "   .-    -.-oOOOOo-.-    -.             ", 
+  "   .-     .-oooooo-.     -.             ", 
+  "   .-      .------.      -.             ", 
+  "   .-       ......       -.             ", 
+  "   .-                    -.             ", 
+  "   .-                    -.             ", 
+  "                                        ", 
+  )
+
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     ..                 ", 
+  "      ..    ......  .--.                ", 
+  "     .--.  .------. .--.                ", 
+  "    .-  -..-o*oo*o-..- -.               ", 
+  "   .-    -.-oOOOOo-.-  -.               ", 
+  "   .-     .-oooooo-.   -.               ", 
+  "   .-      .------.    -.               ", 
+  "   .-       ......     -.               ", 
+  "   .-                  -.               ", 
+  "   .-                                   ", 
+  "                                        ",
+  )
+
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     ...                ", 
+  "      ..    ......  .---.               ", 
+  "     .--.  .------. .-  -.              ", 
+  "    .-  -..-o*oo*o-..-  -.              ", 
+  "   .-    -.-oOOOOo-.-   -.              ", 
+  "   .-     .-oooooo-.    -.              ", 
+  "   .-      .------.     -.              ", 
+  "   .-       ......      -.              ", 
+  "   .-                                   ", 
+  "   .-                                   ", 
+  "                                        ", 
+   )
+
+
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     .....              ", 
+  "      ..    ......  .-----.             ", 
+  "     .--.  .------. .-    -.            ", 
+  "    .-  -..-o*oo*o-..-    -.            ", 
+  "   .-    -.-oOOOOo-.-     -.            ", 
+  "   .-     .-oooooo-.      -.            ", 
+  "   .-      .------.                     ", 
+  "   .-       ......                      ", 
+  "   .-                                   ", 
+  "   .-                                   ", 
+  "                                        ", 
+   )
+
+
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                         ",
+  "                          .....          ",
+  "        ..    ......     .-----.         ",
+  "       .--.  .------.   .-     -.        ",
+  "      .-  -..-o*oo*o-. .-      -.        ",
+  "     .-    -.-oOOOOo-.-        -.        ",
+  "    .-      .-oooooo-.         -.        ",
+  "   .-        .------.                    ",
+  "   .-         ......                     ",
+  "   .-                                    ",
+  "                                         ",
+  "                                         ",
+   )
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                         ",
+  "                                         ",
+  "                                         ",
+  "                  ......     ........    ",
+  "         .....   .------.   .-------.    ",
+  "        .-----...-o*oo*o-. .-        -.  ",
+  "       .-     --.-oOOOOo-.-           -. ",
+  "      .-        .-oooooo-.            -. ",
+  "    .-           .------.                ",
+  "   .-             ......                 ",
+  "                                         ",
+   )
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                           ",
+  "                                           ",
+  "                                           ",
+  "                   ......                  ",
+  "                  .------.                 ",
+  "         .........-o*oo*o-..........       ",
+  "        .--------.-oOOOOo-.----------.     ",
+  "      .-         .-oooooo-.          -.    ",
+  "    .-            .------.            -.   ",
+  "   .-              ......              -.  ",
+  "                                           ",
+   )
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                            ",
+  "                                            ",  
+  "                                            ",  
+  "       ........     ......                  ",  
+  "       .-------.   .------.   .....         ",  
+  "     .-        -. .-o*oo*o-...-----.        ",  
+  "    .-           -.-oOOOOo-.--     -.       ",  
+  "    .-            .-oooooo-.        -.      ",  
+  "                   .------.           -.    ",  
+  "                    ......             -.   ",  
+  "                                           ",  
+)
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                            ",
+  "             .....                          ",  
+  "            .-----.     ......    ..        ",  
+  "           .-     -.   .------.  .--.       ",  
+  "           .-      -. .-o*oo*o-..-  -.      ",  
+  "           .-        -.-oOOOOo-.-    -.     ",  
+  "           .-         .-oooooo-.      -.    ",  
+  "                       .------.        -.   ",  
+  "                        ......         -.   ",  
+  "                                       -.   ",  
+  "                                            ",  
+  "                                            ",  
+  )
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                  .....                     ",
+  "                 .-----.  ......    ..      ",  
+  "                .-    -. .------.  .--.     ",  
+  "                .-    -..-o*oo*o-..-  -.    ",  
+  "                .-     -.-oOOOOo-.-    -.   ",  
+  "                .-      .-oooooo-.     -.   ",  
+  "                         .------.      -.   ",  
+  "                          ......       -.   ",  
+  "                                       -.   ",  
+  "                                       -.   ",  
+  "                                            ",  
+   )
+
+
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                    ...                     ",
+  "                   .---.  ......    ..      ",  
+  "                  .-  -. .------.  .--.     ",  
+  "                  .-  -..-o*oo*o-..-  -.    ",  
+  "                  .-   -.-oOOOOo-.-    -.   ",  
+  "                  .-    .-oooooo-.     -.   ",  
+  "                  .-     .------.      -.   ",  
+  "                  .-      ......       -.   ",  
+  "                                       -.   ",  
+  "                                       -.   ",  
+  "                                            ",  
+ )
+
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
+
+
+
+
+BigSpiderWalkingSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     ..                     ",
+  "                    .--.  ......    ..      " , 
+  "                     .--. .------.  .--.    ",
+  "                    .- -..-o*oo*o-..-  -.   ",
+  "                   .-  -.-oOOOOo-.-    -.   ",  
+  "                   .-   .-oooooo-.     -.   ",  
+  "                   .-    .------.      -.   ",  
+  "                   .-     ......       -.   ",  
+  "                   .-                  -.   ",  
+  "                                       -.   ",  
+  "                                            " ,
+   )
+BigSpiderWalkingSpriteMap.CopyMapToColorSprite(TheSprite=BigSpiderWalkingSprite)
 
 
 #------------------------------------------------------------------------------
@@ -7345,6 +7615,31 @@ def ShowTitleScreen(
   
 
 
+def MoveAnimatedSpriteAcrossScreen(TheSprite,v=0,direction="right",steps=1,ZoomFactor=1,sleep=0.1):
+
+  h = 0
+
+  if (direction == "right"):
+    #start the sprite completely of screen
+    h = 0 - TheSprite.width
+
+    while (h <= HatWidth):
+      for i in range (1,TheSprite.frames+1):
+        TheSprite.currentframe = i
+        CopyAnimatedSpriteToPixelsZoom(TheSprite,h=h,v=v, ZoomFactor=ZoomFactor)
+        time.sleep(sleep)
+      h = h + steps
 
 
+
+  if (direction == "left"):
+    #start the sprite completely of screen
+    h = HatWidth + 1
+
+    while (h >= (0- TheSprite.width)):
+      for i in range (1,TheSprite.frames+1):
+        TheSprite.currentframe = i
+        CopyAnimatedSpriteToPixelsZoom(TheSprite,h=h,v=v, ZoomFactor=ZoomFactor)
+        time.sleep(sleep)
+      h = h - steps
 

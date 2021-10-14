@@ -34,6 +34,22 @@ print ("")
 
 while (1==1):
 
+
+  LED.ClearBuffers() #clean the internal graphic buffers
+  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=3,Text='CREEPY!',RGB=LED.MedPurple,ShadowRGB=LED.ShadowPurple,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+  Frames = LED.BigSpiderWalkingSprite.frames
+  h = -50
+  v = 20
+
+
+  LED.MoveAnimatedSpriteAcrossScreen(LED.BigSpiderWalkingSprite,v=20,direction="right",steps=18,ZoomFactor=1,sleep=0.05)
+  LED.BigSpiderWalkingSprite.HorizontalFlip()
+  time.sleep(1)
+  LED.MoveAnimatedSpriteAcrossScreen(LED.BigSpiderWalkingSprite,v=20,direction="left",steps=18,ZoomFactor=1,sleep=0.05)
+  LED.BigSpiderWalkingSprite.HorizontalFlip()
+  time.sleep(1)
+  
+
  
 
 
@@ -171,6 +187,7 @@ while (1==1):
   LED.ThreeBlueGhostPacSprite.ScrollAcrossScreen(HatWidth,26,'left',ScrollSleep)
 
 
+
   LED.ClearBuffers() #clean the internal graphic buffers
   LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='CHICKN',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
   LED.ChickenRunning.ScrollAcrossScreen(HatWidth,24,'left',ScrollSleep)
@@ -187,11 +204,11 @@ while (1==1):
 
   LED.ClearBuffers() #clean the internal graphic buffers
   LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='SPIDERZ',RGB=LED.MedYellow,ShadowRGB=LED.ShadowYellow,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-  Frames = LED.MachineSprite.frames
+  Frames = LED.BigSpiderLegOutSprite.frames
   for x in range (1,20):
     for i in range (1,Frames+1):
-      LED.MachineSprite.currentframe = i
-      LED.CopyAnimatedSpriteToPixelsZoom(LED.MachineSprite,h=0,v=20, ZoomFactor=1)
+      LED.BigSpiderLegOutSprite.currentframe = i
+      LED.CopyAnimatedSpriteToPixelsZoom(LED.BigSpiderLegOutSprite,h=0,v=20, ZoomFactor=1)
       time.sleep(0.05)
 
 
