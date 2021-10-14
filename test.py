@@ -34,8 +34,7 @@ print ("")
 
 while (1==1):
 
-
-
+ 
 
 
   #This allows you to create a title screen with different size text
@@ -186,6 +185,15 @@ while (1==1):
   LED.WormChasingChicken.ScrollAcrossScreen(0,23,'right',ScrollSleep *1.5 )
   LED.WormChasingChicken.HorizontalFlip()
 
+  LED.ClearBuffers() #clean the internal graphic buffers
+  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='SPIDERZ',RGB=LED.MedYellow,ShadowRGB=LED.ShadowYellow,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+  Frames = LED.MachineSprite.frames
+  for x in range (1,20):
+    for i in range (1,Frames+1):
+      LED.MachineSprite.currentframe = i
+      LED.CopyAnimatedSpriteToPixelsZoom(LED.MachineSprite,h=0,v=20, ZoomFactor=1)
+      time.sleep(0.05)
+
 
 
 
@@ -193,6 +201,10 @@ while (1==1):
 
 
   LED.ClearBuffers() #clean the internal graphic buffers
+  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'right',0.03 )
+  LED.RunningMan2Sprite.HorizontalFlip()
+  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'left',0.03 )
+  LED.RunningMan2Sprite.HorizontalFlip()
   LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'right',0.03 )
   LED.RunningMan2Sprite.HorizontalFlip()
   LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'left',0.02 )
@@ -212,14 +224,21 @@ while (1==1):
       LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningMan2Sprite,h=40,v=14, ZoomFactor=1)
       time.sleep(0.05)
 
+  
+  Frames = LED.RunningMan2Sprite.frames
+  LED.ClearBuffers() #clean the internal graphic buffers
+  for x in range (1,10):
+    for i in range (1,Frames+1):
+      LED.RunningManSprite.currentframe = i
+      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningMan2Sprite,h=10,v=0, ZoomFactor=2)
+      time.sleep(0.05)
+
+  
   #Zoom fade screen
   LED.ZoomScreen(LED.ScreenArray,32,52,Fade=False,ZoomSleep=0.005)
   LED.ZoomScreen(LED.ScreenArray,42,1,Fade=True,ZoomSleep=0.0)
 
 
-
-
-    
 
 
 

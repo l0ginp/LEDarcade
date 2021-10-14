@@ -4092,6 +4092,250 @@ RunningMan2SpriteMap.CopyMapToColorSprite(TheSprite=RunningMan2Sprite)
 
 
 
+
+MachineSprite = ColorAnimatedSprite(
+  h=0, 
+  v=0, 
+  name="Spider", 
+  width  = 40, 
+  height = 11, 
+  frames = 0, 
+  framerate=2,
+  grid=[]  )
+
+                
+
+MachineSpriteMap = TextMap(
+  h      = 1,
+  v      = 1,
+  width  = 40, 
+  height = 11
+  )
+
+MachineSpriteMap.ColorList = {
+  ' ' : 0,
+  '.' : 1,
+  '-' : 2,
+  'o' : 3,  
+  'O' : 4,  
+  '*' : 8,
+  '#' : 14,
+  'b' : 15,
+  'B' : 16
+
+}
+
+MachineSpriteMap.TypeList = {
+  ' ' : 'Empty',
+  'O' : 'wall'
+}
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3
+  "                                        ",
+  "      ..    ......    ..                ", 
+  "     .--.  .------.  .--.               ", 
+  "    .-  -..-o*oo*o-..-  -.              ", 
+  "   .-    -.-oOOOOo-.-    -.             ", 
+  "   .-     .-oooooo-.     -.             ", 
+  "   .-      .------.      -.             ", 
+  "   .-       ......       -.             ", 
+  "   .-                    -.             ", 
+  "   .-                    -.             ", 
+  "                                        ", 
+  )
+
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     ..                 ", 
+  "      ..    ......  .--.                ", 
+  "     .--.  .------. .--.                ", 
+  "    .-  -..-o*oo*o-..- -.               ", 
+  "   .-    -.-oOOOOo-.-  -.               ", 
+  "   .-     .-oooooo-.   -.               ", 
+  "   .-      .------.    -.               ", 
+  "   .-       ......     -.               ", 
+  "   .-                  -.               ", 
+  "   .-                                   ", 
+  "                                        ",
+  )
+
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     ...                ", 
+  "      ..    ......  .---.               ", 
+  "     .--.  .------. .-  -.              ", 
+  "    .-  -..-o*oo*o-..-  -.              ", 
+  "   .-    -.-oOOOOo-.-   -.              ", 
+  "   .-     .-oooooo-.    -.              ", 
+  "   .-      .------.     -.              ", 
+  "   .-       ......      -.              ", 
+  "   .-                                   ", 
+  "   .-                                   ", 
+  "                                        ", 
+   )
+
+
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     .....              ", 
+  "      ..    ......  .-----.             ", 
+  "     .--.  .------. .-    -.            ", 
+  "    .-  -..-o*oo*o-..-    -.            ", 
+  "   .-    -.-oOOOOo-.-     -.            ", 
+  "   .-     .-oooooo-.      -.            ", 
+  "   .-      .------.                     ", 
+  "   .-       ......                      ", 
+  "   .-                                   ", 
+  "   .-                                   ", 
+  "                                        ", 
+   )
+
+
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                         ",
+  "                          .....          ",
+  "        ..    ......     .-----.         ",
+  "       .--.  .------.   .-     -.        ",
+  "      .-  -..-o*oo*o-. .-      -.        ",
+  "     .-    -.-oOOOOo-.-        -.        ",
+  "    .-      .-oooooo-.         -.        ",
+  "   .-        .------.                    ",
+  "   .-         ......                     ",
+  "   .-                                    ",
+  "                                         ",
+  "                                         ",
+   )
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                         ",
+  "                                         ",
+  "                                         ",
+  "                  ......     ........    ",
+  "         .....   .------.   .-------.    ",
+  "        .-----...-o*oo*o-. .-        -.  ",
+  "       .-     --.-oOOOOo-.-           -. ",
+  "      .-        .-oooooo-.            -. ",
+  "    .-           .------.                ",
+  "   .-             ......                 ",
+  "                                         ",
+   )
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                           ",
+  "                                           ",
+  "                                           ",
+  "                   ......                  ",
+  "                  .------.                 ",
+  "         .........-o*oo*o-..........       ",
+  "        .--------.-oOOOOo-.----------.     ",
+  "      .-         .-oooooo-.          -.    ",
+  "    .-            .------.            -.   ",
+  "   .-              ......              -.  ",
+  "                                            ",
+   )
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                         ",
+  "                                         ",
+  "                                         ",
+  "                  ......     ........    ",
+  "         .....   .------.   .-------.    ",
+  "        .-----...-o*oo*o-. .-        -.  ",
+  "       .-     --.-oOOOOo-.-           -. ",
+  "      .-        .-oooooo-.            -. ",
+  "    .-           .------.                ",
+  "   .-             ......                 ",
+  "                                         ",
+   )
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3.........4
+  "                                         ",
+  "                          .....          ",
+  "        ..    ......     .-----.         ",
+  "       .--.  .------.   .-     -.        ",
+  "      .-  -..-o*oo*o-. .-      -.        ",
+  "     .-    -.-oOOOOo-.-        -.        ",
+  "    .-      .-oooooo-.         -.        ",
+  "   .-        .------.                    ",
+  "   .-         ......                     ",
+  "   .-                                    ",
+  "                                         ",
+  "                                         ",
+   )
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     .....              ", 
+  "      ..    ......  .-----.             ", 
+  "     .--.  .------. .-    -.            ", 
+  "    .-  -..-o*oo*o-..-    -.            ", 
+  "   .-    -.-oOOOOo-.-     -.            ", 
+  "   .-     .-oooooo-.      -.            ", 
+  "   .-      .------.                     ", 
+  "   .-       ......                      ", 
+  "   .-                                   ", 
+  "   .-                                   ", 
+  "                                        ", 
+   )
+
+
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+
+
+MachineSpriteMap.map= (
+  #0.........1.........2.........3
+  "                     ...                ", 
+  "      ..    ......  .---.               ", 
+  "     .--.  .------. .-  -.              ", 
+  "    .-  -..-o*oo*o-..-  -.              ", 
+  "   .-    -.-oOOOOo-.-   -.              ", 
+  "   .-     .-oooooo-.    -.              ", 
+  "   .-      .------.     -.              ", 
+  "   .-       ......      -.              ", 
+  "   .-                                   ", 
+  "   .-                                   ", 
+  "                                        ", 
+   )
+
+
+MachineSpriteMap.CopyMapToColorSprite(TheSprite=MachineSprite)
+
+
+
 #------------------------------------------------------------------------------
 # FUNCTIONS                                                                  --
 #                                                                            --
@@ -6656,6 +6900,7 @@ def CopyAnimatedSpriteToPixelsZoom(TheSprite,h,v, ZoomFactor = 1):
   #draw the contents of the buffer to the LED matrix
   TheMatrix.SwapOnVSync(Canvas)
   
+
   TheFrame = TheFrame + 1
   if (TheFrame > TheSprite.frames):
     TheFrame = 1
