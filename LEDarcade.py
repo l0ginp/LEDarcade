@@ -1308,7 +1308,7 @@ class AnimatedSprite(object):
   def HorizontalFlip(self):
     #Attempting to speed things up by disabling garbage collection
     gc.disable()
-    for f in range(0,self.frames + 1):
+    for f in range(0,self.frames ):
       x = 0
       y = 0
       flipgrid = []
@@ -1526,19 +1526,17 @@ class AnimatedSprite(object):
 # ----------------------------
 
 class ColorAnimatedSprite(object):
-  def __init__(self,h,v,name,width,height,frames,currentframe,framerate,grid):
+  def __init__(self,h,v,name,width,height,frames,framerate,grid):
     self.h      = h
     self.v      = v
     self.name   = name
     self.width  = width
     self.height = height
     self.frames = frames
-    self.currentframe = currentframe
+    self.currentframe = 1
     self.framerate    = framerate #how many ticks per frame of animation, higher the number the slower the animation
-    self.grid         = []        #holds numbers that indicate color of the pixel
+    self.grid         = [[]]      #holds numbers that indicate color of the pixel
     self.ticks        = 0         #used for calculating when the next frame should be displayed
-
-
   
 
 
@@ -1549,7 +1547,8 @@ class ColorAnimatedSprite(object):
     g = 0
     b = 0
     frame = self.currentframe
-    
+
+
     for count in range (0,(self.width * self.height)):
       y,x = divmod(count,self.width)
       #print ("Name:",self.name," Frame:",frame, " Count: ",count, "Width Height",self.width,self.height )
@@ -1561,7 +1560,7 @@ class ColorAnimatedSprite(object):
           if (r > -1 and g > -1 and b > -1):
             TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
             setpixel(x+h1,y+v1,r,g,b)
-    #unicorn.show() 
+
 
 
   def DisplayNoBlack(self,h1,v1):
@@ -1585,6 +1584,11 @@ class ColorAnimatedSprite(object):
             TheMatrix.SetPixel(x+h1,y+v1,r,g,b)
     #unicorn.show() 
 
+    self.currentframe = self.currentframe + 1
+    if (self.currentframe > self.frames):
+      self.currentframe = 1
+
+
 
   def DisplayAnimated(self,h1 = -1, v1 = -1):
     #Treat black pixels in sprite as transparent -- maybe? Not yet.  Currently erasing.
@@ -1606,8 +1610,8 @@ class ColorAnimatedSprite(object):
       self.currentframe = self.currentframe + 1
       self.ticks        = 0
 
-    if (self.currentframe >= self.frames):
-      self.currentframe = 0
+    if (self.currentframe > self.frames):
+      self.currentframe = 1
 
 
     for count in range (0,(self.width * self.height)):
@@ -1695,7 +1699,7 @@ class ColorAnimatedSprite(object):
     b = 0
     
     #Capture Background
-    Buffer = copy.deepcopy(unicorn.get_pixels())
+    #Buffer = copy.deepcopy(unicorn.get_pixels())
     
     #modifier is used to increment or decrement the location
     if direction == "right" or direction == "down":
@@ -1712,10 +1716,10 @@ class ColorAnimatedSprite(object):
       
       for count in range (0,moves):
         #print ("CAS - Scroll - currentframe: ",self.currentframe)
-        if (self.currentframe < (self.frames-1)):
+        if (self.currentframe < (self.frames)):
           self.currentframe = self.currentframe + 1
         else:
-          self.currentframe = 0
+          self.currentframe = 1
         h = h + (modifier)
         if count >= 1:
           oldh = h - modifier
@@ -1734,7 +1738,7 @@ class ColorAnimatedSprite(object):
     x    = 0
     oldh = 0
     Buffer = copy.deepcopy(unicorn.get_pixels())
-    self.currentframe = 0
+    self.currentframe = 1
     self.ticks = self.ticks + 1
 
 
@@ -1748,6 +1752,8 @@ class ColorAnimatedSprite(object):
     oldf = self.frames
     #we use f to iterate the animation frames
     f = self.frames
+    
+
     if direction == "left" or direction == "right":
       for count in range (0,moves):
         #print ("Count:",count)
@@ -1772,17 +1778,17 @@ class ColorAnimatedSprite(object):
           
           m,r = divmod(self.ticks, self.framerate)
           if (r == 0):
-            if (self.currentframe < (self.frames-1)):
+            if (self.currentframe < (self.frames)):
               self.currentframe = self.currentframe + 1
             else:
-              self.currentframe = 0
+              self.currentframe = 1
               self.ticks        = 0
               
           time.sleep(delay)
           
   def HorizontalFlip(self):
     #print ("CAS - Horizontalflip width heigh frames",self.width, self.height,self.frames)
-    for f in range(0,self.frames):
+    for f in range(1,self.frames+1):
       x = 0
       y = 0
       cells = (self.width * self.height)
@@ -1843,7 +1849,7 @@ class ColorAnimatedSprite(object):
         if (self.currentframe < (self.frames-1)):
           self.currentframe = self.currentframe + 1
         else:
-          self.currentframe = 0
+          self.currentframe = 1
         h = h + (modifier)
         if count >= 1:
           oldh = h - modifier
@@ -1886,7 +1892,7 @@ class ColorAnimatedSprite(object):
         if (self.currentframe < (self.frames-1)):
           self.currentframe = self.currentframe + 1
         else:
-          self.currentframe = 0
+          self.currentframe = 1
           
         time.sleep(delay)
         
@@ -2230,6 +2236,51 @@ class ColorAnimatedSprite(object):
     # #self.SendPacket([string])
     # return;
   
+
+
+#------------------------------------------------------------------------------
+# Drawing Sprite Classes                                                     --
+#------------------------------------------------------------------------------
+
+
+
+class TextMap(object):
+  #A text map is a series of same length strings that are used to visually layout a map
+  def __init__(self, h,v, width, height):
+    self.h         = h
+    self.v         = v
+    self.width     = width
+    self.height    = height
+    self.ColorList = {}
+    self.TypeList  = {}
+    self.map       = []
+
+
+  def CopyMapToColorSprite(self,TheSprite,Frame=0):
+    mapchar = ""
+    dottype = ""
+    NumDots = 0
+    SpriteFrame = []
+
+    #read the map string and process one character at a time
+    #decode the color and type of dot to place
+    print ("Height:",self.height)
+    for y in range (0,self.height):
+      print ("map[",y,"] =",self.map[y])
+      for x in range (0,self.width):
+        mapchar = self.map[y][x]
+        TheColor =  self.ColorList.get(mapchar)
+        dottype  =  self.TypeList.get(mapchar)
+        SpriteFrame.append(TheColor)
+    TheSprite.grid.append(SpriteFrame)
+    TheSprite.frames = TheSprite.frames + 1
+
+
+    
+
+    
+
+
 
 
 
@@ -2699,7 +2750,7 @@ PurpleGhostSprite = Sprite(
 
 
 
-ChickenRunning = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=8, height=8, frames=4, currentframe=0,framerate=1,grid=[])
+ChickenRunning = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=8, height=8, frames=4,framerate=1,grid=[])
 ChickenRunning.grid.append(
   [
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -2763,7 +2814,7 @@ ChickenRunning.grid.append(
 
 
 
-WormChasingChicken = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=24, height=8, frames=4, currentframe=0,framerate=1,grid=[])
+WormChasingChicken = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=24, height=8, frames=4,framerate=1,grid=[])
 WormChasingChicken.grid.append(
   [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -2832,7 +2883,7 @@ WormChasingChicken.grid.append(
 
 
 
-ChickenChasingWorm = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=16, height=8, frames=4, currentframe=0,framerate=1,grid=[])
+ChickenChasingWorm = ColorAnimatedSprite(h=0, v=0, name="Chicken", width=16, height=8, frames=4,framerate=1,grid=[])
 ChickenChasingWorm.grid.append(
   [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -2893,7 +2944,7 @@ ChickenChasingWorm.grid.append(
 
 
 
-ThreeGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=5, currentframe=0,framerate=1,grid=[])
+ThreeGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=5, framerate=1,grid=[])
 
 
 
@@ -2961,7 +3012,7 @@ ThreeGhostPacSprite.grid.append(
 
 
 
-ThreeBlueGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=6, currentframe=0,framerate=1,grid=[])
+ThreeBlueGhostPacSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=26, height=5, frames=6, framerate=1,grid=[])
 
 ThreeBlueGhostPacSprite.grid.append(
   [
@@ -3038,7 +3089,7 @@ ThreeBlueGhostPacSprite.grid.append(
 
 
 
-ThreeGhostSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=19, height=5, frames=1, currentframe=0,framerate=1,grid=[])
+ThreeGhostSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeGhost", width=19, height=5, frames=1, framerate=1,grid=[])
 ThreeGhostSprite.grid.append(
   [
    0, 0,33,33,33, 0, 0, 0,18,18,18, 0, 0, 0, 7, 7, 7, 0, 0, 
@@ -3051,7 +3102,7 @@ ThreeGhostSprite.grid.append(
 )
 
 
-ThreeBlueGhostSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeBlueGhost", width=19, height=5, frames=1, currentframe=0,framerate=1,grid=[])
+ThreeBlueGhostSprite = ColorAnimatedSprite(h=0, v=0, name="ThreeBlueGhost", width=19, height=5, frames=1, framerate=1,grid=[])
 ThreeBlueGhostSprite.grid.append(
   [
    0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 0,14,14,14, 0, 0, 
@@ -3116,7 +3167,7 @@ PacLeftAnimatedSprite.HorizontalFlip()
 
 
 
-DotZerkRobot = ColorAnimatedSprite(h=0, v=0, name="Robot", width=10, height=8, frames=9, currentframe=0,framerate=1,grid=[])
+DotZerkRobot = ColorAnimatedSprite(h=0, v=0, name="Robot", width=10, height=8, frames=9, framerate=1,grid=[])
 DotZerkRobot.grid.append(
   [
     0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
@@ -3246,7 +3297,7 @@ DotZerkRobot.grid.append(
 
 
 
-DotZerkRobotWalking = ColorAnimatedSprite(h=0, v=0, name="Robot", width=10, height=8, frames=2, currentframe=0,framerate=1,grid=[])
+DotZerkRobotWalking = ColorAnimatedSprite(h=0, v=0, name="Robot", width=10, height=8, frames=2, framerate=1,grid=[])
 DotZerkRobotWalking.grid.append(
   [
     0, 0, 0, 6, 6, 6, 6, 0, 0, 0,
@@ -3275,7 +3326,7 @@ DotZerkRobotWalking.grid.append(
 )
 
 
-DotZerkRobotWalkingSmall = ColorAnimatedSprite(h=0, v=0, name="Robot", width=9, height=5, frames=4, currentframe=0,framerate=1,grid=[])
+DotZerkRobotWalkingSmall = ColorAnimatedSprite(h=0, v=0, name="Robot", width=9, height=5, frames=4, framerate=1,grid=[])
 DotZerkRobotWalkingSmall.grid.append(
   [
    0, 0, 0,10,10,10,10, 0, 0,
@@ -3317,6 +3368,258 @@ DotZerkRobotWalkingSmall.grid.append(
 
   ]
 )
+
+
+
+
+
+RunningManSprite = ColorAnimatedSprite(
+  h=0, 
+  v=0, 
+  name="RunningMan", 
+  width  = 25, 
+  height = 18, 
+  frames = 0, 
+  framerate=1,
+  grid=[]  )
+
+                 
+
+RunningManSpriteMap = TextMap(
+  h      = 1,
+  v      = 1,
+  width  = 25, 
+  height = 18
+  )
+
+RunningManSpriteMap.ColorList = {
+  ' ' : 0,
+  '-' : 1,
+  '.' : 2,
+  'o' : 15,  # Med Blue
+  'O' : 4,  
+  'r' : 5,
+  'R' : 8,
+  'b' : 12,
+  'B' : 13,
+  '#' : 27
+}
+
+RunningManSpriteMap.TypeList = {
+  ' ' : 'Empty',
+  '-' : 'wall',
+  '.' : 'wall',
+  'o' : 'wall',
+  'O' : 'wall'
+}
+
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "      oooooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooo    oo       ", 
+  "    oo  oooooooo         ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "    oooo      oo         ", 
+  "    oo        oo         ", 
+  "  oooo                   ", 
+  "  oo                     ", 
+  "  oo                     ", 
+  "                         ", 
+
+  )
+      
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "  oooooooooooo           ", 
+  "  oo    oooo             ", 
+  "  oo    oooooooooo       ", 
+  "        oooo             ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "    oooo        oo       ", 
+  "    oo          oo       ", 
+  "  oooo                   ", 
+  "  oo                     ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "      oooooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooooooooo       ", 
+  "    oo  oooo             ", 
+  "                         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "      oooooooo           ", 
+  "      oo    oo           ", 
+  "    oooo    oooo         ", 
+  "  oooo        oo         ", 
+  "  oo          oo         ", 
+  "              oooo       ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "    oooooooo             ", 
+  "    oo  oooooo           ", 
+  "    oo  oooo  oo         ", 
+  "                         ", 
+  "        oooo             ", 
+  "      oooooo             ", 
+  "      oooooooo           ", 
+  "      oo    oo           ", 
+  "  oooooo    oo           ", 
+  "  oo        oo           ", 
+  "  oo        oo           ", 
+  "            oooo         ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      oooooooooo         ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "    oooooooo             ", 
+  "    oo    oo             ", 
+  "    oo    oo             ", 
+  "          oooo           ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "      oooooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "        oooo             ", 
+  "    oooooooo             ", 
+  "    oo  oo               ", 
+  "    oo  oo               ", 
+  "        oooo             ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "      oooooooo           ", 
+  "      oooooooo           ", 
+  "      oooooooooo         ", 
+  "        oooo             ", 
+  "        oooooo           ", 
+  "      oooooooooo         ", 
+  "      oo      oo         ", 
+  "      oo  oooooo         ", 
+  "      oo  oo             ", 
+  "      oo                 ", 
+  "        oo               ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+
+
+RunningManSpriteMap.map= (
+  #0.........1.........2.....
+  "                         ", 
+  "          oooo           ", 
+  "          oo             ", 
+  "        oooooo           ", 
+  "      oooooo             ", 
+  "    oooooooo             ", 
+  "    oo  oooooooo         ", 
+  "    oo                   ", 
+  "        oooo             ", 
+  "        oooooo           ", 
+  "      oooooooooooo       ", 
+  "      oo        oo       ", 
+  "      oo    oooooo       ", 
+  "    oo      oo           ", 
+  "    oo                   ", 
+  "    oo                   ", 
+  "                         ", 
+  "                         ", 
+  )
+
+RunningManSpriteMap.CopyMapToColorSprite(TheSprite=RunningManSprite)
+
+
+
 
 
 
@@ -5861,7 +6164,6 @@ def CopyAnimatedSpriteToPixelsZoom(TheSprite,h,v, ZoomFactor = 1):
   global ScreenArray  
   
   TheFrame = TheSprite.currentframe
-
   #Copy sprite to LED pixels
   for count in range (0,(TheSprite.width * TheSprite.height)):
     y,x = divmod(count,TheSprite.width)
@@ -5887,8 +6189,8 @@ def CopyAnimatedSpriteToPixelsZoom(TheSprite,h,v, ZoomFactor = 1):
   TheMatrix.SwapOnVSync(Canvas)
   
   TheFrame = TheFrame + 1
-  if (TheFrame >= TheSprite.frames):
-    TheFrame = 0
+  if (TheFrame > TheSprite.frames):
+    TheFrame = 1
 
   TheSprite.currentframe = TheFrame
 
@@ -5897,55 +6199,6 @@ def CopyAnimatedSpriteToPixelsZoom(TheSprite,h,v, ZoomFactor = 1):
 
 
 
-
-
-# ** work **
-#this function will copy an exisiting sprite with an indicated zoom factor.
-
-def ZoomAnimatedSprite(TheSprite,h,v, ZoomFactor = 1):
-  #Copy a color animated sprite to the LED and the ScreenArray buffer
-  #Apply a ZoomFactor i.e  1 = normal / 2 = double in size / 3 = 3 times the size
-  #print ("Copying sprite to playfield:",TheSprite.name, ObjectType, Filler)
-  #if Fill = False, don't write anything for filler, that way we can leave existing lights on LED
-
-  width   = TheSprite.width 
-  height  = TheSprite.height
-
-  global ScreenArray  
-  
-  TheFrame = TheSprite.currentframe
-
-  #Copy sprite to LED pixels
-  for count in range (0,(TheSprite.width * TheSprite.height)):
-    y,x = divmod(count,TheSprite.width)
-
-    y = y * ZoomFactor
-    x = x * ZoomFactor
-
-
-    if (ZoomFactor >= 1):
-      for zv in range (0,ZoomFactor):
-        for zh in range (0,ZoomFactor):
-          H = x+h+zh
-          V = y+v+zv
-         
-          if(CheckBoundary(H,V) == 0):
-
-            #if TheSprite.grid[TheFrame][count] != 0:
-            r,g,b =  ColorList[TheSprite.grid[TheFrame][count]]
-            Canvas.SetPixel(H,V,r,g,b)
-            ScreenArray[V][H]=(r,g,b)
-  
-  #draw the contents of the buffer to the LED matrix
-  TheMatrix.SwapOnVSync(Canvas)
-  
-  TheFrame = TheFrame + 1
-  if (TheFrame >= TheSprite.frames):
-    TheFrame = 0
-
-  TheSprite.currentframe = TheFrame
-
-  return;
 
 
 
