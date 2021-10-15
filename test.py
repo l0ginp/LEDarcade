@@ -35,20 +35,7 @@ print ("")
 while (1==1):
 
 
-  LED.ClearBuffers() #clean the internal graphic buffers
-  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=3,Text='CREEPY!',RGB=LED.MedPurple,ShadowRGB=LED.ShadowPurple,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-  Frames = LED.BigSpiderWalkingSprite.frames
-  h = -50
-  v = 20
 
-
-  LED.MoveAnimatedSpriteAcrossScreen(LED.BigSpiderWalkingSprite,v=20,direction="right",steps=18,ZoomFactor=1,sleep=0.05)
-  LED.BigSpiderWalkingSprite.HorizontalFlip()
-  time.sleep(1)
-  LED.MoveAnimatedSpriteAcrossScreen(LED.BigSpiderWalkingSprite,v=20,direction="left",steps=18,ZoomFactor=1,sleep=0.05)
-  LED.BigSpiderWalkingSprite.HorizontalFlip()
-  time.sleep(1)
-  
 
  
 
@@ -71,6 +58,87 @@ while (1==1):
     )
 
 
+
+
+  #--------------------------------------
+  #  SHOW CLOCKS                       --
+  #--------------------------------------
+
+  LED.ClearBuffers() #clean the internal graphic buffers
+  ClockSprite = LED.CreateClockSprite(24)
+  LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=ClockSprite,RGB=LED.MedOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 1,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=1)
+  ClockSprite = LED.CreateClockSprite(24)
+  LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=ClockSprite,RGB=LED.MedGreen,ShadowRGB=LED.ShadowGreen,ZoomFactor= 2,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=1)
+  ClockSprite = LED.CreateClockSprite(24)
+  LED.ShowGlowingSprite(CenterHoriz=True,CenterVert=True,h=0,v=0,TheSprite=ClockSprite,RGB=LED.MedRed,ShadowRGB=LED.ShadowRed,ZoomFactor= 3,GlowLevels=100,FadeLevels=50,DropShadow=True,FadeDelay=2)
+
+
+  #--------------------------------------
+  #  ANIMATIONS                        --
+  #--------------------------------------
+
+  #Show small animations
+
+  LED.ClearBuffers() #clean the internal graphic buffers
+  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='CREEPY!',RGB=LED.MedPurple,ShadowRGB=LED.ShadowPurple,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+ 
+  LED.MoveAnimatedSpriteAcrossScreen(LED.BigSpiderWalkingSprite,v=20,direction="right",steps=18,ZoomFactor=1,sleep=0.08)
+  LED.BigSpiderWalkingSprite.HorizontalFlip()
+  time.sleep(1)
+  LED.MoveAnimatedSpriteAcrossScreen(LED.BigSpiderWalkingSprite,v=20,direction="left",steps=18,ZoomFactor=1,sleep=0.03)
+  LED.BigSpiderWalkingSprite.HorizontalFlip()
+  time.sleep(1)
+
+
+
+  LED.ClearBuffers() #clean the internal graphic buffers
+  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='PACMAN',RGB=LED.HighYellow,ShadowRGB=LED.ShadowYellow,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+  LED.ThreeGhostPacSprite.ScrollAcrossScreen(0,26,'right',ScrollSleep)
+  LED.ThreeBlueGhostPacSprite.ScrollAcrossScreen(HatWidth,26,'left',ScrollSleep)
+
+
+
+  LED.ClearBuffers() #clean the internal graphic buffers
+  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='CHICKN',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
+  LED.ChickenChasingWorm.ScrollAcrossScreen(HatWidth,23,'left',ScrollSleep * 1.5)  #make this one a little slower
+  LED.WormChasingChicken.HorizontalFlip()
+  LED.WormChasingChicken.ScrollAcrossScreen(0,23,'right',ScrollSleep )
+  LED.WormChasingChicken.HorizontalFlip()
+
+
+
+  LED.ClearBuffers() #clean the internal graphic buffers
+  ClockSprite = LED.CreateClockSprite(24)
+  LED.ShowGlowingSprite(h=20,v=0,TheSprite=ClockSprite,RGB=LED.MedGreen,ShadowRGB=LED.ShadowGreen,ZoomFactor= 2,GlowLevels=100,FadeLevels=0,DropShadow=True,FadeDelay=0)
+
+
+  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'right',0.02 )
+  LED.RunningMan2Sprite.HorizontalFlip()
+  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'left',0.02 )
+  LED.RunningMan2Sprite.HorizontalFlip()
+  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'right',0.02 )
+  LED.RunningMan2Sprite.HorizontalFlip()
+  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'left',0.02 )
+  LED.RunningMan2Sprite.HorizontalFlip()
+  time.sleep(0.5)
+
+  Frames = LED.RunningManSprite.frames
+  LED.ClearBuffers() #clean the internal graphic buffers
+  ClockSprite = LED.CreateClockSprite(24)
+  LED.ShowGlowingSprite(h=45,v=0,TheSprite=ClockSprite,RGB=LED.MedGreen,ShadowRGB=LED.ShadowGreen,ZoomFactor= 1,GlowLevels=100,FadeLevels=0,DropShadow=True,FadeDelay=0)
+
+  for x in range (1,25):
+    for i in range (1,Frames+1):
+      LED.RunningManSprite.currentframe = i
+      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningManSprite,h=0,v=0, ZoomFactor=2)
+      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningMan2Sprite,h=40,v=14, ZoomFactor=1)
+      time.sleep(0.05)
+
+
+  
+  #Zoom fade screen
+  LED.ZoomScreen(LED.ScreenArray,32,52,Fade=False,ZoomSleep=0.005)
+  LED.ZoomScreen(LED.ScreenArray,42,1,Fade=True,ZoomSleep=0.0)
 
 
 
@@ -147,6 +215,10 @@ while (1==1):
 
 
   LED.ClearBuffers() #clean the internal graphic buffers
+  
+  ClockSprite = LED.ShowDigitalClock(50,25,0)  
+  
+  
   LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=1,Text='COOL',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
   LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=12,Text='EFFECTS',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
   time.sleep(1)
@@ -171,89 +243,6 @@ while (1==1):
 
 
 
-
-  #--------------------------------------
-  #  ANIMATIONS                        --
-  #--------------------------------------
-
-
-
-  #Show small animations
-
-
-  LED.ClearBuffers() #clean the internal graphic buffers
-  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='PACMAN',RGB=LED.HighYellow,ShadowRGB=LED.ShadowYellow,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-  LED.ThreeGhostPacSprite.ScrollAcrossScreen(0,26,'right',ScrollSleep)
-  LED.ThreeBlueGhostPacSprite.ScrollAcrossScreen(HatWidth,26,'left',ScrollSleep)
-
-
-
-  LED.ClearBuffers() #clean the internal graphic buffers
-  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='CHICKN',RGB=LED.HighOrange,ShadowRGB=LED.ShadowOrange,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-  LED.ChickenRunning.ScrollAcrossScreen(HatWidth,24,'left',ScrollSleep)
-  LED.ChickenRunning.HorizontalFlip()
-  LED.ChickenRunning.ScrollAcrossScreen(0,24,'right',ScrollSleep)
-  LED.ChickenRunning.HorizontalFlip()
-
-  LED.ClearBuffers() #clean the internal graphic buffers
-  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='WORMZ',RGB=LED.HighPink,ShadowRGB=LED.ShadowPink,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-  LED.ChickenChasingWorm.ScrollAcrossScreen(HatWidth,23,'left',ScrollSleep * 2)  #make this one a little slower
-  LED.WormChasingChicken.HorizontalFlip()
-  LED.WormChasingChicken.ScrollAcrossScreen(0,23,'right',ScrollSleep *1.5 )
-  LED.WormChasingChicken.HorizontalFlip()
-
-  LED.ClearBuffers() #clean the internal graphic buffers
-  LED.ShowGlowingText(CenterHoriz=True,CenterVert=False,h=0,v=8,Text='SPIDERZ',RGB=LED.MedYellow,ShadowRGB=LED.ShadowYellow,ZoomFactor= 2,GlowLevels=25,DropShadow=True)
-  Frames = LED.BigSpiderLegOutSprite.frames
-  for x in range (1,20):
-    for i in range (1,Frames+1):
-      LED.BigSpiderLegOutSprite.currentframe = i
-      LED.CopyAnimatedSpriteToPixelsZoom(LED.BigSpiderLegOutSprite,h=0,v=20, ZoomFactor=1)
-      time.sleep(0.05)
-
-
-
-
-
-
-
-  LED.ClearBuffers() #clean the internal graphic buffers
-  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'right',0.03 )
-  LED.RunningMan2Sprite.HorizontalFlip()
-  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'left',0.03 )
-  LED.RunningMan2Sprite.HorizontalFlip()
-  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'right',0.03 )
-  LED.RunningMan2Sprite.HorizontalFlip()
-  LED.RunningMan2Sprite.ScrollAcrossScreen(20,15,'left',0.02 )
-  LED.RunningMan2Sprite.HorizontalFlip()
-  LED.RunningManSprite.ScrollAcrossScreen(20,15,'right',0.01 )
-  LED.RunningManSprite.HorizontalFlip()
-  LED.RunningManSprite.ScrollAcrossScreen(20,15,'left',0 )
-  LED.RunningManSprite.HorizontalFlip()
-  time.sleep(0.5)
-
-  Frames = LED.RunningManSprite.frames
-  LED.ClearBuffers() #clean the internal graphic buffers
-  for x in range (1,25):
-    for i in range (1,Frames+1):
-      LED.RunningManSprite.currentframe = i
-      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningManSprite,h=0,v=0, ZoomFactor=2)
-      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningMan2Sprite,h=40,v=14, ZoomFactor=1)
-      time.sleep(0.05)
-
-  
-  Frames = LED.RunningMan2Sprite.frames
-  LED.ClearBuffers() #clean the internal graphic buffers
-  for x in range (1,10):
-    for i in range (1,Frames+1):
-      LED.RunningManSprite.currentframe = i
-      LED.CopyAnimatedSpriteToPixelsZoom(LED.RunningMan2Sprite,h=10,v=0, ZoomFactor=2)
-      time.sleep(0.05)
-
-  
-  #Zoom fade screen
-  LED.ZoomScreen(LED.ScreenArray,32,52,Fade=False,ZoomSleep=0.005)
-  LED.ZoomScreen(LED.ScreenArray,42,1,Fade=True,ZoomSleep=0.0)
 
 
 
